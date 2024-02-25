@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "wayland-client.h": "c",
+        "assert.h": "c",
+        "gl2.h": "c",
+        "wayland-egl.h": "c",
+        "egl.h": "c",
+        "ssp_egl.h": "c",
+        "stdio.h": "c",
+        "ssp_display.h": "c",
+        "stdlib.h": "c",
+        "stat.h": "c",
+        "image_loader.h": "c"
+    }
+}
