@@ -1,11 +1,17 @@
-SRC = main.c ssp_display.c ssp_egl.c shader.c image_loader.c
+OS = $(shell uname)
+CC = gcc
 
-INCLUDE = -I/opt/logger/include
-LIB_PATH = -L/opt/logger/lib
-LIB = -llogger_static -lwayland-client -lwayland-egl -lGLESv2 -lEGL -ljpeg
+SRC = main.c ssp_window.c
+INC = 
+LIB = -llogger_static
+LIB_PATH = 
+
+ifeq ($(OS),Darwin)
+	INC += -I/opt/logger/include -I/opt/homebrew/Cellar/glfw/3.4/include
+	LIB += -lglfw
+	LIB_PATH += -L/opt/logger/lib -L/opt/homebrew/Cellar/glfw/3.4/lib
+endif
 
 all:
-	gcc $(SRC) $(INCLUDE) $(LIB_PATH) $(LIB)
-
-clean:
-	rm -rf *.o *.out
+	$(CC) $(SRC) $(INC) $(LIB_PATH) $(LIB)
+	./a.out

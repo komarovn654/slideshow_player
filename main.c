@@ -1,18 +1,14 @@
-#include <stdio.h>
-#include "logger.h"
+#include <logger.h>
+#include <stdlib.h>
 
-#include "ssp_display.h"
-#include "ssp_egl.h"
-
-#include <stdio.h>
-#include <unistd.h>
+#include "ssp_window.h"
 
 static void logger_error_callback(void)
 {
     fprintf(stderr, "%s\n", log_get_internal_error());
 }
 
-static int ssp_logger_init(void)
+static logger_error ssp_logger_init(void)
 {
     logger_settings settings = {
         .type = LOGTYPE_DEBUG,
@@ -24,36 +20,22 @@ static int ssp_logger_init(void)
     logger_error err = log_init(&settings);
     if (log_init(&settings) != LOGERR_NOERR) {
         fprintf(stderr, "logger initialization error: %d\n", err);
-        return 1;
+        return err;
     }
 
-    return 0;
+    return LOGERR_NOERR;
 }
 
 int main(int argc, char *argv[])
 {
-    if (ssp_logger_init() != 0) {
-        return 1;
+    if (ssp_logger_init() != LOGERR_NOERR) {
+        return EXIT_FAILURE;
     }
 
-    if (ssp_init_display() != 0) {
-        log_panic("display initialization error");
+    ssp_window window =  ssp_window_init(480, 800);
+    if (window == NULL) {
+        log_panic("window initialization error");
     }
 
-    // init_image_loader
-
-    // draw_2();
-
-    while(1) {
-        // get image
-        draw_1();
-        // render image
-        sleep(3);
-        // commit surface
-        draw_2();
-        sleep(3);
-        // sleep
-    }
-
-    return 0;
+    return EXIT_SUCCESS;
 }
