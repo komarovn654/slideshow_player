@@ -12,6 +12,5 @@ ifeq ($(OS),Darwin)
 	LIB_PATH += -L/opt/logger/lib -L/opt/homebrew/Cellar/glfw/3.4/lib
 endif
 
-all:
-	$(CC) $(SRC) $(INC) $(LIB_PATH) $(LIB)
-	./a.out
+all: $(SRC)
+	$(CC) $^ -o ssp $(INC) $(LIB_PATH) $(LIB)
