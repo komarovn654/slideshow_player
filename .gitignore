@@ -1,0 +1,5 @@
+# Binaries
+ssp
+*.out
+*.exe
+*.o
