@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    ssp_window window =  ssp_window_init(480, 800);
+    ssp_window window =  ssp_window_init(400, 800);
     if (window == NULL) {
         log_panic("window initialization error");
     }
