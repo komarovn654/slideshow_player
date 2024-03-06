@@ -5,4 +5,7 @@
 
 typedef struct ssp_window_t* ssp_window;
 
+int ssp_glfw_init(void);
 ssp_window ssp_window_init(int width, int height);
+void ssp_window_destruct(ssp_window);
+int ssp_player_loop(ssp_window window);
