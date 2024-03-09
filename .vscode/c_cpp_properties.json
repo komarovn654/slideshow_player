@@ -26,6 +26,18 @@
             "defines": [],
             "cStandard": "c11",
             "cppStandard": "c++17"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/logger/include",
+                "/opt/glfw/include",
+                "/opt/devil/include",
+            ],
+            "defines": [],
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4

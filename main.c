@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "ssp_window.h"
+#include "ssp_render.h"
+#include "ssp_image_loader.h"
 
 static void logger_error_callback(void)
 {
@@ -32,13 +34,21 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (ssp_glfw_init() != 0) {
+    if (ssp_image_loader_init() != 0) {
         return EXIT_FAILURE;
     }
 
-    ssp_window main_window =  ssp_window_init(400, 800);
+    if (ssp_glfw_init(DP_X11) != 0) {
+        return EXIT_FAILURE;
+    }
+
+    ssp_window main_window =  ssp_window_init(400, 800, 3.0);
     if (main_window == NULL) {
         log_panic("window initialization error");
+    }
+
+    if (ssp_render_init() != 0) {
+        return EXIT_FAILURE;
     }
 
     ssp_player_loop(main_window);

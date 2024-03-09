@@ -1,9 +1,11 @@
 {
     "files.associations": {
-        "logger.h": "c",
-        "cstdlib": "c",
+        "ssp_window.h": "c",
         "glfw3.h": "c",
-        "glew.h": "c"
+        "logger.h": "c",
+        "gl2.h": "c",
+        "string.h": "c",
+        "ssp_image_loader.h": "c"
     },
     "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\gcc.exe"
 }
