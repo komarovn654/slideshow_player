@@ -118,6 +118,7 @@ ssp_window ssp_window_init(int width, int height, double redraw_time)
     window->width = width;
     window->height = height;
     window->redraw_time = redraw_time;
+    glfwSetTime(window->redraw_time);
 
     window->window = glfwCreateWindow(window->width, window->height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
     if (window->window == NULL) {
@@ -139,24 +140,20 @@ void ssp_window_destruct(ssp_window window)
 
 int ssp_player_loop(ssp_window window)
 {
-    glfwMakeContextCurrent(window->window);
-    glfwSetTime(window->redraw_time);
-
-    while (1) {
-        if (glfwWindowShouldClose(window->window)) {
-            log_info("window have been closed");
-            break;
-        }
-
-        if (ssp_needs_to_redraw(window)) {
-            ssp_redraw();
-
-            glfwSwapBuffers(window->window);
-            log_info("redrawed");
-        }
-        
-        glfwPollEvents();
+    if (glfwWindowShouldClose(window->window)) {
+        log_info("window have been closed");
+        return 0;
     }
 
-    return 0;
+    if (ssp_needs_to_redraw(window)) {
+        glfwMakeContextCurrent(window->window);
+
+        ssp_redraw();
+
+        glfwSwapBuffers(window->window);
+        log_info("redrawed");
+    }
+
+    glfwPollEvents();
+    return 1;
 }

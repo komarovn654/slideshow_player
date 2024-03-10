@@ -1,5 +1,16 @@
 #pragma once
 #include <stdio.h>
 
+#include "IL/il.h"
+
+typedef struct {
+    const char* path;
+    unsigned int devil_name;
+    unsigned char* data;
+    unsigned int buf_size, width, height;
+} ssp_image;
+
 int ssp_image_loader_init(void);
-int read_jpeg(const char* path, unsigned char** buf, int buf_size);
+void ssp_delete_image(ssp_image *image);
+int ssp_read_image(ssp_image *image);
+void ssp_observe_image_dir(void);

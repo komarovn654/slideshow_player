@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
+#include <string.h>
+#include <poll.h>
 #include <IL/il.h>
+#include <sys/inotify.h>
+#include <unistd.h>
 #include <logger.h>
 
 #include "ssp_image_loader.h"
@@ -16,31 +20,32 @@ int ssp_image_loader_init(void)
         return 1;
     } 
 
+    ilInit();
     return 0;
 }
 
-int read_jpeg(const char* path, unsigned char** buf, int buf_size)
+int ssp_read_image(ssp_image *image)
 {
-    ILuint ImageName;
-    ilGenImages(1, &ImageName);
-    ilBindImage(ImageName);
+    ilGenImages(1, &image->devil_name);
+    ilBindImage(image->devil_name);
 
-    
-    ilLoad(IL_TYPE_BIT, path);
-
-    log_info("done");
-    if (ilLoadImage(path) == IL_FALSE) {
-        log_error("error");
+    if (ilLoadImage(image->path) == IL_FALSE) {
+        log_warning("devil couldn't load image: %s", image->path);
+        ssp_delete_image(image);
         return 1;
     }
-    
-    log_info("%s", path);
-    ILuint Width, Height;
-    Width = ilGetInteger(IL_IMAGE_WIDTH);
-    Height = ilGetInteger(IL_IMAGE_HEIGHT); 
-    log_debug("width, height %i %i", Width, Height);
 
+    image->width = ilGetInteger(IL_IMAGE_WIDTH);
+    image->height = ilGetInteger(IL_IMAGE_HEIGHT); 
+    image->data = ilGetData();
 
-    ilDeleteImages(1, &ImageName); 
+    log_debug("image %s has been loaded", image->path);
+    log_debug("image params: width: %i, height: %i, size: %i", image->width, image->height,
+        ilGetInteger(IL_IMAGE_SIZE_OF_DATA));
     return 0;
+}
+
+void ssp_delete_image(ssp_image *image)
+{
+    ilDeleteImages(1, &image->devil_name); 
 }

@@ -5,7 +5,12 @@
         "logger.h": "c",
         "gl2.h": "c",
         "string.h": "c",
-        "ssp_image_loader.h": "c"
+        "ssp_image_loader.h": "c",
+        "poll.h": "c",
+        "il.h": "c",
+        "errno.h": "c",
+        "inotify.h": "c",
+        "unistd.h": "c",
+        "typeinfo": "c"
     },
-    "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\gcc.exe"
 }

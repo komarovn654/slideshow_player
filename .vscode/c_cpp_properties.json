@@ -34,6 +34,7 @@
                 "/opt/logger/include",
                 "/opt/glfw/include",
                 "/opt/devil/include",
+                "/opt/gtest/include",
             ],
             "defines": [],
             "cStandard": "c11",
