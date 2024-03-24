@@ -11,6 +11,17 @@
         "errno.h": "c",
         "inotify.h": "c",
         "unistd.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "ssp_list.h": "c",
+        "list": "c",
+        "__node_handle": "c",
+        "typeindex": "c",
+        "cstdlib": "cpp",
+        "ratio": "c",
+        "stdlib.h": "c",
+        "valarray": "cpp",
+        "stdio.h": "c",
+        "ssp_memory.h": "c",
+        "stddef.h": "c"
     },
 }

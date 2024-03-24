@@ -3,3 +3,9 @@ ssp
 *.out
 *.exe
 *.o
+
+# CMake
+build/
+
+# Third Party
+third_party/

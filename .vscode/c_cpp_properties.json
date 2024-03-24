@@ -4,8 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/logger/include",
-                "/opt/homebrew/include"
+                "${workspaceFolder}/third_party/googletest/googletest/include",
+                "${workspaceFolder}/third_party/logman/include"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -15,30 +15,6 @@
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "macos-clang-arm64"
-        },
-        {
-            "name": "Win",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "C:/dev/logger/logger",
-                "C:/dev/glfw/include"
-            ],
-            "defines": [],
-            "cStandard": "c11",
-            "cppStandard": "c++17"
-        },
-        {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "/opt/logger/include",
-                "/opt/glfw/include",
-                "/opt/devil/include",
-                "/opt/gtest/include",
-            ],
-            "defines": [],
-            "cStandard": "c11",
-            "cppStandard": "c++17"
         }
     ],
     "version": 4
