@@ -98,12 +98,12 @@ TEST_F(TestListFixture, ListInsert_Null)
 
 TEST_F(TestListFixture, ListInsert_1) 
 {
-    ASSERT_TRUE(ssp_list_insert(list, "tail") != NULL);
+    ASSERT_TRUE(ssp_list_insert(list, "tailtailtailtailtailtail") != NULL);
 
     ASSERT_EQ(ssp_ptr_storage_size(), 4);
     ASSERT_STREQ(list->name, "head");
     ASSERT_TRUE(list->next != NULL);
-    ASSERT_STREQ(list->next->name, "tail");
+    ASSERT_STREQ(list->next->name, "tailtailtailtailtailtail");
 }
 
 TEST_F(TestListFixture, ListInsert_Duplicate) 

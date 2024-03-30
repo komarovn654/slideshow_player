@@ -107,7 +107,7 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 
     while (true) {
         if (strcmp(head->name, tail_name) == 0) {
-            log_warning("Node <%s> already exists", head->name);
+            log_debug("Node <%s> already exists", head->name);
             return head;
         }
 
@@ -124,15 +124,16 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     }
     head->next = tail;
 
-    tail->name = (char*)ssp_malloc(sizeof(tail_name));
+    size_t name_len = strlen(tail_name);
+    tail->name = (char*)ssp_malloc(strlen(tail_name));
     if (tail == NULL) {
         log_error("The new node wasn't created. Failed to allocate memory for name.");
         return NULL;
     }
-    memcpy(tail->name, tail_name, sizeof(&tail_name));
+    memcpy(tail->name, tail_name, name_len);
 
     tail->next = NULL;
-    log_debug("Node <%s> has been added", tail->name);
+    log_info("Node <%s> has been added", tail->name);
     return tail;
 }
 
@@ -152,20 +153,3 @@ int ssp_list_print(ssp_list head, void (*print_func)(const char*))
 
     return 0;
 }
-
-// char* ssp_list_get_name(ssp_list head, unsigned int num)
-// {
-//     unsigned int i;
-//     ssp_node* node = (ssp_node*)head;
-
-//     for (i = 0; node != NULL && i != num; i++) {
-//         node = (ssp_node*)node->next;
-//     }
-    
-//     if (i != num || node == NULL) {
-//         return NULL;
-//     }
-
-//     return node->name;
-// }
-

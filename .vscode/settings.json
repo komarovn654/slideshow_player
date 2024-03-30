@@ -22,6 +22,11 @@
         "valarray": "cpp",
         "stdio.h": "c",
         "ssp_memory.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "stat.h": "c",
+        "types.h": "c",
+        "__config": "c",
+        "fstream": "c",
+        "locale": "c"
     },
 }
