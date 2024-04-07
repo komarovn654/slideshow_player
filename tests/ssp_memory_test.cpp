@@ -34,6 +34,15 @@ TEST_F(TestMemory, Malloc)
     ASSERT_TRUE(ptr != NULL);
 }
 
+TEST_F(TestMemory, Calloc) 
+{
+    int expect[10] = { 0 };
+    void *ptr = ssp_calloc(10, 1);
+    ASSERT_TRUE(ptr != NULL);
+
+    ASSERT_TRUE(0 == memcmp(ptr, expect, 1));
+}
+
 TEST_F(TestMemory, Free) 
 {
     void *ptr = ssp_malloc(1);
@@ -58,6 +67,9 @@ TEST_F(TestMemory, StorePointer_1)
     void *ptr = ssp_malloc(1);
     ASSERT_TRUE(ssp_ptr_storage()[0] == ptr);
     ASSERT_EQ(ssp_ptr_storage_size(), 1);
+
+    ssp_calloc(1, 10);
+    ASSERT_EQ(ssp_ptr_storage_size(), 2);
 }
 
 TEST_F(TestMemory, StorePointer_Max) 

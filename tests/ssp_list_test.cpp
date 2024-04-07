@@ -103,6 +103,7 @@ TEST_F(TestListFixture, ListInsert_1)
     ASSERT_EQ(ssp_ptr_storage_size(), 4);
     ASSERT_STREQ(list->name, "head");
     ASSERT_TRUE(list->next != NULL);
+    printf("NAME: %s\n", list->next->name);
     ASSERT_STREQ(list->next->name, "tailtailtailtailtailtail");
 }
 

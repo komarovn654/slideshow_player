@@ -68,6 +68,16 @@ void *ssp_malloc(size_t size)
     return new_ptr;
 }
 
+void *ssp_calloc(size_t num, size_t size)
+{
+    void *new_ptr = calloc(num, size);
+    if (store_ptr(new_ptr) == 1) {
+        return NULL;
+    };
+
+    return new_ptr;
+}
+
 void ssp_free(void *ptr)
 {
     free(ptr);

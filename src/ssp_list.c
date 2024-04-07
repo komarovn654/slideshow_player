@@ -32,7 +32,7 @@ ssp_list ssp_list_init(const char* head_name)
     }
 
     size_t name_len = strlen(head_name);
-    head->name = (char*)ssp_malloc(name_len);
+    head->name = (char*)ssp_calloc(name_len + 1, sizeof(char));
     if (head->name == NULL) {
         log_error("The list wasn't initialized. Failed to allocate memory for name.");
         return NULL;
@@ -125,7 +125,7 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     head->next = tail;
 
     size_t name_len = strlen(tail_name);
-    tail->name = (char*)ssp_malloc(strlen(tail_name));
+    tail->name = (char*)ssp_calloc(strlen(tail_name) + 1, sizeof(char));
     if (tail == NULL) {
         log_error("The new node wasn't created. Failed to allocate memory for name.");
         return NULL;

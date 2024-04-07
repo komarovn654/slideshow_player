@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (ssp_observer_init("image/") != 0) {
+    if (ssp_obs_init("image/") != 0) {
         return EXIT_FAILURE;
     }
 

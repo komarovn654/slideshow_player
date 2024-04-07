@@ -21,6 +21,7 @@ static const image loaders[] = {
 bool ssp_is_file_image(const char *file_name)
 {
 	if (!file_name || !*file_name) {
+		log_error("Invalid file name");
 		return false;
     }
 	
@@ -36,14 +37,14 @@ bool ssp_is_file_image(const char *file_name)
 		return false;
 	}
 	fclose(fp);
-
-	for (uint32_t i = 0; i < sizeof(loaders) / sizeof(image); i++) {
+	
+	for (size_t i = 0; i < sizeof(loaders) / sizeof(image); i++) {
 		if (memcmp(header, loaders[i].header, loaders[i].header_size) == 0) {
 			log_debug("File <%s> is a <%s> image", file_name, loaders[i].name);
 			return true;
 		}
 	}
 
-    log_debug("File <%s> has been ignored", file_name);
+    log_debug("File <%s> is not an image", file_name);
     return false;
 }
