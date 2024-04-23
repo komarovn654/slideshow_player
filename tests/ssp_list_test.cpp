@@ -15,7 +15,7 @@ public:
 protected:
     void SetUp()
     {
-        list = ssp_list_init("head");
+        list = ssp_list_init();
     }
     void TearDown()
     {
@@ -26,27 +26,20 @@ protected:
 TEST(TestList, ListInit) 
 {
     ssp_list list = NULL;
-    list = ssp_list_init("head");
+    list = ssp_list_init();
     ASSERT_TRUE(list != NULL);
 
-    ASSERT_STREQ(list->name, "head");
+    ASSERT_STREQ(list->name, NULL);
     ASSERT_TRUE(list->next == NULL);
-    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+    ASSERT_EQ(ssp_ptr_storage_size(), 1);
 
     ssp_free(list->name);
     ssp_free(list);
 }
 
-TEST(TestList, ListInit_NullHead) 
-{
-    ssp_list list = ssp_list_init(NULL);
-    ASSERT_TRUE(list == NULL);
-    ASSERT_EQ(ssp_ptr_storage_size(), 0);
-}
-
 TEST(TestList, ListDelete) 
 {
-    ssp_list list = ssp_list_init("head");
+    ssp_list list = ssp_list_init();
     ASSERT_TRUE(list != NULL);
 
     ssp_list_delete(list);
@@ -67,13 +60,11 @@ TEST(TestList, ListDelete_MaxNodes)
 {
     const size_t len = MAX_PTR_STORAGE_LEN;
     char num[10];
-    ssp_list list = ssp_list_init("head");
-    ssp_list nodes[len] = {NULL};
+    ssp_list list = ssp_list_init();
     
-    nodes[0] = list;
     for (size_t i = 1; i < len - 4; i++) {
         snprintf(num, sizeof(num), "%zu", i);
-        nodes[i] = ssp_list_insert(list, num);
+        ssp_list_insert(list, num);
     }
     ASSERT_EQ(ssp_ptr_storage_size(), ssp_ptr_storage_max_size());
     
@@ -85,26 +76,24 @@ TEST_F(TestListFixture, ListInsert_Null)
 {
     ssp_list new_node = ssp_list_insert(NULL, "tail");
     ASSERT_TRUE(new_node == NULL);
-    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+    ASSERT_EQ(ssp_ptr_storage_size(), 1);
 
     new_node = ssp_list_insert(list, NULL);
     ASSERT_TRUE(new_node == NULL);
-    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+    ASSERT_EQ(ssp_ptr_storage_size(), 1);
 
     new_node = ssp_list_insert(NULL, "tail");
     ASSERT_TRUE(new_node == NULL);
-    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+    ASSERT_EQ(ssp_ptr_storage_size(), 1);
 }
 
 TEST_F(TestListFixture, ListInsert_1) 
 {
     ASSERT_TRUE(ssp_list_insert(list, "tailtailtailtailtailtail") != NULL);
 
-    ASSERT_EQ(ssp_ptr_storage_size(), 4);
-    ASSERT_STREQ(list->name, "head");
-    ASSERT_TRUE(list->next != NULL);
-    printf("NAME: %s\n", list->next->name);
-    ASSERT_STREQ(list->next->name, "tailtailtailtailtailtail");
+    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+    ASSERT_STREQ(list->name, "tailtailtailtailtailtail");
+    ASSERT_TRUE(list->next == NULL);
 }
 
 TEST_F(TestListFixture, ListInsert_Duplicate) 
@@ -129,7 +118,7 @@ TEST_F(TestListFixture, ListInsert_MaxNodes)
 {
     const size_t len = ssp_ptr_storage_max_size() / 2;
     char num[10];
-    for (size_t i = 0; i < len - 1; i++) {
+    for (size_t i = 0; i < len; i++) {
         snprintf(num, sizeof(num), "%zu", i);
         if (i == len / 2) {
             snprintf(num, sizeof(num), "ssp");
@@ -140,9 +129,9 @@ TEST_F(TestListFixture, ListInsert_MaxNodes)
     }
 
     ASSERT_EQ(ssp_ptr_storage_size(), ssp_ptr_storage_max_size());
-    ASSERT_STREQ(list->name, "head");
+    ASSERT_STREQ(list->name, "0");
     ssp_list node = list;
-    for (size_t i = 0; i < len-1; i++) {
+    for (size_t i = 1; i < len; i++) {
         snprintf(num, sizeof(num), "%zu", i);
         node = node->next;
         if (i == len / 2) {
@@ -155,13 +144,15 @@ TEST_F(TestListFixture, ListInsert_MaxNodes)
 
 TEST(TestList, ListRemove_RemoveSingleNodeList)
 {
-    ssp_list list = ssp_list_init("head");
+    ssp_list list = ssp_list_init();
+    list = ssp_list_insert(list, "head");
     ssp_list_remove_node(&list, "head");
     ASSERT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestListFixture, ListRemove_RemoveHead)
 {
+    ssp_list_insert(list, "head");
     ssp_list_insert(list, "mid");
     ssp_list_insert(list, "tail");
     ssp_list_remove_node(&list, "head");
@@ -174,6 +165,7 @@ TEST_F(TestListFixture, ListRemove_RemoveHead)
 
 TEST_F(TestListFixture, ListRemove_RemoveEmptyList)
 {
+    ssp_list_insert(list, "head");
     ssp_list_remove_node(NULL, "head");
     ssp_list_remove_node(&list, NULL);
     ASSERT_STREQ(list->name, "head");
@@ -181,6 +173,7 @@ TEST_F(TestListFixture, ListRemove_RemoveEmptyList)
 
 TEST_F(TestListFixture, ListRemove_RemoveTail)
 {
+    ssp_list_insert(list, "head");
     ssp_list_insert(list, "mid");
     ssp_list_insert(list, "tail");
     ssp_list_remove_node(&list, "tail");
@@ -193,6 +186,7 @@ TEST_F(TestListFixture, ListRemove_RemoveTail)
 
 TEST_F(TestListFixture, ListRemove_RemoveMiddle)
 {
+    ssp_list_insert(list, "head");
     ssp_list_insert(list, "mid_0");
     ssp_list_insert(list, "mid_1");
     ssp_list_insert(list, "mid_2");

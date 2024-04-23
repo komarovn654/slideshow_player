@@ -18,27 +18,15 @@ typedef struct ssp_node {
     ssp_node* next;
 } ssp_node;
 
-ssp_list ssp_list_init(const char* head_name)
+ssp_list ssp_list_init(void)
 {
-    if (head_name == NULL) {
-        log_warning("The list wasn't initialized. A non-NULL name is expected.");
-        return NULL;
-    }
-
     ssp_node* head = (ssp_node*)ssp_malloc(sizeof(ssp_node));
     if (head == NULL) {
         log_error("The list wasn't initialized. Failed to allocate memory for node.");
         return NULL;
     }
 
-    size_t name_len = strlen(head_name);
-    head->name = (char*)ssp_calloc(name_len + 1, sizeof(char));
-    if (head->name == NULL) {
-        log_error("The list wasn't initialized. Failed to allocate memory for name.");
-        return NULL;
-    }
-    memcpy(head->name, head_name, name_len);
-
+    head->name = NULL;
     head->next = NULL;
     log_debug("List <%s> has been initialized", head->name);
     return head;
@@ -98,6 +86,19 @@ void ssp_list_remove_node(ssp_list* head, const char* remove_name)
     }
 }
 
+static int ssp_list_insert_name(ssp_list node, const char* name)
+{
+    size_t name_len = strlen(name);
+    node->name = (char*)ssp_calloc(strlen(name) + 1, sizeof(char));
+    if (node == NULL) {
+        log_error("The new node wasn't created. Failed to allocate memory for name.");
+        return 1;
+    }
+    memcpy(node->name, name, name_len);
+
+    return 0;
+}
+
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 {
     if (head == NULL || tail_name == NULL) {
@@ -105,7 +106,14 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
         return NULL;
     }
 
-    while (true) {
+    if (head->name == NULL) {
+        if (ssp_list_insert_name(head, tail_name) != 0) {
+            return NULL;
+        }
+        return head;
+    }
+
+    while (true && (head->name != NULL)) {
         if (strcmp(head->name, tail_name) == 0) {
             log_debug("Node <%s> already exists", head->name);
             return head;
@@ -124,13 +132,9 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     }
     head->next = tail;
 
-    size_t name_len = strlen(tail_name);
-    tail->name = (char*)ssp_calloc(strlen(tail_name) + 1, sizeof(char));
-    if (tail == NULL) {
-        log_error("The new node wasn't created. Failed to allocate memory for name.");
+    if (ssp_list_insert_name(tail, tail_name) != 0) {
         return NULL;
     }
-    memcpy(tail->name, tail_name, name_len);
 
     tail->next = NULL;
     log_info("Node <%s> has been added", tail->name);
