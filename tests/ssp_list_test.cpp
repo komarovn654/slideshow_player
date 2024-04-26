@@ -201,20 +201,25 @@ TEST_F(TestListFixture, ListRemove_RemoveMiddle)
     ASSERT_TRUE( list->next->next->next->next == NULL);
 }
 
-static char names[7][10];
-
-static void test_print_function(const char* name)
+static void test_storage_func(char **storage, const char* name)
 {
     static int i = 0;
 
-    snprintf(names[i], 10, "%s", name);
+    snprintf((char *)storage + i * 10, 10, "%s", name);
     // printf("%s\n", name);
     i++;
 }
 
-TEST_F(TestListFixture, PrintList_Error)
+TEST_F(TestListFixture, ListTraversal_Errors)
 {
-    ASSERT_EQ(ssp_list_print(NULL, NULL), 1);
+    ASSERT_EQ(ssp_list_traversal(list, NULL, NULL), 1);
+    ASSERT_EQ(ssp_list_traversal(NULL, NULL, test_storage_func), 1);
+    ASSERT_EQ(ssp_list_traversal(NULL, NULL, NULL), 1);
+}
+
+TEST_F(TestListFixture, ListTraversal)
+{
+    static char storage[7][10];
 
     char items[7][10] = {"head", "mid_0", "mid_1", "mid_2", "mid_3",
         "mid_4", "tail"};
@@ -223,9 +228,9 @@ TEST_F(TestListFixture, PrintList_Error)
         ssp_list_insert(list, items[i]);
     }
 
-    ssp_list_print(list, test_print_function);
+    ssp_list_traversal(list, (char **)storage, test_storage_func);
 
     for (size_t i = 0; i < 7; i++) {
-        ASSERT_STREQ(items[i], names[i]);
+        ASSERT_STREQ(items[i], storage[i]);
     }
 }

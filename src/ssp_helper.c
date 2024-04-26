@@ -1,8 +1,12 @@
+#include <dirent.h> 
 #include <errno.h>
 #include <logman/logman.h>
+#include <sys/stat.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "ssp_helper.h"
 
 typedef struct image {
 	unsigned char header[4];
@@ -47,4 +51,42 @@ bool ssp_is_file_image(const char *file_name)
 
     log_debug("File <%s> is not an image", file_name);
     return false;
+}
+
+int ssp_dir_traversal(const char* dir_path, void (*store_files)(void *storage, const char *file_name), void *storage)
+{
+	if (dir_path == NULL || store_files == NULL) {
+		return 1;
+	}
+
+	DIR *d = opendir(dir_path);
+  	if (d == NULL) {
+		return 1;
+	}
+
+	char file_name[SSP_FILE_NAME_MAX_LEN] = { 0 };
+  	struct dirent *dir;
+  	while ((dir = readdir(d)) != NULL) {
+		snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s/%s", dir_path, dir->d_name);
+		if (dir->d_type == DT_REG && ssp_is_file_image(file_name)) {
+			store_files(storage, file_name);
+		}
+    }
+    closedir(d);
+
+	return 0;
+}
+
+int ssp_dir_create(const char* dir_path)
+{
+    struct stat st = {0};
+    if (stat(dir_path, &st) == -1) {
+        if (mkdir(dir_path, 0700) != 0) {
+            log_error("Can't create a directory <%s>", dir_path);
+            return 1;
+        }
+        log_info("Directory <%s> was created", dir_path);
+    }
+
+    return 0;
 }

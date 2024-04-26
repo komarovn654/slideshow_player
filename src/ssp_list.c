@@ -141,9 +141,9 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     return tail;
 }
 
-int ssp_list_print(ssp_list head, void (*print_func)(const char*))
+int ssp_list_traversal(ssp_list head, char **storage, void (*store_func)(char **, const char*))
 {
-    if (head == NULL || print_func == NULL) {
+    if (head == NULL || store_func == NULL) {
         log_error("it's impossible to print the list. Args must not be NULL.");
         return 1;        
     }
@@ -151,7 +151,7 @@ int ssp_list_print(ssp_list head, void (*print_func)(const char*))
     ssp_node* node = (ssp_node*)head;
 
     while (node != NULL && node->name != NULL) {
-        print_func(node->name);
+        store_func(storage, node->name);
         node = node->next;
     }
 

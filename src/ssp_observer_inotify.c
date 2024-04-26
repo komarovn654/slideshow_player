@@ -31,20 +31,6 @@ static struct observer {
     ssp_list image_list;
 } observer;
 
-static int ssp_obs_create_dir(const char* dir_path)
-{
-    struct stat st = {0};
-    if (stat(dir_path, &st) == -1) {
-        if (mkdir(dir_path, 0700) != 0) {
-            log_error("Can't create a directory <%s>", dir_path);
-            return 1;
-        }
-        log_info("Directory <%s> was created", dir_path);
-    }
-
-    return 0;
-}
-
 int ssp_obs_init(const char* dir_path)
 {
     if (observer.inotify_instance = inotify_init() < 0) {
