@@ -201,20 +201,30 @@ TEST_F(TestListFixture, ListRemove_RemoveMiddle)
     ASSERT_TRUE( list->next->next->next->next == NULL);
 }
 
-static void test_storage_func(char **storage, const char* name)
-{
-    static int i = 0;
-
-    snprintf((char *)storage + i * 10, 10, "%s", name);
-    // printf("%s\n", name);
-    i++;
-}
-
 TEST_F(TestListFixture, ListTraversal_Errors)
 {
-    ASSERT_EQ(ssp_list_traversal(list, NULL, NULL), 1);
-    ASSERT_EQ(ssp_list_traversal(NULL, NULL, test_storage_func), 1);
-    ASSERT_EQ(ssp_list_traversal(NULL, NULL, NULL), 1);
+    static char storage[7][10];
+
+    ASSERT_EQ(ssp_list_traversal(list, NULL, 0), 1);
+    ASSERT_EQ(ssp_list_traversal(NULL, (char **)storage, 0), 1);
+}
+
+TEST_F(TestListFixture, ListTraversal_LongName)
+{
+    static char storage[7][10] = {""};
+
+    char items[8][20] = {"head", "very_long_filename", "mid_1", "mid_2", "mid_3",
+        "mid_4", "tail"};
+
+    for (size_t i = 0; i < 7; i++) {
+        ssp_list_insert(list, items[i]);
+    }
+
+    ASSERT_EQ(ssp_list_traversal(list, (char **)storage, 10), 1);
+
+    ASSERT_STREQ(items[0], storage[0]);
+    ASSERT_STRNE(items[1], storage[1]);
+    ASSERT_STRNE(items[2], storage[2]);
 }
 
 TEST_F(TestListFixture, ListTraversal)
@@ -228,7 +238,7 @@ TEST_F(TestListFixture, ListTraversal)
         ssp_list_insert(list, items[i]);
     }
 
-    ssp_list_traversal(list, (char **)storage, test_storage_func);
+    ASSERT_EQ(ssp_list_traversal(list, (char **)storage, 10), 0);
 
     for (size_t i = 0; i < 7; i++) {
         ASSERT_STREQ(items[i], storage[i]);

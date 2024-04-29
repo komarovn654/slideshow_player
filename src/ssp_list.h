@@ -13,7 +13,7 @@ void ssp_list_delete(ssp_list head);
 
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name);
 void ssp_list_remove_node(ssp_list* head, const char* remove_name);
-int ssp_list_traversal(ssp_list head, char **storage, void (*store_func)(char **, const char*));
+int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size);
 
 #ifdef __cplusplus
 }

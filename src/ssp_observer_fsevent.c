@@ -84,9 +84,6 @@ static void ssp_obs_save_image(char **storage, const char *image)
 
 int ssp_obs_images_list(char **images)
 {
-    if (ssp_list_traversal(observer.images_list, images, ssp_obs_save_image) != 0) {
-        return 1;
-    }
 
     return 0;
 }

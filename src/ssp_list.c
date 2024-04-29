@@ -141,18 +141,23 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     return tail;
 }
 
-int ssp_list_traversal(ssp_list head, char **storage, void (*store_func)(char **, const char*))
+int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
 {
-    if (head == NULL || store_func == NULL) {
-        log_error("it's impossible to print the list. Args must not be NULL.");
+    if (head == NULL || storage == NULL) {
+        log_error("It's impossible to traversal the list. Args must not be NULL.");
         return 1;        
     }
 
     ssp_node* node = (ssp_node*)head;
+    size_t i = 0;
 
     while (node != NULL && node->name != NULL) {
-        store_func(storage, node->name);
+        if (snprintf((char *)storage + i * max_name_size, max_name_size, "%s", node->name) >= max_name_size) {
+            log_error("Сan't save an item with that's too big name <%s>", node->name);
+            return 1;
+        };
         node = node->next;
+        i++;
     }
 
     return 0;
