@@ -1,4 +1,4 @@
-#include <logger.h>
+#include <logman/logman.h>
 #include <stdlib.h>
 
 #include "ssp_observer.h"
@@ -6,23 +6,23 @@
 #include "ssp_render.h"
 #include "ssp_image_loader.h"
 
-static void logger_error_callback(void)
+static void logman_error_callback(void)
 {
     fprintf(stderr, "%s\n", log_get_internal_error());
 }
 
-static logger_error ssp_logger_init(void)
+static logman_error ssp_logman_init(void)
 {
-    logger_settings settings = {
+    logman_settings settings = {
         .type = LOGTYPE_DEBUG,
         .out_type = LOGOUT_STREAM,
         .output.out_stream = stderr,
-        .error_callback = logger_error_callback
+        .error_callback = logman_error_callback
     };
 
-    logger_error err = log_init(&settings);
+    logman_error err = log_init(&settings);
     if (log_init(&settings) != LOGERR_NOERR) {
-        fprintf(stderr, "logger initialization error: %d\n", err);
+        fprintf(stderr, "logman initialization error: %d\n", err);
         return err;
     }
 
@@ -31,7 +31,7 @@ static logger_error ssp_logger_init(void)
 
 int main(int argc, char *argv[])
 {
-    if (ssp_logger_init() != LOGERR_NOERR) {
+    if (ssp_logman_init() != LOGERR_NOERR) {
         return EXIT_FAILURE;
     }
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (ssp_obs_init("image/") != 0) {
+    if (ssp_obs_init("/home/nikolay/base_images/") != 0) {
         return EXIT_FAILURE;
     }
 
@@ -47,17 +47,18 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    ssp_window main_window =  ssp_window_init(400, 400, 3.0);
+    ssp_window main_window =  ssp_window_init(400, 400, 1.0, ssp_obs_images());
     if (main_window == NULL) {
-        log_panic("window initialization error");
+        log_error("window initialization error");
     }
 
     if (ssp_render_init() != 0) {
         return EXIT_FAILURE;
     }
-
+    
+    
     while (ssp_player_loop(main_window)) {
-        ssp_observe_image_dir();
+        ssp_obs_process();
     }
 
     ssp_window_destruct(main_window);

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#define SSP_FILE_NAME_MAX_LEN (256)
+#define SSP_FILE_NAME_MAX_LEN (200)
 
 bool ssp_is_file_image(const char *file_name);
 

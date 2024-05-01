@@ -1,7 +1,7 @@
 
 #include <assert.h>
 #include <GLES2/gl2.h>
-#include <logger.h>
+#include <logman/logman.h>
 #include <string.h>
 
 #include "ssp_shader.h"
@@ -19,11 +19,11 @@ GLfloat vertices[] = {
 static shader_meta shaders[2] = {
     {
         .type = GL_VERTEX_SHADER,
-        .path = "vertex.glsl",
+        .path = "../../src/shader/vertex.glsl",
     },
     {
         .type = GL_FRAGMENT_SHADER,
-        .path = "fragment.glsl",
+        .path = "../../src/shader/fragment.glsl",
     }
 };
 
@@ -55,24 +55,25 @@ static void setup_buffers(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-static int ssp_texture()
+static int ssp_texture(const char *image_path)
 {
+    /*
     static int i = 0;
-    char *images[5] = {
-        "images/photo_2021-08-13_16-05-04.jpg",
-        "images/photo_2023-08-20_15-13-23.jpg",
-        "images/photo_2023-10-17_16-40-33.jpg",
-        "images/photo_2023-11-16_10-50-51.jpg",
-        "images/photo_2024-02-17_21-42-42.jpg"
+    char *images[10] = {
+        "../../tests/images/photo_2021-08-13_16-05-04.jpg",
+        "../../tests/images/photo_2023-08-20_15-13-23.jpg",
+        "../../tests/images/photo_2023-10-17_16-40-33.jpg",
+        "../../tests/images/photo_2023-11-16_10-50-51.jpg",
+        "../../tests/images/photo_2024-02-17_21-42-42.jpg"
     };
     int weight[5] = {720, 960, 576, 576, 960};
     int height[5] = {1280, 1280, 1280, 1280, 1280};
-
+    */
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, egl_context.texture);
 
     ssp_image image = {
-        .path = images[i],
+        .path = image_path,
     };
     // unsigned char* buf = (unsigned char*)malloc(weight[i]*height[i]*4);
     if (ssp_read_image(&image) != 0) {
@@ -85,12 +86,12 @@ static int ssp_texture()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     ssp_delete_image(&image);
-
+    /*
     i++;
     if (i >= 5) {
         i = 0;
     }
-
+    */
     return 0;
 }
 
@@ -123,10 +124,10 @@ static void ssp_draw_error(void)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void ssp_redraw()
-{
+void ssp_redraw(const char *image)
+{ 
     shader_use_program();
-    if (ssp_texture() != 0) {
+    if (ssp_texture(image) != 0) {
         ssp_draw_error();
         return;
     }

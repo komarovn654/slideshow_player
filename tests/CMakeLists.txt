@@ -25,8 +25,8 @@ add_executable(ssp_list_test ssp_list_test.cpp ../src/ssp_list.c ../src/ssp_memo
 add_executable(ssp_memory_test ssp_memory_test.cpp ../src/ssp_memory.c)
 add_executable(ssp_helper_test ssp_helper_test.cpp ../src/ssp_helper.c)
 
-add_executable(ssp_observer_test ssp_observer_test.cpp ../src/ssp_observer_fsevent.c ../src/ssp_list.c ../src/ssp_helper.c ../src/ssp_memory.c)
-target_link_libraries(ssp_observer_test ${CORE_SERVICE})
+add_executable(ssp_observer_test ssp_observer_test.cpp ../src/ssp_observer_inotify.c ../src/ssp_list.c ../src/ssp_helper.c ../src/ssp_memory.c)
+# target_link_libraries(ssp_observer_test ${CORE_SERVICE})
 
 gtest_discover_tests(ssp_list_test)
 gtest_discover_tests(ssp_memory_test)

@@ -9,7 +9,9 @@ extern "C" {
 typedef struct ssp_node* ssp_list;
 
 ssp_list ssp_list_init(void);
+char *ssp_list_name(ssp_list head);
 void ssp_list_delete(ssp_list head);
+ssp_list ssp_list_move_head(ssp_list head);
 
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name);
 void ssp_list_remove_node(ssp_list* head, const char* remove_name);

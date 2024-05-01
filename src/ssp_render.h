@@ -1,4 +1,4 @@
 #pragma once
 
 int ssp_render_init();
-void ssp_redraw();
+void ssp_redraw(const char *);

@@ -32,6 +32,21 @@ ssp_list ssp_list_init(void)
     return head;
 }
 
+char *ssp_list_name(ssp_list head)
+{
+    return head->name;
+}
+
+ssp_list ssp_list_move_head(ssp_list head)
+{
+    if (head == NULL) {
+        log_warning("It's impossible to delete NULL node(or from NULL list).");
+        return NULL;
+    }
+
+    return head->next;
+}
+
 void ssp_list_delete(ssp_list head)
 {
     if (head == NULL || head == NULL) {
@@ -49,7 +64,7 @@ void ssp_list_delete(ssp_list head)
     log_debug("List has been deleted");
 }
 
-void ssp_list_remove_node(ssp_list* head, const char* remove_name)
+void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
     if (head == NULL || *head == NULL || remove_name == NULL) {
         log_warning("It's impossible to delete NULL node(or from NULL list).");
@@ -96,6 +111,7 @@ static int ssp_list_insert_name(ssp_list node, const char* name)
     }
     memcpy(node->name, name, name_len);
 
+    log_info("Node <%s> has been added", node->name);
     return 0;
 }
 
@@ -139,6 +155,20 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     tail->next = NULL;
     log_info("Node <%s> has been added", tail->name);
     return tail;
+}
+
+static int ssp_list_move0(ssp_list node, const char* name)
+{
+    size_t name_len = strlen(name);
+    node->name = (char*)ssp_calloc(strlen(name) + 1, sizeof(char));
+    if (node == NULL) {
+        log_error("The new node wasn't created. Failed to allocate memory for name.");
+        return 1;
+    }
+    memcpy(node->name, name, name_len);
+
+    log_info("Node <%s> has been added", node->name);
+    return 0;
 }
 
 int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)

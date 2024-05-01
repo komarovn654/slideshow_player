@@ -13,4 +13,3 @@ typedef struct {
 int ssp_image_loader_init(void);
 void ssp_delete_image(ssp_image *image);
 int ssp_read_image(ssp_image *image);
-void ssp_observe_image_dir(void);

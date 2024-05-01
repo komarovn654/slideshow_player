@@ -67,7 +67,10 @@ int ssp_dir_traversal(const char* dir_path, void (*store_files)(void *storage, c
 	char file_name[SSP_FILE_NAME_MAX_LEN] = { 0 };
   	struct dirent *dir;
   	while ((dir = readdir(d)) != NULL) {
-		snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s/%s", dir_path, dir->d_name);
+		if (snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", dir_path, dir->d_name) >= SSP_FILE_NAME_MAX_LEN) {
+			log_warning("<%s> is too long and was truncated", dir->d_name);
+			continue;
+		};
 		if (dir->d_type == DT_REG && ssp_is_file_image(file_name)) {
 			store_files(storage, file_name);
 		}

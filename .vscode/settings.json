@@ -105,6 +105,8 @@
         "bitset": "cpp",
         "charconv": "cpp",
         "complex": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "dirent.h": "c",
+        "logman.h": "c"
     },
 }

@@ -1,8 +1,9 @@
 // #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <logger.h>
+#include <logman/logman.h>
 #include <string.h>
 
+#include "ssp_list.h"
 #include "ssp_window.h"
 #include "ssp_render.h"
 
@@ -11,6 +12,8 @@ typedef struct ssp_window_t {
     int width, height, width_pixels, height_pixels;
 
     double redraw_time;
+    ssp_list head;
+    ssp_list current_image;
 } ssp_window_t;
 
 static void error_callback(int error, const char* description)
@@ -107,7 +110,7 @@ static void ssp_context_set_gles20(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-ssp_window ssp_window_init(int width, int height, double redraw_time)
+ssp_window ssp_window_init(int width, int height, double redraw_time, ssp_list images)
 {
     if ((width <= 0 || width > MAX_WINDOW_WIDTH) || (height <= 0 || height > MAX_WINDOW_HEIGHT)) {
         log_error("required width in range [%i..%i] and height in range [%i..%i]", 0, MAX_WINDOW_WIDTH, 0, MAX_WINDOW_HEIGHT);
@@ -129,6 +132,9 @@ ssp_window ssp_window_init(int width, int height, double redraw_time)
     ssp_context_set_gles20();
     resize_handler(window);
     glfwMakeContextCurrent(window->window);
+
+    window->head = images;
+    window->current_image = images;
     return window;
 }
 
@@ -148,10 +154,13 @@ int ssp_player_loop(ssp_window window)
     if (ssp_needs_to_redraw(window)) {
         glfwMakeContextCurrent(window->window);
 
-        ssp_redraw();
+        ssp_redraw(ssp_list_name(window->current_image));
 
         glfwSwapBuffers(window->window);
         log_info("redrawed");
+        if ((window->current_image = ssp_list_move_head(window->current_image)) == NULL) {
+            window->current_image = window->head;
+        }
     }
 
     glfwPollEvents();
