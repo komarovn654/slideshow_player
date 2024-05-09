@@ -39,54 +39,85 @@ protected:
     }
 };
 
-TEST_F(TestObserverFixture, ObserverImagesList_Errors) 
+TEST_F(TestObserverFixture, ObserverDirectories_Empty)
 {
-    char images[max_count][SSP_FILE_NAME_MAX_LEN];
-
-    ASSERT_EQ(ssp_obs_images_list(NULL), 1);
-    ASSERT_EQ(ssp_obs_images_list((char **)images), 1);
+    ASSERT_TRUE(*ssp_obs_dirs() == NULL);
+    ASSERT_TRUE(ssp_obs_dirs_count() == 0);
 }
 
-TEST_F(TestObserverFixture, ObserverImagesList_Empty) 
+TEST_F(TestObserverFixture, ObserverDirectories_MaxCount)
 {
-    char images[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
-    ssp_dir_create(tmp_dir_path.data());
+    char dirs[SSP_OBS_DIRS_MAX_COUNT][SSP_OBS_DIR_NAME_LEN];
+    observer obs = {
+        .dirs = (char *)dirs,
+        .dirs_count = SSP_OBS_DIRS_MAX_COUNT,
+    };
+    ASSERT_EQ(ssp_obs_init(obs), 0);
 
-    ASSERT_EQ(ssp_obs_init(tmp_dir_path.data()), 0);
-
-    ASSERT_EQ(ssp_obs_images_list((char **)images), 0);
-    for (size_t i = 0; i < max_count; i++) {
-        ASSERT_STREQ(images[i], "");
-    }
+    
 }
 
-TEST_F(TestObserverFixture, ObserverImagesList) 
+TEST_F(TestObserverFixture, ObserverStorage_Empty)
 {
-    char images[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
-
-    ASSERT_EQ(ssp_obs_init(dir_path.data()), 0);
-
-    ASSERT_EQ(ssp_obs_images_list((char **)images), 0);
-
-    size_t i, j = 0;
-    for(i = 0; i < jpg_files_count; i++) {
-        for(j = 0; j < jpg_files_count; j++) {
-            std::string image_fullname(images[i]);
-            std::string image_filename = image_fullname.substr(image_fullname.find_last_of("/\\") + 1);
-            std::string expected_filename = jpg_files[j].substr(jpg_files[j].find_last_of("/\\") + 1);
-
-            if (!image_filename.compare(expected_filename)) {
-                // printf("%s %s\n", (char *)storage_filename.data(), (char *)expected_filename.data());
-                ASSERT_STREQ(image_filename.data(), expected_filename.data());
-                j = jpg_files_count + 1;
-                break;
-            }            
-        }
-        if (j != jpg_files_count + 1) {
-            FAIL() << "Not all files were found";
-        }
-    }
+    ASSERT_TRUE(ssp_obs_storage() == NULL);
 }
+
+// TEST_F(TestObserverFixture, ObserverImagesList_Errors) 
+// {
+//     char images[max_count][SSP_FILE_NAME_MAX_LEN];
+
+//     ASSERT_EQ(ssp_obs_images_list(NULL), 1);
+//     ASSERT_EQ(ssp_obs_images_list((char **)images), 1);
+// }
+
+// TEST_F(TestObserverFixture, ObserverImagesList_Errors) 
+// {
+//     char images[max_count][SSP_FILE_NAME_MAX_LEN];
+
+//     ASSERT_EQ(ssp_obs_images_list(NULL), 1);
+//     ASSERT_EQ(ssp_obs_images_list((char **)images), 1);
+// }
+
+// TEST_F(TestObserverFixture, ObserverImagesList_Empty) 
+// {
+//     char images[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
+//     ssp_dir_create(tmp_dir_path.data());
+
+//     ASSERT_EQ(ssp_obs_init(tmp_dir_path.data()), 0);
+
+//     ASSERT_EQ(ssp_obs_images_list((char **)images), 0);
+//     for (size_t i = 0; i < max_count; i++) {
+//         ASSERT_STREQ(images[i], "");
+//     }
+// }
+
+// TEST_F(TestObserverFixture, ObserverImagesList) 
+// {
+//     char images[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
+
+//     ASSERT_EQ(ssp_obs_init(dir_path.data()), 0);
+
+//     ASSERT_EQ(ssp_obs_images_list((char **)images), 0);
+
+//     size_t i, j = 0;
+//     for(i = 0; i < jpg_files_count; i++) {
+//         for(j = 0; j < jpg_files_count; j++) {
+//             std::string image_fullname(images[i]);
+//             std::string image_filename = image_fullname.substr(image_fullname.find_last_of("/\\") + 1);
+//             std::string expected_filename = jpg_files[j].substr(jpg_files[j].find_last_of("/\\") + 1);
+
+//             if (!image_filename.compare(expected_filename)) {
+//                 // printf("%s %s\n", (char *)storage_filename.data(), (char *)expected_filename.data());
+//                 ASSERT_STREQ(image_filename.data(), expected_filename.data());
+//                 j = jpg_files_count + 1;
+//                 break;
+//             }            
+//         }
+//         if (j != jpg_files_count + 1) {
+//             FAIL() << "Not all files were found";
+//         }
+//     }
+// }
 
 TEST_F(TestObserverFixture, ObserverProcess) 
 {
