@@ -9,13 +9,12 @@ extern "C" {
 typedef struct ssp_node* ssp_list;
 
 ssp_list ssp_list_init(void);
-char *ssp_list_name(ssp_list head);
-void ssp_list_delete(ssp_list head);
+char* ssp_list_head_name(ssp_list head);
+void ssp_list_destruct(ssp_list head);
 ssp_list ssp_list_move_head(ssp_list head);
-
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name);
 void ssp_list_remove_node(ssp_list* head, const char* remove_name);
-int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size);
+int ssp_list_traversal(ssp_list head, char** storage, size_t max_name_size);
 
 #ifdef __cplusplus
 }

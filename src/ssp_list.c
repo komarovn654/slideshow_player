@@ -32,22 +32,7 @@ ssp_list ssp_list_init(void)
     return head;
 }
 
-char *ssp_list_name(ssp_list head)
-{
-    return head->name;
-}
-
-ssp_list ssp_list_move_head(ssp_list head)
-{
-    if (head == NULL) {
-        log_warning("It's impossible to delete NULL node(or from NULL list).");
-        return NULL;
-    }
-
-    return head->next;
-}
-
-void ssp_list_delete(ssp_list head)
+void ssp_list_destruct(ssp_list head)
 {
     if (head == NULL || head == NULL) {
         log_warning("It's impossible to delete NULL list.");
@@ -64,6 +49,24 @@ void ssp_list_delete(ssp_list head)
     log_debug("List has been deleted");
 }
 
+char* ssp_list_head_name(ssp_list head)
+{
+    if (head == NULL || head->name == NULL) {
+        return NULL;
+    }
+
+    return head->name;
+}
+
+ssp_list ssp_list_move_head(ssp_list head)
+{
+    if (head == NULL) {
+        return NULL;
+    }
+
+    return head->next;
+}
+
 void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
     if (head == NULL || *head == NULL || remove_name == NULL) {
@@ -74,7 +77,8 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
     if (strcmp((*head)->name, remove_name) == 0) {
         log_debug("Node <%s> has been deleted", (*head)->name);
         if ((*head)->next == NULL) {
-            delete_node(*head);
+            ssp_free((*head)->name);
+            (*head)->name = NULL;
             return;
         }
         ssp_list node = (*head)->next;
@@ -83,7 +87,7 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
         return;
     }
 
-    ssp_list node = (*head)->next;
+    ssp_list node = *head;
     while (node->next != NULL) {
         if (strcmp(node->next->name, remove_name) == 0) {
             log_debug("Node <%s> has been deleted", node->next->name);

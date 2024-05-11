@@ -22,5 +22,5 @@ int main(void)
 
     ssp_list_print(image_list);
 
-    ssp_list_delete(image_list);
+    ssp_list_destruct(image_list);
 }

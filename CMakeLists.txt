@@ -9,4 +9,4 @@ add_subdirectory(third_party/googletest)
 add_subdirectory(third_party/logman)
 add_subdirectory(tests)
 
-add_subdirectory(src)
+# add_subdirectory(src)
