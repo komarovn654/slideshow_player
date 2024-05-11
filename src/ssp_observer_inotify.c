@@ -6,7 +6,8 @@
 #include <sys/inotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <logman/logman.h>
+
+#include "logman/logman.h"
 
 #include "ssp_observer.h"
 #include "ssp_list.h"

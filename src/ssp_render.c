@@ -1,8 +1,9 @@
 
 #include <assert.h>
 #include <GLES2/gl2.h>
-#include <logman/logman.h>
 #include <string.h>
+
+#include "logman/logman.h"
 
 #include "ssp_shader.h"
 #include "ssp_image_loader.h"

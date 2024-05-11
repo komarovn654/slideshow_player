@@ -1,7 +1,8 @@
-#include <logman/logman.h>
 #include <GLES2/gl2.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
+#include "logman/logman.h"
 
 #include "ssp_shader.h"
 

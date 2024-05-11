@@ -7,7 +7,8 @@
 #include <IL/il.h>
 #include <sys/inotify.h>
 #include <unistd.h>
-#include <logman/logman.h>
+
+#include "logman/logman.h"
 
 #include "ssp_image_loader.h"
 

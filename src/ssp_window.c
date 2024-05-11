@@ -1,7 +1,8 @@
 // #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <logman/logman.h>
 #include <string.h>
+
+#include "logman/logman.h"
 
 #include "ssp_list.h"
 #include "ssp_window.h"

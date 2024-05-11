@@ -1,5 +1,6 @@
-#include <logman/logman.h>
 #include <stdlib.h>
+
+#include "logman/logman.h"
 
 #include "ssp_observer.h"
 #include "ssp_window.h"

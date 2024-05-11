@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <logman/logman.h>
 
+#include "logman/logman.h"
 #include "ssp_list.h"
 
 #define delete_node(node) {\
@@ -75,7 +75,7 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
     }
 
     if (strcmp((*head)->name, remove_name) == 0) {
-        log_debug("Node <%s> has been deleted", (*head)->name);
+        log_debug("Head has been deleted", (*head)->name);
         if ((*head)->next == NULL) {
             ssp_free((*head)->name);
             (*head)->name = NULL;
