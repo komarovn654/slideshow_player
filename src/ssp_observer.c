@@ -90,16 +90,30 @@ void* ssp_obs_storage_insert(observer* obs, const char* item_name)
 
 void ssp_obs_storage_remove(observer* obs, const char* item_name)
 {
+    if (obs == NULL) {
+        log_error("Observer wasn't initialized");
+    }
+
     obs->storage_remove(obs->storage, item_name);
 }
 
 bool ssp_obs_filter(observer* obs, const char *file_name)
 {
+    if (obs == NULL) {
+        log_error("Observer wasn't initialized");
+        return false;
+    }
+
     return obs->filter(file_name);
 }
 
 int ssp_obs_dirs_traversal(observer* obs)
 {
+    if (obs == NULL) {
+        log_error("Observer wasn't initialized");
+        return 1;
+    }
+
     for (size_t i = 0; i < obs->dirs_count; i++) {
         if (ssp_dir_traversal(obs->dirs[i], obs->storage_insert, obs->storage, obs->filter) != 0) {
             log_error("Observer couldn't traversal directory <%s>", obs->dirs[i]);

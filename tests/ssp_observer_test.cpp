@@ -20,7 +20,7 @@ class TestObserverFixture : public ::testing::Test
 {
 public:
     const std::string images_path = "../../tests/images/";
-    
+
     observer settings;
 
     static const size_t storage_size = 32;
@@ -77,7 +77,7 @@ protected:
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             settings.dirs[i] = new char [SSP_OBS_DIR_NAME_LEN];
-            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "../../tests/directory_%li/", i);
+            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "./directory_%li/", i);
         }
     }
     void TearDown()
@@ -282,8 +282,6 @@ TEST_F(TestObserverFixture, ObserverCreateDirectories)
         EXPECT_EQ(S_ISDIR(path_stat.st_mode), 1);
     }
 
-    rmdir(settings.dirs[1]);
-    rmdir(settings.dirs[2]);
     ssp_obs_destruct(obs);
 }
 
@@ -293,11 +291,13 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
         so {"test1.txt", "test2.txt"} from <test/images/> 
         and test3.txt from <tests/directory_1> are expected. */
     const size_t expected_count = 3;
-    const char expected[expected_count][128] = {
+    char expected[expected_count][SSP_OBS_DIR_NAME_LEN] = {
         "../../tests/images/test2.txt",
         "../../tests/images/test1.txt",
-        "../../tests/directory_1/test3.txt",
     };
+    char third_file[SSP_OBS_DIR_NAME_LEN];
+    snprintf(third_file, SSP_OBS_DIR_NAME_LEN, "%stest3.txt", settings.dirs[1]);
+    snprintf(expected[2], SSP_OBS_DIR_NAME_LEN, "%s", third_file);
 
     snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
     settings.dirs_count = 3;
@@ -305,7 +305,7 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
     observer* obs = ssp_obs_init(settings);
     ssp_obs_dirs_create(obs);
 
-    FILE* f = fopen("../../tests/directory_1/test3.txt" ,"a");
+    FILE* f = fopen(third_file ,"a");
     fclose(f);
 
     EXPECT_EQ(ssp_obs_dirs_traversal(obs), 0);
@@ -314,6 +314,6 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
         EXPECT_STREQ(expected[i], storage[i]);
     }
 
-    remove("../../tests/directory_1/test3.txt");
+    remove(third_file);
     ssp_obs_destruct(obs);
 }

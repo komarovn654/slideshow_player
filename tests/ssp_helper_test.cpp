@@ -10,7 +10,7 @@ class TestHelperFixture : public ::testing::Test
 public:
     static const size_t max_count = 10;
     const std::string dir_path = "../../tests/images/";
-    const std::string empty_dir_path = "../../tests/empty_dir/";
+    const std::string empty_dir_path = "./empty_dir/";
     size_t jpg_files_count = 0;
     size_t txt_files_count = 0;
     std::string jpg_files[max_count];

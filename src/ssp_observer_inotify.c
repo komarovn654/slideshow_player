@@ -46,6 +46,16 @@ ssp_static int ssp_obsps_add_directories(void)
     return 0;
 }
 
+ssp_static int ssp_obsps_find_wd_index(int wd)
+{
+    for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
+        if (obs_inotify.watch_descriptor[i] == wd) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 int ssp_obsps_init(observer settings)
 {
     if ((obs_inotify.obs = ssp_obs_init(settings)) == NULL) {
@@ -73,6 +83,10 @@ int ssp_obsps_init(observer settings)
     obs_inotify.fd.fd = obs_inotify.inotify_instance;
     obs_inotify.fd.events = POLLIN;
 
+    if (ssp_obs_dirs_traversal(obs_inotify.obs) != 0) {
+        return 1;
+    }
+
     for (size_t i = 0; i < obs_inotify.obs->dirs_count; i++) {
         log_info("Observing: %s", obs_inotify.obs->dirs[i]);
     }
@@ -82,13 +96,31 @@ int ssp_obsps_init(observer settings)
 
 void ssp_obsps_destruct(void)
 {
+    close(obs_inotify.inotify_instance);
     ssp_obs_destruct(obs_inotify.obs);
+}
+
+ssp_static void ssp_obsps_event_handle(uint32_t mask, const char* event_name)
+{
+    switch (mask)
+    {
+    case IN_MOVED_TO:
+    case IN_CREATE:
+        obs_inotify.obs->storage_insert(obs_inotify.obs->storage, event_name);
+        break;
+    case IN_MOVED_FROM:
+    case IN_DELETE:              
+        break;
+    default:
+        log_warning("Observer. Something unkonwn(%d) was happened with <%s>:", mask, event_name);
+        break;
+    }
 }
 
 int ssp_obsps_process(void)
 {
     if (poll(&obs_inotify.fd, 1, 0) < 0) {
-        log_error("Couldn't poll(): '%s'\n", strerror (errno));
+        log_error("Obeserver couldn't poll(): %s", strerror(errno));
         return 1;
     }
 
@@ -98,32 +130,27 @@ int ssp_obsps_process(void)
         if ((length = read(obs_inotify.fd.fd, buffer, SSP_OBS_EVENT_BUFFER_SIZE)) > 0) {
             struct inotify_event *event = (struct inotify_event *)buffer;
             while (IN_EVENT_OK(event, length)) {
-                printf("%s\n", event->name);
+                int wd_index = ssp_obsps_find_wd_index(event->wd);
+                if (wd_index < 0) {
+                    log_warning("Observer catched an event from unknown wd: %i", event->wd);
+                    event = IN_EVENT_NEXT(event, length);
+                    continue;
+                }
 
+                char fullname[SSP_FILE_NAME_MAX_LEN];
+                if (snprintf(fullname, SSP_FILE_NAME_MAX_LEN, "%s%s", obs_inotify.obs->dirs[wd_index], event->name) >= SSP_FILE_NAME_MAX_LEN) {
+                    log_warning("Observer. <%s> is too long and was truncated", event->name);
+                    event = IN_EVENT_NEXT(event, length);
+                    continue;
+                };
 
-                // char fullname[SSP_FILE_NAME_MAX_LEN];
-                // if (snprintf(fullname, SSP_FILE_NAME_MAX_LEN, "%s%s", observer.dir_path, event->name) >= SSP_FILE_NAME_MAX_LEN) {
-			    //     log_warning("<%s> is too long and was truncated", event->name);
-			    //     continue;
-		        // };
+                if (obs_inotify.obs->filter(fullname) == false) {
+                    log_warning("Observer. <%s> was filtred", event->name);
+                    event = IN_EVENT_NEXT(event, length);
+                    continue;
+                }
 
-                // switch (event->mask)
-                // {
-                // case IN_MOVED_TO:
-                // case IN_CREATE:
-                //     if (ssp_is_file_image(fullname) == false) {
-                //         break;
-                //     }
-                //     ssp_list_insert(observer.images_list, fullname);
-                //     break;
-                // case IN_MOVED_FROM:
-                // case IN_DELETE:              
-                //     ssp_list_remove_node(&observer.images_list, fullname);
-                //     break;
-                // default:
-                //     log_warning("Something unkonwn(%d) was happened with <%s>:", event->mask, event->name);
-                //     break;
-                // }
+                ssp_obsps_event_handle(event->mask, event->name);
                 event = IN_EVENT_NEXT(event, length);
             }
         }
@@ -131,122 +158,3 @@ int ssp_obsps_process(void)
 
     return 0;
 }
-
-// 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <sys/stat.h>
-// #include <unistd.h>
-
-// int ssp_obs_init(const char** dirs)
-// {
-//     log_init_default();
-//     if ((observer.inotify_instance = inotify_init()) < 0) {
-//         char *errorbuf = strerror(errno);
-//         log_error("Couldn't initialize inotify: %s", errorbuf);
-//         return 1;
-//     }
-
-//     if (ssp_dir_create(dir_path) != 0) {
-//         log_error("Couldn't create directory for observer: %s");
-//         return 1;
-//     }
-
-//     memcpy(observer.dir_path, dir_path, strlen(dir_path));
-
-//     observer.event_mask = IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO;
-//     if ((observer.watch_descriptor = inotify_add_watch(observer.inotify_instance, dir_path, observer.event_mask)) == -1) {
-//         char *errorbuf = strerror(errno);
-//         log_error("Couldn't add watch to <%s>: %s", dir_path, errorbuf);
-//         return 1;
-//     }
-
-//     observer.fds[0].fd = observer.inotify_instance;
-//     observer.fds[0].events = POLLIN;
-
-//     if ((observer.images_list = ssp_list_init()) == NULL) {
-//         log_error("Couldn't initialize images list for observer");
-//         return 1;
-//     }
-
-//     if ((ssp_dir_traversal(dir_path, (void (*)(void *, const char *))ssp_list_insert, observer.images_list)) != 0) {
-//         return 1;
-//     }    
-
-//     log_info("Watching: %s", dir_path);
-//     return 0;
-// }
-
-// int ssp_obs_process(void)
-// {
-//     if (poll(observer.fds, 1, 0) < 0) {
-//         log_error("Couldn't poll(): '%s'\n", strerror (errno));
-//         return 1;
-//     }
-
-//     if (observer.fds[0].revents & POLLIN){
-//         char buffer[SSP_OBS_EVENT_BUFFER_SIZE];
-//         size_t length;
-//         if ((length = read(observer.fds[0].fd, buffer, SSP_OBS_EVENT_BUFFER_SIZE)) > 0) {
-//             struct inotify_event *event = (struct inotify_event *)buffer;
-//             while (IN_EVENT_OK(event, length)) {
-//                 char fullname[SSP_FILE_NAME_MAX_LEN];
-//                 if (snprintf(fullname, SSP_FILE_NAME_MAX_LEN, "%s%s", observer.dir_path, event->name) >= SSP_FILE_NAME_MAX_LEN) {
-// 			        log_warning("<%s> is too long and was truncated", event->name);
-// 			        continue;
-// 		        };
-
-//                 switch (event->mask)
-//                 {
-//                 case IN_MOVED_TO:
-//                 case IN_CREATE:
-//                     if (ssp_is_file_image(fullname) == false) {
-//                         break;
-//                     }
-//                     ssp_list_insert(observer.images_list, fullname);
-//                     break;
-//                 case IN_MOVED_FROM:
-//                 case IN_DELETE:              
-//                     ssp_list_remove_node(&observer.images_list, fullname);
-//                     break;
-//                 default:
-//                     log_warning("Something unkonwn(%d) was happened with <%s>:", event->mask, event->name);
-//                     break;
-//                 }
-//                 event = IN_EVENT_NEXT(event, length);
-//             }
-//         }
-//     }
-// }
-
-// int ssp_obs_images_list(char **images)
-// {
-//     if (images == NULL) {
-//         log_error("Unable to save images to null storage");
-//         return 1;
-//     }
-
-//     if (ssp_list_traversal(observer.images_list, images, SSP_FILE_NAME_MAX_LEN) != 0) {
-//         log_error("Unable to traversal the observer's file list");
-//         return 1;
-//     }
-
-//     return 0;
-// }
-
-// ssp_list ssp_obs_images(void)
-// {
-//     return observer.images_list;
-// }
-
-// int main(void)
-// {
-//     log_init_default();
-
-//     ssp_obs_init("../../tests/images/");
-
-//     while(1) {
-//         ssp_obs_process();
-//     }
-// }
