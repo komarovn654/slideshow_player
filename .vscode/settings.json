@@ -30,6 +30,7 @@
         "locale": "c",
         "string_view": "c",
         "ssp_observer.h": "c",
+        "ssp_observer_common.h": "c",
         "ssp_render.h": "c",
         "iostream": "cpp",
         "*.tcc": "cpp",

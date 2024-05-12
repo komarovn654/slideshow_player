@@ -4,6 +4,12 @@
 extern "C" {
 #endif
 
+#if (defined(UTEST_BUILD) && UTEST_BUILD == 1)
+    #define ssp_static
+#else
+    #define ssp_static static
+#endif
+
 #define SSP_FILE_NAME_MAX_LEN (200)
 
 bool ssp_is_file_image(const char *file_name);

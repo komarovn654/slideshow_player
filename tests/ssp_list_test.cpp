@@ -111,6 +111,15 @@ TEST_F(TestListFixture, ListInsert_1)
     EXPECT_TRUE(list->next == NULL);
 }
 
+TEST_F(TestListFixture, ListInsertv_1) 
+{
+    EXPECT_TRUE(ssp_list_insertv(list, "tailtailtailtailtailtail") != NULL);
+
+    EXPECT_EQ(ssp_ptr_storage_size(), 2);
+    EXPECT_STREQ(list->name, "tailtailtailtailtailtail");
+    EXPECT_TRUE(list->next == NULL);
+}
+
 TEST_F(TestListFixture, ListInsert_Duplicate) 
 {
     ssp_list duplicate = ssp_list_insert(list, "head");
@@ -166,6 +175,17 @@ TEST(TestList, ListRemove_RemoveSingleNodeList)
     ssp_list_destruct(list);
 }
 
+TEST_F(TestListFixture, ListRemove_RemoveEmptyName)
+{
+    ssp_list_insert(list, "head");
+    ssp_list_insert(list, "item_0");
+
+    ssp_list_remove_node(&list, "");
+
+    EXPECT_STREQ(list->name, "head");
+    EXPECT_STREQ(list->next->name, "item_0");
+}
+
 TEST_F(TestListFixture, ListRemove_RemoveHead)
 {
     ssp_list_insert(list, "head");
@@ -193,6 +213,19 @@ TEST_F(TestListFixture, ListRemove_RemoveTail)
     ssp_list_insert(list, "mid");
     ssp_list_insert(list, "tail");
     ssp_list_remove_node(&list, "tail");
+    
+    EXPECT_EQ(ssp_ptr_storage_size(), 4);
+    EXPECT_STREQ(list->name, "head");
+    EXPECT_STREQ(list->next->name, "mid");
+    EXPECT_TRUE(list->next->next == NULL);
+}
+
+TEST_F(TestListFixture, ListRemovev_RemoveTail)
+{
+    ssp_list_insert(list, "head");
+    ssp_list_insert(list, "mid");
+    ssp_list_insert(list, "tail");
+    ssp_list_removev_node((void**)list, "tail");
     
     EXPECT_EQ(ssp_ptr_storage_size(), 4);
     EXPECT_STREQ(list->name, "head");

@@ -105,6 +105,11 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
     }
 }
 
+void ssp_list_removev_node(void** head, const char* remove_name)
+{
+    ssp_list_remove_node((ssp_list*)&head, remove_name);
+}
+
 static int ssp_list_insert_name(ssp_list node, const char* name)
 {
     size_t name_len = strlen(name);
@@ -161,18 +166,9 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
     return tail;
 }
 
-static int ssp_list_move0(ssp_list node, const char* name)
+void* ssp_list_insertv(void* head, const char* tail_name)
 {
-    size_t name_len = strlen(name);
-    node->name = (char*)ssp_calloc(strlen(name) + 1, sizeof(char));
-    if (node == NULL) {
-        log_error("The new node wasn't created. Failed to allocate memory for name.");
-        return 1;
-    }
-    memcpy(node->name, name, name_len);
-
-    log_info("Node <%s> has been added", node->name);
-    return 0;
+    return ssp_list_insert(head, tail_name);
 }
 
 int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)

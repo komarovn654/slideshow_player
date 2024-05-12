@@ -11,6 +11,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 option(INSTALL_GTEST "Enable installation of googletest." OFF)
 
 enable_testing()
+add_compile_definitions(UTEST_BUILD=1)
 
 find_library(CORE_SERVICE CoreServices)
 
@@ -21,15 +22,49 @@ include_directories(
 link_directories(../build/lib ../third_party/logman/src)
 link_libraries(gtest_main gtest logman)
 
-add_executable(ssp_list_test ssp_list_test.cpp ../src/ssp_list.c ../src/ssp_memory.c)
-add_executable(ssp_memory_test ssp_memory_test.cpp ../src/ssp_memory.c)
-add_executable(ssp_helper_test ssp_helper_test.cpp ../src/ssp_helper.c)
+add_executable(
+    ssp_list_test
+    ssp_list_test.cpp
+    ../src/ssp_list.c
+    ../src/ssp_memory.c
+)
 
-add_executable(ssp_observer_test ssp_observer_test.cpp ../src/ssp_observer_inotify.c ../src/ssp_list.c ../src/ssp_helper.c ../src/ssp_memory.c)
+add_executable(
+    ssp_memory_test
+    ssp_memory_test.cpp
+    ../src/ssp_memory.c
+)
+
+add_executable(
+    ssp_helper_test
+    ssp_helper_test.cpp
+    ../src/ssp_helper.c
+)
+
+add_executable(
+    ssp_observer_test
+    ssp_observer_test.cpp
+    ../src/ssp_observer.c
+    ../src/ssp_list.c
+    ../src/ssp_helper.c
+    ../src/ssp_memory.c
+)
+
+if (UNIX)
+    add_executable(
+        ssp_observer_ps_test
+        ssp_observer_ps_test.cpp
+        ../src/ssp_observer.c
+        ../src/ssp_list.c
+        ../src/ssp_helper.c
+        ../src/ssp_memory.c
+    )
+    gtest_discover_tests(ssp_observer_ps_test)
+endif()
+
 # target_link_libraries(ssp_observer_test ${CORE_SERVICE})
 
 gtest_discover_tests(ssp_list_test)
 gtest_discover_tests(ssp_memory_test)
 gtest_discover_tests(ssp_helper_test)
 gtest_discover_tests(ssp_observer_test)
-    
