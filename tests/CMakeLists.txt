@@ -55,7 +55,7 @@ if (UNIX)
         ssp_observer_ps_test
         ssp_observer_ps_test.cpp
         ../src/ssp_observer.c
-        ../src/ssp_list.c
+        ../src/ssp_observer_inotify.c
         ../src/ssp_helper.c
         ../src/ssp_memory.c
     )

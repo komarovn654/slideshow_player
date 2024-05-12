@@ -14,7 +14,8 @@ extern "C" {
 
 bool ssp_is_file_image(const char *file_name);
 
-int ssp_dir_traversal(const char* dir_path, void (*store_files)(void *storage, const char *file_name), void *storage);
+int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, const char *file_name), void *storage, 
+	bool (*filter)(const char *file_name));
 int ssp_dir_create(const char* dir_path);
 
 #ifdef __cplusplus

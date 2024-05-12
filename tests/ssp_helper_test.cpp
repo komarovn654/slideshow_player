@@ -59,17 +59,19 @@ TEST_F(TestHelperFixture, IsImage_TXT)
     }
 }
 
-void test_store_files(void *storage, const char *file_name)
+void* test_store_files(void *storage, const char *file_name)
 {
     static size_t row_num = 0;
     snprintf((char *)storage + (row_num++) * SSP_FILE_NAME_MAX_LEN, SSP_FILE_NAME_MAX_LEN, "%s", file_name);
+
+    return NULL;
 }
 
 TEST_F(TestHelperFixture, DirTraversal) 
 {
     char storage[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
     
-    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), test_store_files, storage), 0);
+    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), test_store_files, storage, ssp_is_file_image), 0);
 
     size_t i, j = 0;
     for(i = 0; i < jpg_files_count; i++) {
@@ -95,9 +97,9 @@ TEST_F(TestHelperFixture, DirTraversal_Errors)
 {   
     char storage[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
 
-    ASSERT_EQ(ssp_dir_traversal(NULL, test_store_files, storage), 1);
-    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), NULL, storage), 1);
-    ASSERT_EQ(ssp_dir_traversal("dir", test_store_files, storage), 1);
+    ASSERT_EQ(ssp_dir_traversal(NULL, test_store_files, storage, ssp_is_file_image), 1);
+    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), NULL, storage, ssp_is_file_image), 1);
+    ASSERT_EQ(ssp_dir_traversal("dir", test_store_files, storage, ssp_is_file_image), 1);
 }
 
 TEST_F(TestHelperFixture, DirTraversal_Empty) 
@@ -106,7 +108,7 @@ TEST_F(TestHelperFixture, DirTraversal_Empty)
     
     ASSERT_NE(mkdir(empty_dir_path.data(), 0755), -1);
 
-    ASSERT_EQ(ssp_dir_traversal(empty_dir_path.data(), test_store_files, storage), 0);
+    ASSERT_EQ(ssp_dir_traversal(empty_dir_path.data(), test_store_files, storage, ssp_is_file_image), 0);
     
     size_t i = 0;
     for(i = 0; i < jpg_files_count; i++) {

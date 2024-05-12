@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <string>
-#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "gtest/gtest.h"
 #include "ssp_list.h"
@@ -12,19 +14,29 @@ extern "C"
     ssp_static int ssp_obs_assert(observer settings);
 }
 
+static size_t storage_count = 0;
+
 class TestObserverFixture : public ::testing::Test
 {
 public:
-    static const size_t storage_size = 1024;
-    char* storage;
+    const std::string images_path = "../../tests/images/";
+    
     observer settings;
 
-    static void* storage_insert(void* storage, const char* item_name)
+    static const size_t storage_size = 32;
+    static const size_t storage_name_len = 128;
+    char* storage[storage_size];
+
+    static void* storage_insert(void* vstorage, const char* item_name)
     {
+        char* s = ((char**)vstorage)[storage_count];
+        snprintf(s, storage_name_len, "%s", item_name);
+        storage_count++;
+
         return NULL;
     }
 
-    static void  storage_remove(void** storage, const char* item_name)
+    static void storage_remove(void** vstorage, const char* item_name)
     {
         return;
     }
@@ -38,10 +50,25 @@ public:
         }
         return true;
     }
+
+    static bool txt_filter(const char *file_name)
+    {
+        std::string txt_file = ".txt";
+        std::string file(file_name);
+
+        if (file.find(txt_file) != std::string::npos) {
+            return true;
+        }
+
+        return false;
+    }
+
 protected:
     void SetUp()
     {
-        storage = new char [storage_size];
+        for (size_t i = 0; i < storage_size; i++) {
+            storage[i] = new char [storage_name_len];
+        }
 
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.storage = storage;
@@ -50,17 +77,24 @@ protected:
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             settings.dirs[i] = new char [SSP_OBS_DIR_NAME_LEN];
-            std::string dir_name = "directory" + i;
-            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "directory_%li", i);
+            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "../../tests/directory_%li/", i);
         }
     }
     void TearDown()
     {
+        storage_count = 0;
+
+        for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
+            rmdir(settings.dirs[i]);
+        }
+
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             delete(settings.dirs[i]);
         }
 
-        delete(storage);
+        for (size_t i = 0; i < storage_size; i++) {
+            delete(storage[i]);
+        }
     }
 };
 
@@ -231,5 +265,55 @@ TEST_F(TestObserverFixture, ObserverFilterFunction)
         EXPECT_EQ(ssp_obs_filter(obs, test_cases[i]), expected[i]);
     }
 
+    ssp_obs_destruct(obs);
+}
+
+TEST_F(TestObserverFixture, ObserverCreateDirectories)
+{
+    snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
+    settings.dirs_count = 3;
+    observer* obs = ssp_obs_init(settings);
+
+    EXPECT_EQ(ssp_obs_dirs_create(obs), 0);
+
+    for (size_t i = 0; i < settings.dirs_count; i++) {
+        struct stat path_stat;
+        stat(settings.dirs[0], &path_stat);
+        EXPECT_EQ(S_ISDIR(path_stat.st_mode), 1);
+    }
+
+    rmdir(settings.dirs[1]);
+    rmdir(settings.dirs[2]);
+    ssp_obs_destruct(obs);
+}
+
+TEST_F(TestObserverFixture, ObserverTraversalDirectories)
+{
+    /* Filter will be set only for files with the substring ".txt",
+        so {"test1.txt", "test2.txt"} from <test/images/> 
+        and test3.txt from <tests/directory_1> are expected. */
+    const size_t expected_count = 3;
+    const char expected[expected_count][128] = {
+        "../../tests/images/test2.txt",
+        "../../tests/images/test1.txt",
+        "../../tests/directory_1/test3.txt",
+    };
+
+    snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
+    settings.dirs_count = 3;
+    settings.filter = txt_filter;
+    observer* obs = ssp_obs_init(settings);
+    ssp_obs_dirs_create(obs);
+
+    FILE* f = fopen("../../tests/directory_1/test3.txt" ,"a");
+    fclose(f);
+
+    EXPECT_EQ(ssp_obs_dirs_traversal(obs), 0);
+
+    for (size_t i = 0; i < expected_count; i++) {
+        EXPECT_STREQ(expected[i], storage[i]);
+    }
+
+    remove("../../tests/directory_1/test3.txt");
     ssp_obs_destruct(obs);
 }

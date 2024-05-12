@@ -54,7 +54,8 @@ bool ssp_is_file_image(const char *file_name)
     return false;
 }
 
-int ssp_dir_traversal(const char* dir_path, void (*store_files)(void *storage, const char *file_name), void *storage)
+int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, const char *file_name), void *storage, 
+	bool (*filter)(const char *file_name))
 {
 	if (dir_path == NULL || store_files == NULL) {
 		return 1;
@@ -72,7 +73,7 @@ int ssp_dir_traversal(const char* dir_path, void (*store_files)(void *storage, c
 			log_warning("<%s> is too long and was truncated", dir->d_name);
 			continue;
 		};
-		if (dir->d_type == DT_REG && ssp_is_file_image(file_name)) {
+		if (dir->d_type == DT_REG && filter(file_name)) {
 			store_files(storage, file_name);
 		}
     }

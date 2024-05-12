@@ -25,6 +25,8 @@ typedef struct observer {
 
 observer* ssp_obs_init(observer settings);
 void ssp_obs_destruct(observer* obs);
+int ssp_obs_dirs_create(observer* obs);
+int ssp_obs_dirs_traversal(observer* obs);
 void* ssp_obs_storage_insert(observer* obs, const char* item_name);
 void ssp_obs_storage_remove(observer* obs, const char* item_name);
 bool ssp_obs_filter(observer* obs, const char *file_name);

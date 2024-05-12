@@ -1,16 +1,14 @@
 #include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <poll.h>
+#include <string.h>
 #include <sys/inotify.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "logman/logman.h"
 
+#include "ssp_memory.h"
 #include "ssp_observer.h"
-#include "ssp_list.h"
+#include "ssp_observer_ps.h"
 
 #define SSP_OBS_EVENT_BUFFER_SIZE (256)
 
@@ -26,34 +24,120 @@
 
 static struct obs_inotify {
     int inotify_instance;
-    int watch_descriptor;
-    struct pollfd fds;
+    int watch_descriptor[SSP_OBS_DIRS_MAX_COUNT];
+    struct pollfd fd;
     int event_mask;
 
-    observer obs;
+    observer* obs;
 } obs_inotify;
 
-char **ssp_obs_dirs(void)
+ssp_static int ssp_obsps_add_directories(void)
 {
-    return obs_inotify.obs.dirs;
-}
-
-size_t ssp_obs_dirs_count(void)
-{
-    return obs_inotify.obs.dirs_count;
-}
-
-void *ssp_obs_storage(void)
-{
-    return obs_inotify.obs.storage;
-}
-
-int ssp_obs_init(observer obs)
-{
-    memcpy(&obs_inotify.obs, &obs, sizeof(observer));
+    for (size_t i = 0; i < obs_inotify.obs->dirs_count; i++) {
+        obs_inotify.watch_descriptor[i] = inotify_add_watch(
+            obs_inotify.inotify_instance, obs_inotify.obs->dirs[i], obs_inotify.event_mask);
+        if (obs_inotify.watch_descriptor[i] <= 0) {
+            char *errorbuf = strerror(errno);
+            log_error("Couldn't add to observer inotify <%s>: %s", obs_inotify.obs->dirs[i], errorbuf);
+            return 1;
+        }
+    }
 
     return 0;
 }
+
+int ssp_obsps_init(observer settings)
+{
+    if ((obs_inotify.obs = ssp_obs_init(settings)) == NULL) {
+        log_error("Common observer initialization error");
+        return 1;
+    }
+
+    if ((obs_inotify.inotify_instance = inotify_init()) < 0) {
+        char *errorbuf = strerror(errno);
+        log_error("Inotify initialization error: %s", errorbuf);
+        return 1;
+    }
+
+    if ((ssp_obs_dirs_create(obs_inotify.obs)) != 0) {
+        log_error("Observer directories creation error");
+        return 1;
+    }
+
+    obs_inotify.event_mask = IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO;
+
+    if (ssp_obsps_add_directories() != 0) {
+        return 1;
+    }
+
+    obs_inotify.fd.fd = obs_inotify.inotify_instance;
+    obs_inotify.fd.events = POLLIN;
+
+    for (size_t i = 0; i < obs_inotify.obs->dirs_count; i++) {
+        log_info("Observing: %s", obs_inotify.obs->dirs[i]);
+    }
+
+    return 0;
+}
+
+void ssp_obsps_destruct(void)
+{
+    ssp_obs_destruct(obs_inotify.obs);
+}
+
+int ssp_obsps_process(void)
+{
+    if (poll(&obs_inotify.fd, 1, 0) < 0) {
+        log_error("Couldn't poll(): '%s'\n", strerror (errno));
+        return 1;
+    }
+
+    if (obs_inotify.fd.revents & POLLIN){
+        char buffer[SSP_OBS_EVENT_BUFFER_SIZE];
+        size_t length;
+        if ((length = read(obs_inotify.fd.fd, buffer, SSP_OBS_EVENT_BUFFER_SIZE)) > 0) {
+            struct inotify_event *event = (struct inotify_event *)buffer;
+            while (IN_EVENT_OK(event, length)) {
+                printf("%s\n", event->name);
+
+
+                // char fullname[SSP_FILE_NAME_MAX_LEN];
+                // if (snprintf(fullname, SSP_FILE_NAME_MAX_LEN, "%s%s", observer.dir_path, event->name) >= SSP_FILE_NAME_MAX_LEN) {
+			    //     log_warning("<%s> is too long and was truncated", event->name);
+			    //     continue;
+		        // };
+
+                // switch (event->mask)
+                // {
+                // case IN_MOVED_TO:
+                // case IN_CREATE:
+                //     if (ssp_is_file_image(fullname) == false) {
+                //         break;
+                //     }
+                //     ssp_list_insert(observer.images_list, fullname);
+                //     break;
+                // case IN_MOVED_FROM:
+                // case IN_DELETE:              
+                //     ssp_list_remove_node(&observer.images_list, fullname);
+                //     break;
+                // default:
+                //     log_warning("Something unkonwn(%d) was happened with <%s>:", event->mask, event->name);
+                //     break;
+                // }
+                event = IN_EVENT_NEXT(event, length);
+            }
+        }
+    }
+
+    return 0;
+}
+
+// 
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <sys/stat.h>
+// #include <unistd.h>
 
 // int ssp_obs_init(const char** dirs)
 // {

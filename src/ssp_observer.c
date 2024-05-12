@@ -1,5 +1,6 @@
 #include "logman/logman.h"
 #include "ssp_observer.h"
+#include "ssp_helper.h"
 #include "ssp_memory.h"
 
 ssp_static int ssp_obs_assert(observer settings)
@@ -22,6 +23,18 @@ ssp_static int ssp_obs_assert(observer settings)
     if (settings.filter == NULL) {
         log_error("It's impossible to initialize the observer without a filter function");
         return 1;
+    }
+
+    return 0;
+}
+
+int ssp_obs_dirs_create(observer* obs)
+{
+    for (size_t i = 0; i < obs->dirs_count; i++) {
+        if (ssp_dir_create(obs->dirs[i]) != 0) {
+            log_error("Observer directory wasn't created: %s", obs->dirs[i]);
+            return 1;
+        }
     }
 
     return 0;
@@ -83,4 +96,16 @@ void ssp_obs_storage_remove(observer* obs, const char* item_name)
 bool ssp_obs_filter(observer* obs, const char *file_name)
 {
     return obs->filter(file_name);
+}
+
+int ssp_obs_dirs_traversal(observer* obs)
+{
+    for (size_t i = 0; i < obs->dirs_count; i++) {
+        if (ssp_dir_traversal(obs->dirs[i], obs->storage_insert, obs->storage, obs->filter) != 0) {
+            log_error("Observer couldn't traversal directory <%s>", obs->dirs[i]);
+            return 1;
+        }
+    }
+
+    return 0;
 }
