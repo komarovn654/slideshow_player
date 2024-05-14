@@ -13,7 +13,7 @@ option(INSTALL_GTEST "Enable installation of googletest." OFF)
 enable_testing()
 add_compile_definitions(UTEST_BUILD=1)
 
-find_library(CORE_SERVICE CoreServices)
+
 
 include_directories(
     ../third_party/googletest/googletest/include/ 
@@ -50,7 +50,7 @@ add_executable(
     ../src/ssp_memory.c
 )
 
-if (UNIX)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_executable(
         ssp_observer_ps_test
         ssp_observer_ps_test.cpp
@@ -59,12 +59,21 @@ if (UNIX)
         ../src/ssp_helper.c
         ../src/ssp_memory.c
     )
-    gtest_discover_tests(ssp_observer_ps_test)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    find_library(CORE_SERVICE CoreServices)
+    add_executable(
+        ssp_observer_ps_test
+        ssp_observer_ps_test.cpp
+        ../src/ssp_observer.c
+        ../src/ssp_observer_fsevent.c
+        ../src/ssp_helper.c
+        ../src/ssp_memory.c
+    )
+    target_link_libraries(ssp_observer_ps_test ${CORE_SERVICE})
 endif()
-
-# target_link_libraries(ssp_observer_test ${CORE_SERVICE})
 
 gtest_discover_tests(ssp_list_test)
 gtest_discover_tests(ssp_memory_test)
 gtest_discover_tests(ssp_helper_test)
 gtest_discover_tests(ssp_observer_test)
+gtest_discover_tests(ssp_observer_ps_test)

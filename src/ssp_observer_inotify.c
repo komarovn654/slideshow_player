@@ -6,7 +6,6 @@
 
 #include "logman/logman.h"
 
-#include "ssp_memory.h"
 #include "ssp_observer.h"
 #include "ssp_observer_ps.h"
 
@@ -106,10 +105,13 @@ ssp_static void ssp_obsps_event_handle(uint32_t mask, const char* event_name)
     {
     case IN_MOVED_TO:
     case IN_CREATE:
-        obs_inotify.obs->storage_insert(obs_inotify.obs->storage, event_name);
+        ssp_obs_storage_insert(obs_inotify.obs, paths[i]);
+        log_info("Observer. File <%s> has been created", paths[i]);
         break;
     case IN_MOVED_FROM:
-    case IN_DELETE:              
+    case IN_DELETE:
+        ssp_obs_storage_remove(obs_inotify.obs, paths[i]);
+        log_info("Observer. File <%s> has been deleted", paths[i]);
         break;
     default:
         log_warning("Observer. Something unkonwn(%d) was happened with <%s>:", mask, event_name);

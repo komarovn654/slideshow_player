@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cstring>
 #include <cstdlib>
 #include <string>
 #include <sys/types.h>
@@ -292,8 +294,8 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
         and test3.txt from <tests/directory_1> are expected. */
     const size_t expected_count = 3;
     char expected[expected_count][SSP_OBS_DIR_NAME_LEN] = {
-        "../../tests/images/test2.txt",
         "../../tests/images/test1.txt",
+        "../../tests/images/test2.txt",
     };
     char third_file[SSP_OBS_DIR_NAME_LEN];
     snprintf(third_file, SSP_OBS_DIR_NAME_LEN, "%stest3.txt", settings.dirs[1]);
@@ -309,6 +311,10 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
     fclose(f);
 
     EXPECT_EQ(ssp_obs_dirs_traversal(obs), 0);
+    // sort storage by names
+    std::sort((const char**)storage, (const char**)storage + storage_count, [](const char* a, const char* b) {
+        return std::strcmp(a, b) < 0;
+    });
 
     for (size_t i = 0; i < expected_count; i++) {
         EXPECT_STREQ(expected[i], storage[i]);

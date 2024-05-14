@@ -5,7 +5,7 @@
 
 ssp_static int ssp_obs_assert(observer settings)
 {
-    if (settings.dirs == NULL || settings.dirs[0] == NULL || settings.dirs_count == 0) {
+    if (settings.dirs[0] == NULL || settings.dirs_count == 0) {
         log_error("It's impossible to initialize the observer without directories");
         return 1;
     }

@@ -1,3 +1,5 @@
+#include <chrono>
+#include <thread>
 #include "gtest/gtest.h"
 
 #include "ssp_memory.h"
@@ -9,13 +11,19 @@ static size_t storage_count = 0;
 class TestObserverPSFixture : public ::testing::Test
 {
 public:
-    const std::string images_path = "../../tests/images/";
-
     observer settings;
 
     static const size_t storage_size = 32;
     static const size_t storage_name_len = 128;
     char* storage[storage_size];
+
+    static std::string cut_fullname(const char* item_name)
+    {
+        std::string name_str(item_name);
+        std::string base_name_str = name_str.substr(name_str.find_last_of("/\\") + 1);
+
+        return base_name_str;
+    }
 
     static void* storage_insert(void* vstorage, const char* item_name)
     {
@@ -28,6 +36,14 @@ public:
 
     static void  storage_remove(void** vstorage, const char* item_name)
     {
+        for (size_t i = 0; i < storage_count; i++) {
+            char* s = ((char**)vstorage)[i];
+            if (std::strcmp(cut_fullname(s).data(), cut_fullname(item_name).data()) == 0) {
+                memset(s, 0, storage_name_len);
+                return;
+            }
+        }
+
         return;
     }
 
@@ -120,11 +136,12 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Create)
         FILE* f = fopen(test_cases[i], "a");
         fclose(f);
 
-        EXPECT_EQ(ssp_obsps_process(), 0);
+        for (size_t i = 0; i < 10; i++) {
+            EXPECT_EQ(ssp_obsps_process(), 0);
+        }
+
         for (size_t j = 0; j < max_items_in_storage; j++) {
-            char* exptected_file = (char*)expected[i][j];
-            char* storage_file = storage[j];
-            EXPECT_STREQ(exptected_file, storage_file);
+            EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), cut_fullname(storage[j]).data());
         }
     }
 
@@ -132,4 +149,126 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Create)
     for (size_t i = 0; i < tc_count; i++) {
         remove(test_cases[i]);
     }
+}
+
+TEST_F(TestObserverPSFixture, ObserverPSProcess_Remove)
+{
+    const size_t tc_count = 5;
+    const size_t max_items_in_storage = 3;
+    const char test_cases[tc_count + 1][SSP_FILE_NAME_MAX_LEN] = {
+        "./directory_0/text_file_1.txt",
+        "./directory_0/image_file1.jpg",
+        "./directory_0/image_file2.png",
+        "./directory_0/image_file1.jpeg",
+        "./directory_0/text_file_2.txt",
+        "./directory_0/text_file_3.txt"
+    };
+    const char expected[tc_count][max_items_in_storage][SSP_FILE_NAME_MAX_LEN] = {
+        {"", "./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+        {"", "./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+        {"", "./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+        {"", "./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+        {"",                              "", "./directory_0/text_file_3.txt"},
+    };
+
+    settings.dirs_count = 1;
+    settings.filter = txt_filter;
+
+    // Create tests files
+    ssp_dir_create("./directory_0/");
+    for (size_t i = 0; i < tc_count + 1; i++) {
+        FILE* f = fopen(test_cases[i], "a");
+        fclose(f);
+    }
+    // Wait for the files to be created
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // Initialize obs
+    EXPECT_EQ(ssp_obsps_init(settings), 0);
+    // Sort storage by names
+    std::sort((const char**)storage, (const char**)storage + storage_count, [](const char* a, const char* b) {
+        return std::strcmp(a, b) < 0;
+    });
+
+    for (size_t i = 0; i < tc_count; i++) {
+        remove(test_cases[i]);
+
+        for (size_t i = 0; i < 10; i++) {
+            EXPECT_EQ(ssp_obsps_process(), 0);
+        }
+        
+        for (size_t j = 0; j < max_items_in_storage; j++) {
+            EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), cut_fullname(storage[j]).data());
+        }
+    }
+
+    ssp_obsps_destruct();
+    remove(test_cases[tc_count]);
+}
+
+TEST_F(TestObserverPSFixture, ObserverPSProcess_MultiDirs)
+{
+    const size_t tc_count = 10;
+    const size_t max_items_in_storage = 10;
+    const char test_cases[tc_count][SSP_FILE_NAME_MAX_LEN] = {
+        "f0.txt",
+        "f1.txt",
+        "f2.txt",
+        "f3.txt",
+        "f4.txt",
+        "f5.txt",
+        "f6.txt",
+        "f7.txt",
+        "f8.txt",
+        "f9.txt",
+    };
+    const char expected[tc_count][max_items_in_storage][SSP_FILE_NAME_MAX_LEN] = {
+        {"f0.txt", "", "", "", "", "", "", "", "", ""},
+        {"f0.txt", "f1.txt", "", "", "", "", "", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "", "", "", "", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "", "", "", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "", "", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "f6.txt", "", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "f6.txt", "f7.txt", "", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "f6.txt", "f7.txt", "f8.txt", ""},
+        {"f0.txt", "f1.txt", "f2.txt", "f3.txt", "f4.txt", "f5.txt", "f6.txt", "f7.txt", "f8.txt", "f9.txt"},
+    };
+
+    settings.dirs_count = 10;
+    settings.filter = txt_filter;
+    EXPECT_EQ(ssp_obsps_init(settings), 0);
+
+    for (size_t i = 0; i < tc_count; i++) {
+        char file_name[SSP_FILE_NAME_MAX_LEN];
+        snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", settings.dirs[i], test_cases[i]);
+        FILE* f = fopen(file_name, "a");
+        fclose(f);
+
+        for (size_t i = 0; i < 10; i++) {
+            EXPECT_EQ(ssp_obsps_process(), 0);
+        }
+
+        for (size_t j = 0; j < max_items_in_storage; j++) {
+            EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), cut_fullname(storage[j]).data());
+        }
+    }
+
+    for (size_t i = tc_count - 1; i > 0; i--) {
+        char file_name[SSP_FILE_NAME_MAX_LEN];
+        snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", settings.dirs[i], test_cases[i]);
+        remove(file_name);
+
+        for (size_t i = 0; i < 10; i++) {
+            EXPECT_EQ(ssp_obsps_process(), 0);
+        }
+
+        for (size_t j = 0; j < max_items_in_storage; j++) {
+            EXPECT_STREQ(cut_fullname((char*)expected[i - 1][j]).data(), cut_fullname(storage[j]).data());
+        }
+    }
+
+    ssp_obsps_destruct();
+    char file_name[SSP_FILE_NAME_MAX_LEN];
+    snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", settings.dirs[0], test_cases[0]);    
+    remove(file_name);
 }
