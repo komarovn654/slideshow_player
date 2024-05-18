@@ -109,6 +109,7 @@
         "ios": "cpp",
         "dirent.h": "c",
         "logman.h": "c",
-        "dirent_ext.h": "c"
+        "dirent_ext.h": "c",
+        "glew.h": "c"
     },
 }

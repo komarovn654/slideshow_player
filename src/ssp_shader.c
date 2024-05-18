@@ -1,4 +1,4 @@
-#include <GLES2/gl2.h>
+// #include <GLES2/gl2.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 

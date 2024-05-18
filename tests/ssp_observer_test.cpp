@@ -13,7 +13,7 @@
 
 extern "C" 
 {
-    ssp_static int ssp_obs_assert(observer settings);
+    ssp_static int ssp_obs_assert(ssp_observer settings);
 }
 
 static size_t storage_count = 0;
@@ -23,7 +23,7 @@ class TestObserverFixture : public ::testing::Test
 public:
     const std::string images_path = "../../tests/images/";
 
-    observer settings;
+    ssp_observer settings;
 
     static const size_t storage_size = 32;
     static const size_t storage_name_len = 128;
@@ -139,14 +139,14 @@ TEST_F(TestObserverFixture, ObserverAssert_Error)
 
 TEST_F(TestObserverFixture, ObserverInit_Error)
 {
-    observer err_settings = { };
+    ssp_observer err_settings = { };
     EXPECT_TRUE(ssp_obs_init(err_settings) == NULL);
     EXPECT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestObserverFixture, ObserverInit_Success)
 {
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
     EXPECT_EQ(obs->dirs_count, settings.dirs_count);
@@ -165,7 +165,7 @@ TEST_F(TestObserverFixture, ObserverInit_Success)
 
 TEST_F(TestObserverFixture, ObserverDestruct)
 {
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
     EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1);
@@ -195,7 +195,7 @@ TEST_F(TestObserverFixture, ObserverStorageInsert_SSPListInsert)
 
     settings.storage = ssp_list_init();
     settings.storage_insert = ssp_list_insertv;
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
     for (size_t i = 0; i < tc_count; i++) {
@@ -232,7 +232,7 @@ TEST_F(TestObserverFixture, ObserverStorageRemove_SSPListRemove)
     settings.storage = ssp_list_init();
     settings.storage_insert = ssp_list_insertv;
     settings.storage_remove = ssp_list_removev_node;
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
     ssp_obs_storage_insert(obs, "item_0");
@@ -261,7 +261,7 @@ TEST_F(TestObserverFixture, ObserverFilterFunction)
     const char test_cases[tc_count][15] = {"you won't pass", "pass", "one more pass"};
     const bool expected[tc_count] = {false, true, true};
 
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
 
     for (size_t i = 0; i < tc_count; i++) {
         EXPECT_EQ(ssp_obs_filter(obs, test_cases[i]), expected[i]);
@@ -274,7 +274,7 @@ TEST_F(TestObserverFixture, ObserverCreateDirectories)
 {
     snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
     settings.dirs_count = 3;
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
 
     EXPECT_EQ(ssp_obs_dirs_create(obs), 0);
 
@@ -304,7 +304,7 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
     snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
     settings.dirs_count = 3;
     settings.filter = txt_filter;
-    observer* obs = ssp_obs_init(settings);
+    ssp_observer* obs = ssp_obs_init(settings);
     ssp_obs_dirs_create(obs);
 
     FILE* f = fopen(third_file ,"a");

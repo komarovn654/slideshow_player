@@ -192,3 +192,13 @@ int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
 
     return 0;
 }
+
+char* ssp_list_head_namev(void* head)
+{
+    return ssp_list_head_name(head);
+}
+
+void* ssp_list_move_headv(void* head)
+{
+    return ssp_list_move_head(head);
+}

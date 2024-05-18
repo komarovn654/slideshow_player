@@ -4,7 +4,9 @@
 extern "C" {
 #endif
 
-int ssp_obsps_init(observer settings);
+#include "ssp_observer.h"
+
+int ssp_obsps_init(ssp_observer settings);
 void ssp_obsps_destruct(void);
 int ssp_obsps_process(void);
 

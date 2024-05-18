@@ -12,7 +12,7 @@ static struct obs_fsevent {
     CFAbsoluteTime latency;
     CFArrayRef paths;
 
-    observer* obs;
+    ssp_observer* obs;
 } obs_fsevent;
 
 void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths,
@@ -52,7 +52,7 @@ int ssp_obsps_process(void)
     return 0;
 }
 
-int ssp_obsps_init(observer settings)
+int ssp_obsps_init(ssp_observer settings)
 {
     if ((obs_fsevent.obs = ssp_obs_init(settings)) == NULL) {
         log_error("Common observer initialization error");

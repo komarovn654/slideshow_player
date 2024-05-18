@@ -1,35 +1,37 @@
-// #include <GL/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string.h>
 
 #include "logman/logman.h"
 
-#include "ssp_list.h"
+#include "ssp_image_loader.h"
+#include "ssp_helper.h"
 #include "ssp_window.h"
 #include "ssp_render.h"
 
-typedef struct ssp_window_t {
+static struct ssp_window_t {
     GLFWwindow *window;
     int width, height, width_pixels, height_pixels;
 
     double redraw_time;
-    ssp_list head;
-    ssp_list current_image;
-} ssp_window_t;
+    ssp_image_storage* images;
+    void* current_image;
+    void* head_image;
+} ssp_window;
 
-static void error_callback(int error, const char* description)
+ssp_static void ssp_glfw_error_callback(int error, const char* description)
 {
-    fprintf(stderr, "GLFW Error: %s\n", description);
+    log_error("GLFW Error [%i]: %s\n", error, description);
 }
 
-static void resize_handler(ssp_window_t *window)
+ssp_static void ssp_window_resize_handler()
 {
-    glfwGetFramebufferSize(window->window, &window->width_pixels, &window->height_pixels);
-    glViewport(0, 0, window->width_pixels, window->height_pixels);
-    log_debug("window have been resized to %ix%i", window->width, window->height);
+    glfwGetFramebufferSize(ssp_window.window, &ssp_window.width_pixels, &ssp_window.height_pixels);
+    // glViewport(0, 0, window->width_pixels, window->height_pixels);
+    log_debug("Window have been resized to %ix%i", ssp_window.width, ssp_window.height);
 }
 
-static void ssp_display_platform_name(int glfw_platform_id, char *name, int name_size) {
+ssp_static void ssp_window_set_platform_name(int glfw_platform_id, char *name, int name_size) {
     switch (glfw_platform_id) {
     case GLFW_PLATFORM_WAYLAND:
         strncpy(name, "wayland", name_size);
@@ -46,13 +48,13 @@ static void ssp_display_platform_name(int glfw_platform_id, char *name, int name
     }
 }
 
-int static ssp_display_platform_set(ssp_display_platform platform) {
+ssp_static int ssp_window_set_platform(ssp_display_platform platform) {
     char platform_name[10];
-    ssp_display_platform_name(platform, platform_name, sizeof(platform_name));
+    ssp_window_set_platform_name(platform, platform_name, sizeof(platform_name));
 
     if (glfwPlatformSupported(platform) != 1) {
         log_error("%s platform doesn't support", platform_name);
-        return -1;
+        return 1;
     }   
 
     glfwInitHint(GLFW_PLATFORM, platform);
@@ -61,9 +63,9 @@ int static ssp_display_platform_set(ssp_display_platform platform) {
     return 0;
 }
 
-bool static ssp_needs_to_redraw(ssp_window_t *window)
+ssp_static bool ssp_window_needs_to_redraw(void)
 {
-    if (glfwGetTime() >= window->redraw_time) {
+    if (glfwGetTime() >= ssp_window.redraw_time) {
         glfwSetTime(0);
         return true;
     }
@@ -71,15 +73,15 @@ bool static ssp_needs_to_redraw(ssp_window_t *window)
     return false;
 }
 
-int ssp_glfw_init(ssp_display_platform platform)
+ssp_static int ssp_glfw_init(ssp_display_platform platform)
 {
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(ssp_glfw_error_callback);
 
-    log_debug("GLFW runtime  version: %s", glfwGetVersionString());
-    log_debug("GLFW compiled version: %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
+    log_info("GLFW runtime  version: %s", glfwGetVersionString());
+    log_info("GLFW compiled version: %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
 
-    if (ssp_display_platform_set(platform) != 0) {
-        log_error("couldn't set display platform");
+    if (ssp_window_set_platform(platform) != 0) {
+        log_error("Couldn't set display platform");
         return -1;
     }
 
@@ -89,21 +91,22 @@ int ssp_glfw_init(ssp_display_platform platform)
     }
 
     char platform_name[10];
-    ssp_display_platform_name(glfwGetPlatform(), platform_name, sizeof(platform_name));
+    ssp_window_set_platform_name(glfwGetPlatform(), platform_name, sizeof(platform_name));
     log_debug("GLFW has been initializated for %s", platform_name);
 
     return 0;
 }
 
-static void ssp_context_set_gl33(void)
+ssp_static void ssp_glfw_set_gl33(void)
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-static void ssp_context_set_gles20(void)
+ssp_static void ssp_glfw_set_gles20(void)
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
@@ -111,59 +114,86 @@ static void ssp_context_set_gles20(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-ssp_window ssp_window_init(int width, int height, double redraw_time, ssp_list images)
+int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images)
 {
     if ((width <= 0 || width > MAX_WINDOW_WIDTH) || (height <= 0 || height > MAX_WINDOW_HEIGHT)) {
         log_error("required width in range [%i..%i] and height in range [%i..%i]", 0, MAX_WINDOW_WIDTH, 0, MAX_WINDOW_HEIGHT);
-        return NULL;
+        return 1;
     }
 
-    ssp_window_t *window = (ssp_window_t *)malloc(sizeof(ssp_window_t));
-    window->width = width;
-    window->height = height;
-    window->redraw_time = redraw_time;
-    glfwSetTime(window->redraw_time);
+    if (ssp_glfw_init(SSP_DP_COCOA) != 0) {
+        log_error("SSP GLFW initialization error");
+        return 1;
+    }
 
-    window->window = glfwCreateWindow(window->width, window->height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
-    if (window->window == NULL) {
+    ssp_window.width = width;
+    ssp_window.height = height;
+    ssp_window.redraw_time = redraw_time;
+    glfwSetTime(ssp_window.redraw_time);
+    
+    ssp_glfw_set_gl33();
+    
+    ssp_window.window = glfwCreateWindow(ssp_window.width, ssp_window.height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
+    if (ssp_window.window == NULL) {
         log_error("GLFW couldn't create window");
-        return NULL;
+        return 1;
     }
     
-    ssp_context_set_gles20();
-    resize_handler(window);
-    glfwMakeContextCurrent(window->window);
-
-    window->head = images;
-    window->current_image = images;
-    return window;
-}
-
-void ssp_window_destruct(ssp_window window)
-{
-    glfwTerminate();
-    free(window);
-}
-
-int ssp_player_loop(ssp_window window)
-{
-    if (glfwWindowShouldClose(window->window)) {
-        log_info("window have been closed");
-        return 0;
+    ssp_window_resize_handler();
+    glfwMakeContextCurrent(ssp_window.window);
+    
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
+    {
+        printf("Failed to initialize GLEW\n");
+        return 1;
     }
 
-    if (ssp_needs_to_redraw(window)) {
-        glfwMakeContextCurrent(window->window);
+    if (ssp_render_init() != 0) {
+        log_error("Render initialization error");
+        return 1;        
+    }
+    
+    if (ssp_il_init() != 0) {
+        log_error("Image loader initialization error");
+        return 1;  
+    }
+    
+    ssp_window.images = images;
+    ssp_window.current_image = ssp_window.images->image_name(ssp_window.images->storage);
+    ssp_window.head_image = ssp_window.current_image;
+    
+    return 0;
+}
 
-        ssp_redraw(ssp_list_name(window->current_image));
+void ssp_window_destruct()
+{
+    glfwTerminate();
+}
 
-        glfwSwapBuffers(window->window);
-        log_info("redrawed");
-        if ((window->current_image = ssp_list_move_head(window->current_image)) == NULL) {
-            window->current_image = window->head;
+int ssp_window_player_loop(void)
+{   
+    if (glfwWindowShouldClose(ssp_window.window)) {
+        log_info("Window have been closed");
+        return 1;
+    }
+    
+    if (ssp_window_needs_to_redraw()) {
+        glfwMakeContextCurrent(ssp_window.window);
+        
+        if (test_redraw(ssp_window.images->image_name(ssp_window.images->storage)) != 0) {
+            log_error("Redraw error: %s", ssp_window.images->image_name(ssp_window.images->storage));
+            return 1;
+        }
+
+        glfwSwapBuffers(ssp_window.window);
+        log_info("Readrawed: %s", ssp_window.images->image_name(ssp_window.images->storage));
+
+        if ((ssp_window.current_image = ssp_window.images->move_ptr_to_next(ssp_window.current_image)) == NULL) {
+            ssp_window.current_image = ssp_window.head_image;
         }
     }
 
     glfwPollEvents();
-    return 1;
+    return 0;
 }

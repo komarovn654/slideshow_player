@@ -5,7 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/third_party/googletest/googletest/include",
-                "${workspaceFolder}/third_party/logman/include"
+                "${workspaceFolder}/third_party/logman/include",
+                "/opt/homebrew/include",
+                "/opt/devil/include"
             ],
             "defines": [],
             "macFrameworkPath": [

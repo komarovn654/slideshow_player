@@ -5,19 +5,19 @@
 #include <string.h>
 #include <poll.h>
 #include <IL/il.h>
-#include <sys/inotify.h>
 #include <unistd.h>
 
 #include "logman/logman.h"
 
 #include "ssp_image_loader.h"
+#include "ssp_memory.h"
 
-int ssp_image_loader_init(void)
+int ssp_il_init(void)
 {
     log_debug("DevIL runtime  version: %i", IL_VERSION);
     log_debug("DevIL compiled version: %i", ilGetInteger(IL_VERSION_NUM));
     if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION) {
-        log_error("DevIL version is different...exiting!");
+        log_error("DevIL version is different!");
         return 1;
     } 
 
@@ -25,28 +25,32 @@ int ssp_image_loader_init(void)
     return 0;
 }
 
-int ssp_read_image(ssp_image *image)
+ssp_image* ssp_il_read_image(const char* image_path)
 {
+    ssp_image* image = (ssp_image*)ssp_calloc(1, sizeof(ssp_image));
+    image->path = image_path;
+
     ilGenImages(1, &image->devil_name);
     ilBindImage(image->devil_name);
 
     if (ilLoadImage(image->path) == IL_FALSE) {
-        log_warning("devil couldn't load image: %s", image->path);
-        ssp_delete_image(image);
-        return 1;
+        log_warning("Devil couldn't load image: %s", image->path);
+        ssp_il_delete_image(image);
+        return NULL;
     }
 
     image->width = ilGetInteger(IL_IMAGE_WIDTH);
     image->height = ilGetInteger(IL_IMAGE_HEIGHT); 
     image->data = ilGetData();
 
-    log_debug("image %s has been loaded", image->path);
-    log_debug("image params: width: %i, height: %i, size: %i", image->width, image->height,
+    log_debug("Devil loaded image <%s>", image->path);
+    log_debug("Devil read image params: width: %i, height: %i, size: %i", image->width, image->height,
         ilGetInteger(IL_IMAGE_SIZE_OF_DATA));
-    return 0;
+    return image;
 }
 
-void ssp_delete_image(ssp_image *image)
+void ssp_il_delete_image(ssp_image *image)
 {
-    ilDeleteImages(1, &image->devil_name); 
+    ilDeleteImages(1, &image->devil_name);
+    ssp_free(image);
 }

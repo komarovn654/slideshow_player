@@ -1,52 +1,38 @@
-
 #include <assert.h>
-#include <GLES2/gl2.h>
+#include <GL/glew.h>
+#include "GLFW/glfw3.h"
 #include <string.h>
 
 #include "logman/logman.h"
 
+#include "ssp_render.h"
+#include "ssp_helper.h"
 #include "ssp_shader.h"
 #include "ssp_image_loader.h"
 
-GLfloat vertices[] = {
+const GLfloat vertices[] = {
     -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, 
     -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,
      1.0f, -1.0f, 0.0f,     1.0f, 0.0f,
      1.0f, -1.0f, 0.0f,     1.0f, 0.0f, 
      1.0f,  1.0f, 0.0f,     1.0f, 1.0f,
     -1.0f,  1.0f, 0.0f,     0.0f, 1.0f,
-};  
-
-static shader_meta shaders[2] = {
-    {
-        .type = GL_VERTEX_SHADER,
-        .path = "../../src/shader/vertex.glsl",
-    },
-    {
-        .type = GL_FRAGMENT_SHADER,
-        .path = "../../src/shader/fragment.glsl",
-    }
 };
 
-static struct {
-    GLuint vao_id; // vertex array object
-    GLuint ebo_id; // element buffer object
-    GLuint vbo_id; // vertex buffer object
-} buffers;
-
-static struct t_egl_context {
-    struct wl_egl_window *egl_window;
-
+static struct ssp_render_t {
+    const GLfloat* vertices;
+    shader_meta shaders[2];
+    ssp_render_buffers buffers;
+    struct wl_egl_window* egl_window;
     GLuint texture;
-    GLuint texture2;
-} egl_context;
+} ssp_render;
 
-static void setup_buffers(void)
+ssp_static void ssp_render_init_buffers(void)
 {
-    glGenBuffers(1, &buffers.vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers.vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+    glGenBuffers(1, &ssp_render.buffers.vbo_id);
+    glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ssp_render.vertices), ssp_render.vertices, GL_STATIC_DRAW);
+    
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
@@ -56,87 +42,101 @@ static void setup_buffers(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-static int ssp_texture(const char *image_path)
+ssp_static int ssp_render_bind_to_texture(const char *image_path)
 {
-    /*
-    static int i = 0;
-    char *images[10] = {
-        "../../tests/images/photo_2021-08-13_16-05-04.jpg",
-        "../../tests/images/photo_2023-08-20_15-13-23.jpg",
-        "../../tests/images/photo_2023-10-17_16-40-33.jpg",
-        "../../tests/images/photo_2023-11-16_10-50-51.jpg",
-        "../../tests/images/photo_2024-02-17_21-42-42.jpg"
-    };
-    int weight[5] = {720, 960, 576, 576, 960};
-    int height[5] = {1280, 1280, 1280, 1280, 1280};
-    */
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, egl_context.texture);
+    glBindTexture(GL_TEXTURE_2D, ssp_render.texture);
 
-    ssp_image image = {
-        .path = image_path,
-    };
-    // unsigned char* buf = (unsigned char*)malloc(weight[i]*height[i]*4);
-    if (ssp_read_image(&image) != 0) {
+    ssp_image* image = ssp_il_read_image(image_path);
+    if (image == NULL) {
+        log_error("SSP render couldn't load the image <%s>", image_path);
         return 1;
     }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
     glGenerateMipmap(GL_TEXTURE_2D);
-
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    ssp_delete_image(&image);
-    /*
-    i++;
-    if (i >= 5) {
-        i = 0;
-    }
-    */
+    ssp_il_delete_image(image);
+
     return 0;
 }
 
-int ssp_render_init()
+ssp_static void ssp_render_init_int()
 {
-    setup_buffers();
+    ssp_render.shaders[0].type = GL_VERTEX_SHADER;
+    ssp_render.shaders[0].path = "../../src/shader/vertex.glsl";
 
-    if (shader_create_program(shaders, 2) == 0) {
-        log_error("shader error");
+    ssp_render.shaders[1].type = GL_FRAGMENT_SHADER;
+    ssp_render.shaders[1].path = "../../src/shader/fragment.glsl";
+
+    ssp_render.vertices = vertices;
+
+    ssp_render_init_buffers();
+}
+
+int ssp_render_init(void)
+{
+    ssp_render_init_int();
+    
+    if (shader_create_program(ssp_render.shaders, 2) == 0) {
+        log_error("SSP render couldn't create shader program");
         return 1;
     }
 
-    glGenTextures(1, &egl_context.texture);
-    glBindTexture(GL_TEXTURE_2D, egl_context.texture);   
-
+    glGenTextures(1, &ssp_render.texture);
+    glBindTexture(GL_TEXTURE_2D, ssp_render.texture);   
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
-
     glBindTexture(GL_TEXTURE_2D, 0);
 
     return 0;
 }
 
-static void ssp_draw_error(void)
+ssp_static void ssp_render_draw_error(void)
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void ssp_redraw(const char *image)
-{ 
+int test_redraw(const char* image)
+{
     shader_use_program();
-    if (ssp_texture(image) != 0) {
-        ssp_draw_error();
-        return;
+
+    if (ssp_render_bind_to_texture(image) != 0) {
+        log_error("SSP render couldn't bind image to texture");
+        ssp_render_draw_error();
+        return 1;
     }
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, egl_context.texture);
+    glBindTexture(GL_TEXTURE_2D, ssp_render.texture);
 
-    glBindBuffer(GL_ARRAY_BUFFER, buffers.vbo_id);
+    glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return 0;
+}
+
+int ssp_render_redraw(const char* image)
+{ 
+    shader_use_program();
+
+    if (ssp_render_bind_to_texture(image) != 0) {
+        log_error("SSP render couldn't bind image to texture");
+        ssp_render_draw_error();
+        return 1;
+    }
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, ssp_render.texture);
+
+    glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    return 0;
 }

@@ -11,7 +11,7 @@ static size_t storage_count = 0;
 class TestObserverPSFixture : public ::testing::Test
 {
 public:
-    observer settings;
+    ssp_observer settings;
 
     static const size_t storage_size = 32;
     static const size_t storage_name_len = 128;
