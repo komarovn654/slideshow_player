@@ -15,8 +15,6 @@ static struct ssp_window_t {
 
     double redraw_time;
     ssp_image_storage* images;
-    void* current_image;
-    void* head_image;
 } ssp_window;
 
 ssp_static void ssp_glfw_error_callback(int error, const char* description)
@@ -97,23 +95,6 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
     return 0;
 }
 
-ssp_static void ssp_glfw_set_gl33(void)
-{
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
-ssp_static void ssp_glfw_set_gles20(void)
-{
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
 int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images)
 {
     if ((width <= 0 || width > MAX_WINDOW_WIDTH) || (height <= 0 || height > MAX_WINDOW_HEIGHT)) {
@@ -131,7 +112,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window.redraw_time = redraw_time;
     glfwSetTime(ssp_window.redraw_time);
     
-    ssp_glfw_set_gl33();
+    ssp_render_set_gl_ctx();
     
     ssp_window.window = glfwCreateWindow(ssp_window.width, ssp_window.height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
     if (ssp_window.window == NULL) {
@@ -154,14 +135,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;        
     }
     
-    if (ssp_il_init() != 0) {
-        log_error("Image loader initialization error");
-        return 1;  
-    }
-    
     ssp_window.images = images;
-    ssp_window.current_image = ssp_window.images->image_name(ssp_window.images->storage);
-    ssp_window.head_image = ssp_window.current_image;
     
     return 0;
 }
@@ -181,16 +155,18 @@ int ssp_window_player_loop(void)
     if (ssp_window_needs_to_redraw()) {
         glfwMakeContextCurrent(ssp_window.window);
         
-        if (test_redraw(ssp_window.images->image_name(ssp_window.images->storage)) != 0) {
-            log_error("Redraw error: %s", ssp_window.images->image_name(ssp_window.images->storage));
+        char* image = ssp_window.images->image_name(ssp_window.images->storage_ptr);
+        if (ssp_render_redraw(image) != 0) {
+            log_error("Redraw error: %s", image);
             return 1;
         }
 
         glfwSwapBuffers(ssp_window.window);
-        log_info("Readrawed: %s", ssp_window.images->image_name(ssp_window.images->storage));
+        log_info("Readrawed: %s", image);
 
-        if ((ssp_window.current_image = ssp_window.images->move_ptr_to_next(ssp_window.current_image)) == NULL) {
-            ssp_window.current_image = ssp_window.head_image;
+        ssp_window.images->storage_ptr = ssp_window.images->move_ptr_to_next(ssp_window.images->storage_ptr);
+        if (ssp_window.images->storage_ptr == NULL) {
+            ssp_window.images->storage_ptr = ssp_window.images->storage_head;
         }
     }
 

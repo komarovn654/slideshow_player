@@ -1,5 +1,4 @@
 include_directories(
-    /opt/devil/include/
     /opt/homebrew/include/
     ../third_party/glfw/include/
     ../third_party/logman/include/
@@ -7,7 +6,6 @@ include_directories(
     )
 
 link_directories(
-    /opt/devil/slib/
     /opt/homebrew/lib/
     ${CMAKE_BINARY_DIR}/third_party/glfw/src
     ${CMAKE_BINARY_DIR}/third_party/logman/src
@@ -16,7 +14,6 @@ link_libraries(
     logman
     glfw3
     GLEW
-    IL
     # m wayland-client wayland-egl GLESv2 EGL 
 )
 
@@ -33,7 +30,7 @@ add_executable(player
     ssp_observer_fsevent.c
     ssp_image_loader.c
     ssp_shader.c
-    ssp_render.c
+    ssp_render_gl33.c
     ssp_list.c 
     ssp_memory.c 
     ssp_helper.c

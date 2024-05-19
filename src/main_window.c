@@ -63,13 +63,14 @@ int main(void)
     }
 
     ssp_image_storage* image_storage = (ssp_image_storage*)ssp_calloc(1, sizeof(ssp_image_storage));
-    image_storage->storage = (void*)image_list;
+    image_storage->storage_ptr = (void*)image_list;
+    image_storage->storage_head = (void*)image_list;
     image_storage->insert = ssp_list_insertv;
     image_storage->remove = ssp_list_removev_node;
     image_storage->move_ptr_to_next = ssp_list_move_headv;
     image_storage->image_name = ssp_list_head_namev;
 
-    if (ssp_window_init(400, 400, 10.0, image_storage) != 0) {
+    if (ssp_window_init(400, 400, 1.0, image_storage) != 0) {
         return EXIT_FAILURE;
     }
 

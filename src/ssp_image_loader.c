@@ -4,25 +4,29 @@
 #include <setjmp.h>
 #include <string.h>
 #include <poll.h>
-#include <IL/il.h>
 #include <unistd.h>
 
 #include "logman/logman.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#include "ssp_helper.h"
 #include "ssp_image_loader.h"
 #include "ssp_memory.h"
 
-int ssp_il_init(void)
+ssp_static size_t ssp_il_get_file_size(const char *image_path)
 {
-    log_debug("DevIL runtime  version: %i", IL_VERSION);
-    log_debug("DevIL compiled version: %i", ilGetInteger(IL_VERSION_NUM));
-    if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION) {
-        log_error("DevIL version is different!");
-        return 1;
-    } 
+    FILE *file = fopen(image_path, "rb");
+    if (!file) {
+        log_error("Couldn't open the file to find out the size: %s", image_path);
+        return -1;
+    }
 
-    ilInit();
-    return 0;
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    fclose(file);
+
+    return size;
 }
 
 ssp_image* ssp_il_read_image(const char* image_path)
@@ -30,27 +34,22 @@ ssp_image* ssp_il_read_image(const char* image_path)
     ssp_image* image = (ssp_image*)ssp_calloc(1, sizeof(ssp_image));
     image->path = image_path;
 
-    ilGenImages(1, &image->devil_name);
-    ilBindImage(image->devil_name);
-
-    if (ilLoadImage(image->path) == IL_FALSE) {
-        log_warning("Devil couldn't load image: %s", image->path);
-        ssp_il_delete_image(image);
+    int nrChannels;
+    image->data = stbi_load(image->path, &image->width, &image->height, &nrChannels, 0);
+    if (!image->data) {
+        log_error("STB. Failed to load image\n");
+        ssp_free(image);
         return NULL;
     }
 
-    image->width = ilGetInteger(IL_IMAGE_WIDTH);
-    image->height = ilGetInteger(IL_IMAGE_HEIGHT); 
-    image->data = ilGetData();
-
-    log_debug("Devil loaded image <%s>", image->path);
-    log_debug("Devil read image params: width: %i, height: %i, size: %i", image->width, image->height,
-        ilGetInteger(IL_IMAGE_SIZE_OF_DATA));
+    log_debug("STB loaded image <%s>", image->path);
+    log_debug("STB read image params: width: %i, height: %i, size: %i", image->width, image->height, 
+        ssp_il_get_file_size(image->path));
     return image;
 }
 
 void ssp_il_delete_image(ssp_image *image)
 {
-    ilDeleteImages(1, &image->devil_name);
+    stbi_image_free(image->data);
     ssp_free(image);
 }

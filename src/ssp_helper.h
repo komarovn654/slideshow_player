@@ -15,12 +15,13 @@ extern "C" {
 #define SSP_FILE_NAME_MAX_LEN (200)
 
 typedef struct ssp_image_storage_t {
-    void* storage;
+    void* storage_head;
+    void* storage_ptr;
 
-    char* (*image_name)(void* storage);
-    void* (*move_ptr_to_next)(void* storage);
-    void* (*insert)(void*  storage, const char* item_name);
-    void  (*remove)(void** storage, const char* item_name);
+    char* (*image_name)(void* storage_ptr);
+    void* (*move_ptr_to_next)(void* storage_ptr);
+    void* (*insert)(void*  storage_ptr, const char* item_name);
+    void  (*remove)(void** storage_ptr, const char* item_name);
 } ssp_image_storage;
 
 bool ssp_is_file_image(const char *file_name);

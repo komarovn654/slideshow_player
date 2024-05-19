@@ -10,36 +10,34 @@
 #include "ssp_shader.h"
 #include "ssp_image_loader.h"
 
-const GLfloat vertices[] = {
-    -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, 
-    -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,
-     1.0f, -1.0f, 0.0f,     1.0f, 0.0f,
-     1.0f, -1.0f, 0.0f,     1.0f, 0.0f, 
-     1.0f,  1.0f, 0.0f,     1.0f, 1.0f,
-    -1.0f,  1.0f, 0.0f,     0.0f, 1.0f,
-};
-
-static struct ssp_render_t {
-    const GLfloat* vertices;
-    shader_meta shaders[2];
-    ssp_render_buffers buffers;
-    struct wl_egl_window* egl_window;
-    GLuint texture;
-} ssp_render;
-
 ssp_static void ssp_render_init_buffers(void)
 {
+    // glGenBuffers(1, &ssp_render.buffers.vbo_id);
+    // glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(ssp_render.vertices), ssp_render.vertices, GL_STATIC_DRAW);
+    
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+    // glEnableVertexAttribArray(0);
+
+    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    // glEnableVertexAttribArray(1);
+
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenVertexArrays(1, &ssp_render.buffers.vao_id);
+    glBindVertexArray(ssp_render.buffers.vao_id);
+
     glGenBuffers(1, &ssp_render.buffers.vbo_id);
     glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(ssp_render.vertices), ssp_render.vertices, GL_STATIC_DRAW);
-    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 ssp_static int ssp_render_bind_to_texture(const char *image_path)
@@ -124,7 +122,7 @@ int test_redraw(const char* image)
 int ssp_render_redraw(const char* image)
 { 
     shader_use_program();
-
+    
     if (ssp_render_bind_to_texture(image) != 0) {
         log_error("SSP render couldn't bind image to texture");
         ssp_render_draw_error();
@@ -134,7 +132,9 @@ int ssp_render_redraw(const char* image)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ssp_render.texture);
 
-    glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vbo_id);
+    glBindVertexArray(ssp_render.buffers.vbo_id);
+    // glBindBuffer(GL_ARRAY_BUFFER, ssp_render.buffers.vao_id);
+
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
