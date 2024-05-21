@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <string.h>
 
@@ -122,13 +122,13 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     
     ssp_window_resize_handler();
     glfwMakeContextCurrent(ssp_window.window);
-    
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK)
-    {
-        printf("Failed to initialize GLEW\n");
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        log_error("GLAD initialization error");
         return 1;
     }
+
+    printf("OpenGL ES Version: %s\n", glGetString(GL_VERSION));
 
     if (ssp_render_init() != 0) {
         log_error("Render initialization error");
@@ -137,6 +137,10 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     
     ssp_window.images = images;
     
+    printf("%s\n", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_RENDERER));
+    printf("%s\n", glGetString(GL_VENDOR));
+
     return 0;
 }
 

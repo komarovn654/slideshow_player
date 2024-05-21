@@ -13,67 +13,77 @@ option(INSTALL_GTEST "Enable installation of googletest." OFF)
 enable_testing()
 add_compile_definitions(UTEST_BUILD=1)
 
-
-
 include_directories(
-    ../third_party/googletest/googletest/include/ 
-    ../third_party/googletest/logman/include/
-    ../src)
-link_directories(../build/lib ../third_party/logman/src)
-link_libraries(gtest_main gtest logman)
-
-add_executable(
-    ssp_list_test
-    ssp_list_test.cpp
-    ../src/ssp_list.c
-    ../src/ssp_memory.c
+    ${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include/ 
+    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
+    ${CMAKE_SOURCE_DIR}/src/graphics/
+    ${CMAKE_SOURCE_DIR}/src/observer/
+    ${CMAKE_SOURCE_DIR}/src/list/
+    ${CMAKE_SOURCE_DIR}/src/utils/
+)
+link_directories(
+    ${CMAKE_BINARY_DIR}/lib 
+    ${CMAKE_BINARY_DIR}/third_party/logman/src
 )
 
+# List tests
 add_executable(
-    ssp_memory_test
-    ssp_memory_test.cpp
-    ../src/ssp_memory.c
+    ssp_list_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_list_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/list/ssp_list.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
+)
+target_link_libraries(
+    ssp_list_utest
+    ssp_list
+    gtest_main gtest logman
+)
+add_dependencies(ssp_list_utest ssp_list)
+
+# Utils tests
+add_executable(
+    ssp_memory_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_memory_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
+)
+target_link_libraries(ssp_memory_utest gtest_main gtest logman)
+
+add_executable(
+    ssp_helper_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_helper_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
+)
+target_link_libraries(ssp_helper_utest gtest_main gtest logman)
+
+# Observer tests
+add_executable(
+    ssp_observer_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/observer/ssp_observer.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
+)
+target_link_libraries(
+    ssp_observer_utest
+    ssp_list
+    gtest_main gtest
+)
+add_dependencies(ssp_observer_utest ssp_list)
+
+add_executable(
+    ssp_observer_ps_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_ps_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
+)
+target_link_libraries(
+    ssp_observer_ps_utest
+    ssp_observer
+    gtest_main gtest
 )
 
-add_executable(
-    ssp_helper_test
-    ssp_helper_test.cpp
-    ../src/ssp_helper.c
-)
-
-add_executable(
-    ssp_observer_test
-    ssp_observer_test.cpp
-    ../src/ssp_observer.c
-    ../src/ssp_list.c
-    ../src/ssp_helper.c
-    ../src/ssp_memory.c
-)
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_executable(
-        ssp_observer_ps_test
-        ssp_observer_ps_test.cpp
-        ../src/ssp_observer.c
-        ../src/ssp_observer_inotify.c
-        ../src/ssp_helper.c
-        ../src/ssp_memory.c
-    )
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    find_library(CORE_SERVICE CoreServices)
-    add_executable(
-        ssp_observer_ps_test
-        ssp_observer_ps_test.cpp
-        ../src/ssp_observer.c
-        ../src/ssp_observer_fsevent.c
-        ../src/ssp_helper.c
-        ../src/ssp_memory.c
-    )
-    target_link_libraries(ssp_observer_ps_test ${CORE_SERVICE})
-endif()
-
-gtest_discover_tests(ssp_list_test)
-gtest_discover_tests(ssp_memory_test)
-gtest_discover_tests(ssp_helper_test)
-# gtest_discover_tests(ssp_observer_test)
-# gtest_discover_tests(ssp_observer_ps_test)
+gtest_discover_tests(ssp_list_utest)
+gtest_discover_tests(ssp_memory_utest)
+gtest_discover_tests(ssp_helper_utest)
+gtest_discover_tests(ssp_observer_utest)
+gtest_discover_tests(ssp_observer_ps_utest)

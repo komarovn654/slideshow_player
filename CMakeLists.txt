@@ -4,9 +4,10 @@ project(ssp
     DESCRIPTION "OpenGL slideshow player"
     LANGUAGES C CXX)
 
-add_subdirectory(third_party/glfw)
-add_subdirectory(third_party/googletest)
-add_subdirectory(third_party/logman)
-add_subdirectory(tests)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glfw)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/logman)
+add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
-add_subdirectory(src)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/observer)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/list)

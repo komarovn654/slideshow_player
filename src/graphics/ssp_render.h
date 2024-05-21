@@ -26,7 +26,8 @@ typedef struct ssp_render_t {
     GLuint texture;
 } ssp_render;
 
-int ssp_render_init(void);
 void ssp_render_set_gl_ctx(void);
+void ssp_render_init_buffers(ssp_render* render);
+
+int ssp_render_init(void);
 int ssp_render_redraw(const char* image);
-int test_redraw(const char* image);

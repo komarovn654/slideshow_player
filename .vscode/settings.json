@@ -110,7 +110,6 @@
         "dirent.h": "c",
         "logman.h": "c",
         "dirent_ext.h": "c",
-        "glew.h": "c",
         "ssp_shader.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",

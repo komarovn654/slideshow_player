@@ -1,5 +1,4 @@
 # Binaries
-ssp
 *.out
 *.exe
 *.o
@@ -8,4 +7,9 @@ ssp
 build/
 
 # Third Party
-third_party/
+third_party/glfw/
+third_party/googletest/
+third_party/logman/
+
+#Mac
+.DS_Store

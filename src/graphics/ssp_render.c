@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
 #include "logman/logman.h"
@@ -20,34 +20,6 @@ static ssp_render render = {
         },        
     }
 };
-
-void ssp_render_set_gl_ctx(void)
-{
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
-ssp_static void ssp_render_init_buffers(void)
-{
-    glGenVertexArrays(1, &render.buffers.vao_id);
-    glBindVertexArray(render.buffers.vao_id);
-
-    glGenBuffers(1, &render.buffers.vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, render.buffers.vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(render.vertices), render.vertices, GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-    // Texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-}
 
 ssp_static int ssp_render_bind_to_texture(const char *image_path)
 {
@@ -71,7 +43,7 @@ ssp_static int ssp_render_bind_to_texture(const char *image_path)
 
 int ssp_render_init(void)
 {
-    ssp_render_init_buffers();
+    ssp_render_init_buffers(&render);
     
     if (shader_create_program(render.shaders, 2) == 0) {
         log_error("SSP render couldn't create shader program");
@@ -108,7 +80,7 @@ int ssp_render_redraw(const char* image)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, render.texture);
 
-    glBindVertexArray(render.buffers.vbo_id);
+    glBindVertexArray(render.buffers.vao_id);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
