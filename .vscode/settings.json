@@ -116,7 +116,16 @@
         "windns.h": "c",
         "ssp_observer_ps.h": "c",
         "windows.h": "c",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "source_location": "c",
+        "cfenv": "c",
+        "csignal": "c",
+        "shared_mutex": "c",
+        "strstream": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+
+    "cmake.debugConfig": {
+        "args": ["1", "/Users/nikolajkomarov/dev/slideshow_player/tests/images"]
+    }
 }

@@ -23,6 +23,7 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
     char **paths = eventPaths;
  
     for (i=0; i<numEvents; i++) {
+        log_info("Observer event: 0x%X", eventFlags[i]);
         if (obs_fsevent.obs->filter(paths[i]) == false) {
             log_warning("Observer. <%s> was filtred", paths[i]);
             continue;
