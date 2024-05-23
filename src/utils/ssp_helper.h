@@ -6,6 +6,10 @@
 extern "C" {
 #endif
 
+#if !defined(_WIN32) && (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__))
+    #define _WIN32
+#endif /* _WIN32 */
+
 #if (defined(UTEST_BUILD) && UTEST_BUILD == 1)
     #define ssp_static
 #else
@@ -29,6 +33,7 @@ bool ssp_is_file_image(const char *file_name);
 int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, const char *file_name), void *storage, 
 	bool (*filter)(const char *file_name));
 int ssp_dir_create(const char* dir_path);
+int ssp_mkdir(const char* dir_path);
 
 #ifdef __cplusplus
 }

@@ -106,7 +106,7 @@ TEST_F(TestHelperFixture, DirTraversal_Empty)
 {   
     char storage[max_count][SSP_FILE_NAME_MAX_LEN] = { 0 };
     
-    ASSERT_NE(mkdir(empty_dir_path.data(), 0755), -1);
+    ASSERT_NE(ssp_mkdir(empty_dir_path.data()), -1);
 
     ASSERT_EQ(ssp_dir_traversal(empty_dir_path.data(), test_store_files, storage, ssp_is_file_image), 0);
     

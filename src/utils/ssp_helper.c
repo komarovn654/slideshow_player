@@ -73,7 +73,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 			log_warning("<%s> is too long and was truncated", dir->d_name);
 			continue;
 		};
-		if (dir->d_type == DT_REG && filter(file_name)) {
+		if (filter(file_name)) {
 			store_files(storage, file_name);
 		}
     }
@@ -82,11 +82,20 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 	return 0;
 }
 
+int ssp_mkdir(const char* dir_path)
+{
+#ifdef _WIN32
+    mkdir(dir_path);
+#else
+    mkdir(dir_path, 0700);
+#endif
+}
+
 int ssp_dir_create(const char* dir_path)
 {
     struct stat st = {0};
     if (stat(dir_path, &st) == -1) {
-        if (mkdir(dir_path, 0700) != 0) {
+        if (ssp_mkdir(dir_path) != 0) {
             log_error("Can't create a directory <%s>", dir_path);
             return 1;
         }

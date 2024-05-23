@@ -110,7 +110,13 @@
         "dirent.h": "c",
         "logman.h": "c",
         "dirent_ext.h": "c",
-        "ssp_shader.h": "c"
+        "ssp_shader.h": "c",
+        "stdbool.h": "c",
+        "xlocale": "c",
+        "windns.h": "c",
+        "ssp_observer_ps.h": "c",
+        "windows.h": "c",
+        "xstring": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 }
