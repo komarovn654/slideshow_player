@@ -110,7 +110,17 @@
         "dirent.h": "c",
         "logman.h": "c",
         "dirent_ext.h": "c",
-        "ssp_shader.h": "c"
+        "ssp_shader.h": "c",
+        "ssp_observer_ps.h": "c",
+        "source_location": "c",
+        "cfenv": "c",
+        "csignal": "c",
+        "shared_mutex": "c",
+        "strstream": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+
+    "cmake.debugConfig": {
+        "args": ["1", "/Users/nikolajkomarov/dev/slideshow_player/tests/images"]
+    }
 }

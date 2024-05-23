@@ -82,6 +82,17 @@ target_link_libraries(
     gtest_main gtest
 )
 
+# Module tests
+add_executable(
+    ssp_observer_mtest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_mtest.c
+)
+target_link_libraries(
+    ssp_observer_mtest
+    ssp_observer
+)
+add_dependencies(ssp_observer_mtest ssp_observer)
+
 gtest_discover_tests(ssp_list_utest)
 gtest_discover_tests(ssp_memory_utest)
 gtest_discover_tests(ssp_helper_utest)
