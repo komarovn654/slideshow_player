@@ -1,7 +1,8 @@
-#include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "logman/logman.h"
 
 #include "ssp_shader.h"

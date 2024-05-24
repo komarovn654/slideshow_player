@@ -93,6 +93,16 @@ target_link_libraries(
 )
 add_dependencies(ssp_observer_mtest ssp_observer)
 
+add_executable(
+    ssp_list_mtest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_list_mtest.c
+)
+target_link_libraries(
+    ssp_list_mtest
+    ssp_list
+)
+add_dependencies(ssp_list_mtest ssp_list)
+
 gtest_discover_tests(ssp_list_utest)
 gtest_discover_tests(ssp_memory_utest)
 gtest_discover_tests(ssp_helper_utest)

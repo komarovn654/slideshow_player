@@ -166,6 +166,14 @@ TEST_F(TestListFixture, ListInsert_MaxNodes)
     }
 }
 
+TEST(TestList, ListRemove_RemoveFromEmptyList)
+{
+    ssp_list list = ssp_list_init();
+    ssp_list_remove_node(&list, "head");
+    EXPECT_EQ(ssp_ptr_storage_size(), 1);
+    ssp_list_destruct(list);
+}
+
 TEST(TestList, ListRemove_RemoveSingleNodeList)
 {
     ssp_list list = ssp_list_init();
@@ -263,8 +271,8 @@ TEST_F(TestListFixture, ListTraversal_Errors)
 {
     static char storage[7][10];
 
-    EXPECT_EQ(ssp_list_traversal(list, NULL, 0), 1);
-    EXPECT_EQ(ssp_list_traversal(NULL, (char **)storage, 0), 1);
+    EXPECT_EQ(ssp_list_traversal(list, NULL, 0), -1);
+    EXPECT_EQ(ssp_list_traversal(NULL, (char **)storage, 0), -1);
 }
 
 TEST_F(TestListFixture, ListTraversal_LongName)
@@ -278,7 +286,7 @@ TEST_F(TestListFixture, ListTraversal_LongName)
         ssp_list_insert(list, items[i]);
     }
 
-    EXPECT_EQ(ssp_list_traversal(list, (char **)storage, 10), 1);
+    EXPECT_EQ(ssp_list_traversal(list, (char **)storage, 10), -1);
 
     EXPECT_STREQ(items[0], storage[0]);
     EXPECT_STRNE(items[1], storage[1]);
@@ -296,7 +304,7 @@ TEST_F(TestListFixture, ListTraversal)
         ssp_list_insert(list, items[i]);
     }
 
-    EXPECT_EQ(ssp_list_traversal(list, (char **)storage, 10), 0);
+    EXPECT_EQ(ssp_list_traversal(list, (char **)storage, 10), 7);
 
     for (size_t i = 0; i < 7; i++) {
         EXPECT_STREQ(items[i], storage[i]);

@@ -1,5 +1,6 @@
 #include <CoreServices/CoreServices.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include "logman/logman.h"
 
@@ -23,7 +24,6 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
     char **paths = eventPaths;
  
     for (i=0; i<numEvents; i++) {
-        log_info("Observer event: 0x%X", eventFlags[i]);
         if (obs_fsevent.obs->filter(paths[i]) == false) {
             log_warning("Observer. <%s> was filtred", paths[i]);
             continue;
@@ -33,16 +33,17 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
             log_warning("Observer. Something(0x%X) has happened with <%s>", eventFlags[i], paths[i]);
             continue;
         }
-        if ((eventFlags[i] & kFSEventStreamEventFlagItemRemoved) != 0) {
+
+        struct stat file_stat;
+        if (stat(paths[i], &file_stat) != 0) {
             ssp_obs_storage_remove(obs_fsevent.obs, paths[i]);
             log_info("Observer. File <%s> has been deleted", paths[i]);
+            log_debug("Observer. Stat error: %s", strerror(errno));
             continue;
         }
-        if ((eventFlags[i] & kFSEventStreamEventFlagItemCreated) != 0) {
-            ssp_obs_storage_insert(obs_fsevent.obs, paths[i]);
-            log_info("Observer. File <%s> has been created", paths[i]);
-            continue;
-        }
+
+        ssp_obs_storage_insert(obs_fsevent.obs, paths[i]);
+        log_info("Observer. File <%s> has been created", paths[i]);        
    }
 }
 
