@@ -69,7 +69,7 @@ ssp_list ssp_list_move_head(ssp_list head)
 
 void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
-    if (head == NULL || *head == NULL || remove_name == NULL) {
+    if (head == NULL || *head == NULL || (*head)->name == NULL || remove_name == NULL) {
         log_warning("It's impossible to delete NULL node(or from NULL list).");
         return;
     }
@@ -175,7 +175,7 @@ int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
 {
     if (head == NULL || storage == NULL) {
         log_error("It's impossible to traversal the list. Args must not be NULL.");
-        return 1;        
+        return -1;        
     }
 
     ssp_node* node = (ssp_node*)head;
@@ -184,13 +184,13 @@ int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
     while (node != NULL && node->name != NULL) {
         if (snprintf((char *)storage + i * max_name_size, max_name_size, "%s", node->name) >= max_name_size) {
             log_error("Сan't save an item with that's too big name <%s>", node->name);
-            return 1;
+            return -1;
         };
         node = node->next;
         i++;
     }
 
-    return 0;
+    return i;
 }
 
 char* ssp_list_head_namev(void* head)

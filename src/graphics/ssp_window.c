@@ -1,7 +1,7 @@
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
 #include <string.h>
 
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "logman/logman.h"
 
 #include "ssp_image_loader.h"

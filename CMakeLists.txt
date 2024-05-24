@@ -11,3 +11,4 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/observer)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/list)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/graphics)
