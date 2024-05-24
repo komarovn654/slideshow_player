@@ -121,7 +121,18 @@
         "cfenv": "c",
         "csignal": "c",
         "shared_mutex": "c",
-        "strstream": "c"
+        "strstream": "c",
+        "format": "c",
+        "xhash": "c",
+        "xiosbase": "c",
+        "xlocbuf": "c",
+        "xlocinfo": "c",
+        "xlocmes": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "xloctime": "c",
+        "xmemory": "c",
+        "xutility": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 

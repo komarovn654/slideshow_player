@@ -11,11 +11,11 @@ static ssp_render render = {
     .shaders = {
         {
             .type = GL_VERTEX_SHADER,
-            .path = "../../src/shader/gl33_vertex.glsl",
+            .path = "../../src/graphics/shader/gles_vertex.glsl",
         },
         {
             .type = GL_FRAGMENT_SHADER,
-            .path = "../../src/shader/gl33_fragment.glsl",
+            .path = "../../src/graphics/shader/gles_fragment.glsl",
         },        
     }
 };
