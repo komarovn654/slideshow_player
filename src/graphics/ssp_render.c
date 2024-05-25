@@ -8,16 +8,6 @@
 
 static ssp_render render = {
     .vertices = SSP_RENDER_TEXTURE_VERTICES,
-    .shaders = {
-        {
-            .type = GL_VERTEX_SHADER,
-            .path = "../../src/graphics/shader/gles_vertex.glsl",
-        },
-        {
-            .type = GL_FRAGMENT_SHADER,
-            .path = "../../src/graphics/shader/gles_fragment.glsl",
-        },        
-    }
 };
 
 ssp_static int ssp_render_bind_to_texture(const char *image_path)
@@ -43,6 +33,7 @@ ssp_static int ssp_render_bind_to_texture(const char *image_path)
 int ssp_render_init(void)
 {
     ssp_render_init_buffers(&render);
+    ssp_render_set_shaders(&render);
     
     if (shader_create_program(render.shaders, 2) == 0) {
         log_error("SSP render couldn't create shader program");

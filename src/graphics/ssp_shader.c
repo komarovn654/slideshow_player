@@ -6,31 +6,32 @@
 #include "logman/logman.h"
 
 #include "ssp_shader.h"
+#include "ssp_memory.h"
 
-static struct {
+static struct ssp_shader_t{
     GLuint program_id;
 
     char* vertex;
     char* fragment;
-} shader;
+} ssp_shader;
 
-static int shader_read(const char* shader_path, char** sh)
+static int ssp_shader_read(const char* shader_path, char** sh)
 {
     FILE* shader_file = fopen(shader_path, "r");
     if (shader_file == NULL) {
-        log_error("couldn't open vertex file: %s\n", shader_path);
+        log_error("Couldn't open shader file: %s", shader_path);
         return 1;
     }
 
     struct stat sbuff = { 0 };
     if (stat(shader_path, &sbuff) != 0) {
-        log_error("couldn't stat file: %s\n", shader_path);
+        log_error("Couldn't stat file: %s", shader_path);
         return 1;
     }
 
-    *sh = (char*)malloc(sbuff.st_size);
+    *sh = (char*)ssp_malloc(sbuff.st_size);
     if (*sh == NULL) {
-        log_error("couldn't alloc %ld bytes\n", sbuff.st_size);
+        log_error("Failed to allocate %ld bytes for the shader", sbuff.st_size);
         return 1;
     }
 

@@ -85,9 +85,9 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 int ssp_mkdir(const char* dir_path)
 {
 #ifdef _WIN32
-    mkdir(dir_path);
+    return mkdir(dir_path);
 #else
-    mkdir(dir_path, 0700);
+    return mkdir(dir_path, 0700);
 #endif
 }
 

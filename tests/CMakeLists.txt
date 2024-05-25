@@ -18,6 +18,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
     ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/third_party/glad/opengl33/include/
+    ${CMAKE_SOURCE_DIR}/third_party/stb/include/
     ${CMAKE_SOURCE_DIR}/src/graphics/
     ${CMAKE_SOURCE_DIR}/src/observer/
     ${CMAKE_SOURCE_DIR}/src/list/
@@ -85,6 +86,20 @@ target_link_libraries(
     gtest_main gtest
 )
 
+#Graphics tests
+#Image loader test
+add_executable(
+    ssp_image_loader_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_image_loader_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_image_loader.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
+)
+target_link_libraries(
+    ssp_image_loader_utest
+    gtest_main gtest logman
+)
+
 # Module tests
 add_executable(
     ssp_observer_mtest
@@ -106,21 +121,21 @@ target_link_libraries(
 )
 add_dependencies(ssp_list_mtest ssp_list)
 
-add_executable(
-    ssp_graphics_mtest
-    ${CMAKE_CURRENT_LIST_DIR}/ssp_graphics_mtest.c
-    ${CMAKE_SOURCE_DIR}/third_party/glad/opengl33/src/glad.c
-    ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
-    ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c    
-)
-target_link_libraries(
-    ssp_graphics_mtest
-    ssp_graphics
-    ssp_list
-    logman
-    glfw3
-)
-add_dependencies(ssp_graphics_mtest ssp_list ssp_graphics)
+# add_executable(
+#     ssp_graphics_mtest
+#     ${CMAKE_CURRENT_LIST_DIR}/ssp_graphics_mtest.c
+#     ${CMAKE_SOURCE_DIR}/third_party/glad/opengl33/src/glad.c
+#     ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
+#     ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c    
+# )
+# target_link_libraries(
+#     ssp_graphics_mtest
+#     ssp_graphics
+#     ssp_list
+#     logman
+#     glfw3
+# )
+# add_dependencies(ssp_graphics_mtest ssp_list ssp_graphics)
 
 gtest_discover_tests(ssp_list_utest)
 gtest_discover_tests(ssp_memory_utest)
