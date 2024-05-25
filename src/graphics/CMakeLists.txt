@@ -9,9 +9,9 @@ add_library(
     ${CMAKE_SOURCE_DIR}/src/utils/ssp_memory.c
 )
 
-find_library(OGL OpenGL)
-find_library(COCOA Cocoa)
-find_library(IOKIT IOKit)
+# find_library(OGL OpenGL)
+# find_library(COCOA Cocoa)
+# find_library(IOKIT IOKit)
 
 target_include_directories(
     ssp_graphics PRIVATE

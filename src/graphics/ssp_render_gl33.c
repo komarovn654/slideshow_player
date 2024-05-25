@@ -39,6 +39,6 @@ void ssp_render_set_shaders(ssp_render* render)
     render->shaders[0].type = GL_VERTEX_SHADER;
     render->shaders[0].path = "../../src/graphics/shader/gl33_vertex.glsl";
 
-    render->shaders[0].type = GL_FRAGMENT_SHADER;
-    render->shaders[0].path = "../../src/graphics/shader/gl33_fragment.glsl";
+    render->shaders[1].type = GL_FRAGMENT_SHADER;
+    render->shaders[1].path = "../../src/graphics/shader/gl33_fragment.glsl";
 }

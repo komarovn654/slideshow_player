@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <GLFW/glfw3.h>
 
-typedef struct {
+typedef struct ssp_shader_info_t{
     GLuint type;
     const char* path;
-} shader_meta;
+} ssp_shader_info;
 
-int shader_create_program(shader_meta* shaders, int shaders_count);
-GLuint shader_get_program(void);
-void shader_use_program(void);
+int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count);
+GLuint ssp_shader_get_program(void);
+void ssp_shader_use_program(void);
 
 #endif /* shader_h */

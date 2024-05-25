@@ -39,7 +39,10 @@ ssp_static void ssp_window_set_platform_name(int glfw_platform_id, char *name, i
         break;
     case GLFW_PLATFORM_X11:
         strncpy(name, "x11", name_size);
-        break;    
+        break;
+    case GLFW_PLATFORM_WIN32:
+        strncpy(name, "win32", name_size);
+        break;         
     default:
         log_warning("unknown display platform type");
         break;
@@ -102,7 +105,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
 
-    if (ssp_glfw_init(SSP_DP_WIN32) != 0) {
+    if (ssp_glfw_init(SSP_DP_X11) != 0) {
         log_error("SSP GLFW initialization error");
         return 1;
     }
@@ -111,9 +114,9 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window.height = height;
     ssp_window.redraw_time = redraw_time;
     glfwSetTime(ssp_window.redraw_time);
-    
+
     ssp_render_set_gl_ctx();
-    
+
     ssp_window.window = glfwCreateWindow(ssp_window.width, ssp_window.height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
     if (ssp_window.window == NULL) {
         log_error("GLFW couldn't create window");
@@ -128,7 +131,9 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
 
-    printf("OpenGL ES Version: %s\n", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_RENDERER));
+    printf("%s\n", glGetString(GL_VENDOR));
 
     if (ssp_render_init() != 0) {
         log_error("Render initialization error");
@@ -136,10 +141,6 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     }
     
     ssp_window.images = images;
-    
-    printf("%s\n", glGetString(GL_VERSION));
-    printf("%s\n", glGetString(GL_RENDERER));
-    printf("%s\n", glGetString(GL_VENDOR));
 
     return 0;
 }

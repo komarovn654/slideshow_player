@@ -27,7 +27,7 @@ static struct obs_inotify {
     struct pollfd fd;
     int event_mask;
 
-    observer* obs;
+    ssp_observer* obs;
 } obs_inotify;
 
 ssp_static int ssp_obsps_add_directories(void)
@@ -55,7 +55,7 @@ ssp_static int ssp_obsps_find_wd_index(int wd)
     return -1;
 }
 
-int ssp_obsps_init(observer settings)
+int ssp_obsps_init(ssp_observer settings)
 {
     if ((obs_inotify.obs = ssp_obs_init(settings)) == NULL) {
         log_error("Common observer initialization error");
@@ -105,13 +105,13 @@ ssp_static void ssp_obsps_event_handle(uint32_t mask, const char* event_name)
     {
     case IN_MOVED_TO:
     case IN_CREATE:
-        ssp_obs_storage_insert(obs_inotify.obs, paths[i]);
-        log_info("Observer. File <%s> has been created", paths[i]);
+        ssp_obs_storage_insert(obs_inotify.obs, event_name);
+        log_info("Observer. File <%s> has been created", event_name);
         break;
     case IN_MOVED_FROM:
     case IN_DELETE:
-        ssp_obs_storage_remove(obs_inotify.obs, paths[i]);
-        log_info("Observer. File <%s> has been deleted", paths[i]);
+        ssp_obs_storage_remove(obs_inotify.obs, event_name);
+        log_info("Observer. File <%s> has been deleted", event_name);
         break;
     default:
         log_warning("Observer. Something unkonwn(%d) was happened with <%s>:", mask, event_name);

@@ -21,7 +21,7 @@ typedef struct ssp_render_buffers_t {
 
 typedef struct ssp_render_t {
     GLfloat vertices[30];
-    shader_meta shaders[2];
+    ssp_shader_info shaders[2];
     ssp_render_buffers buffers;
     GLuint texture;
 } ssp_render;

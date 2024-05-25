@@ -5,6 +5,7 @@
 #include "GLFW/glfw3.h"
 #include "logman/logman.h"
 
+#include "ssp_helper.h"
 #include "ssp_shader.h"
 #include "ssp_memory.h"
 
@@ -15,7 +16,7 @@ static struct ssp_shader_t{
     char* fragment;
 } ssp_shader;
 
-static int ssp_shader_read(const char* shader_path, char** sh)
+static int ssp_shader_read(const char* shader_path, char** shader)
 {
     FILE* shader_file = fopen(shader_path, "r");
     if (shader_file == NULL) {
@@ -29,110 +30,104 @@ static int ssp_shader_read(const char* shader_path, char** sh)
         return 1;
     }
 
-    *sh = (char*)ssp_malloc(sbuff.st_size);
-    if (*sh == NULL) {
+    *shader = (char*)ssp_malloc(sbuff.st_size);
+    if (*shader == NULL) {
         log_error("Failed to allocate %ld bytes for the shader", sbuff.st_size);
         return 1;
     }
 
-    if (fread(*sh, sizeof(char), sbuff.st_size, shader_file) == 0) {
-        log_error("file %s is empty", shader_path);
+    if (fread(*shader, sizeof(char), sbuff.st_size, shader_file) == 0) {
+        log_error("File %s is empty", shader_path);
         return 1;
     }
 
     return 0;
 }
 
-static void shader_destructor(void)
+static void ssp_shader_destructor(void)
 {
-    if (shader.fragment != NULL) {
-        free(shader.fragment);
+    if (ssp_shader.fragment != NULL) {
+        ssp_free(ssp_shader.fragment);
     }
 
-    if (shader.vertex != NULL) {
-        free(shader.vertex);
+    if (ssp_shader.vertex != NULL) {
+        ssp_free(ssp_shader.vertex);
     }
 }
 
-static GLuint shader_create(GLuint shader_type, char** shader_source)
+ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
 {
     GLuint shader_id = glCreateShader(shader_type);
     glShaderSource(shader_id, 1, (const GLchar**)shader_source, NULL);
     glCompileShader(shader_id);
+
     GLint success;
-    GLchar infoLog[128];
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
+    if(!success) {
+        GLchar infoLog[128];
         glGetShaderInfoLog(shader_id, sizeof(infoLog), NULL, infoLog);
-        log_error("shader compilation error: %s\n", infoLog);
+        log_error("Shader compilation error: %s", infoLog);
         return 0;
     }
 
     return shader_id;
 }
 
-static int shader_compile(GLuint shader_type, const char* shader_path)
+static int ssp_shader_compile(GLuint shader_type, const char* shader_path)
 {
     char* shader_source = NULL;
     switch (shader_type) {
         case GL_VERTEX_SHADER:
-            shader_source = shader.vertex;
+            shader_source = ssp_shader.vertex;
             break;
         case GL_FRAGMENT_SHADER:
-            shader_source = shader.fragment;
+            shader_source = ssp_shader.fragment;
             break;
         default:
-            log_error("unknown shader type %u\n", shader_type);
+            log_error("Unknown shader type %u", shader_type);
             return 1;
     }
 
-    if (shader_read(shader_path, &shader_source) != 0) {
+    if (ssp_shader_read(shader_path, &shader_source) != 0) {
         return 0;
     };
 
-    GLuint id = shader_create(shader_type, &shader_source);
-    if (id == 0) {
-        return 0;
-    }
-
-    return id;
+    return ssp_shader_create(shader_type, &shader_source);
 }
 
-GLuint shader_get_program(void)
+GLuint ssp_shader_get_program(void)
 {
-    return shader.program_id;
+    return ssp_shader.program_id;
 }
 
-void shader_use_program(void)
+void ssp_shader_use_program(void)
 {
-    glUseProgram(shader.program_id);
+    glUseProgram(ssp_shader.program_id);
 }
 
-int shader_create_program(shader_meta* shaders, int shaders_count)
+int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
 {
-    shader.program_id = glCreateProgram();
+    ssp_shader.program_id = glCreateProgram();
     GLuint shaders_id[shaders_count];
 
     for (int i = 0; i < shaders_count; i++) {
-        shaders_id[i] = shader_compile(shaders[i].type, shaders[i].path);
+        shaders_id[i] = ssp_shader_compile(shaders[i].type, shaders[i].path);
         if (shaders_id[i] == 0) {
-            log_error("shader compile error: %s\n", shaders[i].path);
-            shader_destructor();
+            log_error("Shader creation error: %s", shaders[i].path);
+            ssp_shader_destructor();
             return 0;
         }
-
-        glAttachShader(shader.program_id, shaders_id[i]);
+        glAttachShader(ssp_shader.program_id, shaders_id[i]);
     }
 
     GLint success;
-    GLchar infoLog[128];
-    glLinkProgram(shader.program_id);
-    glGetProgramiv(shader.program_id, GL_LINK_STATUS, &success);
+    glLinkProgram(ssp_shader.program_id);
+    glGetProgramiv(ssp_shader.program_id, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(shader.program_id, sizeof(infoLog), NULL, infoLog);
-        log_error("program link error: %s\n", infoLog);
-        shader_destructor();
+        GLchar infoLog[128];
+        glGetProgramInfoLog(ssp_shader.program_id, sizeof(infoLog), NULL, infoLog);
+        log_error("Gl program link error: %s", infoLog);
+        ssp_shader_destructor();
         return 0;
     }
 
@@ -140,5 +135,5 @@ int shader_create_program(shader_meta* shaders, int shaders_count)
         glDeleteShader(shaders_id[i]);
     }
 
-    return shader.program_id;
+    return ssp_shader.program_id;
 }

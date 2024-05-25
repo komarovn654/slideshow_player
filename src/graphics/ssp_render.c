@@ -34,8 +34,8 @@ int ssp_render_init(void)
 {
     ssp_render_init_buffers(&render);
     ssp_render_set_shaders(&render);
-    
-    if (shader_create_program(render.shaders, 2) == 0) {
+
+    if (ssp_shader_create_program(render.shaders, 2) == 0) {
         log_error("SSP render couldn't create shader program");
         return 1;
     }
@@ -59,7 +59,7 @@ ssp_static void ssp_render_draw_error(void)
 
 int ssp_render_redraw(const char* image)
 { 
-    shader_use_program();
+    ssp_shader_use_program();
     
     if (ssp_render_bind_to_texture(image) != 0) {
         log_error("SSP render couldn't bind image to texture");

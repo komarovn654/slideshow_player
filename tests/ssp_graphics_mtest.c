@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     image_storage->move_ptr_to_next = ssp_list_move_headv;
     image_storage->image_name = ssp_list_head_namev;
 
-    ssp_list_insert(image_list, "C:\\dev\\slideshow_player\\tests\\images\\tiny.jpg");
+    ssp_list_insert(image_list, "C:\\dev\\slideshow_player\\tests\\images\\rainbow.jpg");
 
     if (ssp_window_init(400, 400, 1.0, image_storage) != 0) {
         return EXIT_FAILURE;

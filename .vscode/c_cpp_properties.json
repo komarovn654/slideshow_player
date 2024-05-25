@@ -22,7 +22,11 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/third_party/googletest/googletest/include",
-                "${workspaceFolder}/third_party/logman/include"
+                "${workspaceFolder}/third_party/logman/include",
+                "${workspaceFolder}/third_party/glad/opengl33/include",
+                "${workspaceFolder}/src/list",
+                "${workspaceFolder}/src/graphics",
+                "${workspaceFolder}/third_party/stb/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

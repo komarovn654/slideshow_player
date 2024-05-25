@@ -133,7 +133,8 @@
         "xloctime": "c",
         "xmemory": "c",
         "xutility": "c",
-        "tiny_hex.c": "cpp"
+        "tiny_hex.c": "cpp",
+        "stb_image.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 
