@@ -7,7 +7,8 @@
                 "${workspaceFolder}/third_party/googletest/googletest/include",
                 "${workspaceFolder}/third_party/logman/include",
                 "/opt/homebrew/include",
-                "/opt/devil/include"
+                "/opt/devil/include",
+                "${workspaceFolder}/third_party/glad/opengl33/include"
             ],
             "defines": [],
             "macFrameworkPath": [

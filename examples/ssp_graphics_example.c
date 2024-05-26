@@ -1,10 +1,7 @@
 #include "logman/logman.h"
 
-#include "ssp_list.h"
 #include "ssp_helper.h"
-#include "ssp_memory.h"
 #include "ssp_window.h"
-#include "ssp_image_loader.h"
 
 static void logman_error_callback(void)
 {
@@ -35,22 +32,22 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    ssp_list image_list = ssp_list_init();
-    if (image_list == NULL) {
-        return EXIT_FAILURE;
-    }
+    // ssp_list image_list = ssp_list_init();
+    // if (image_list == NULL) {
+    //     return EXIT_FAILURE;
+    // }
 
-    ssp_image_storage* image_storage = (ssp_image_storage*)ssp_calloc(1, sizeof(ssp_image_storage));
-    image_storage->storage_ptr = (void*)image_list;
-    image_storage->storage_head = (void*)image_list;
-    image_storage->insert = ssp_list_insertv;
-    image_storage->remove = ssp_list_removev_node;
-    image_storage->move_ptr_to_next = ssp_list_move_headv;
-    image_storage->image_name = ssp_list_head_namev;
+    ssp_image_storage* image_storage = (ssp_image_storage*)calloc(1, sizeof(ssp_image_storage));
+    image_storage->storage_ptr = (void*)NULL;
+    image_storage->storage_head = (void*)NULL;
+    image_storage->insert = NULL;
+    image_storage->remove = NULL;
+    image_storage->move_ptr_to_next = NULL;
+    image_storage->image_name = NULL;
 
-    ssp_list_insert(image_list, "C:\\dev\\slideshow_player\\tests\\images\\rainbow.jpg");
+    // ssp_list_insert(image_list, "/home/nikolay/dev/slideshow_player/tests/images/rainbow.jpg");
 
-    if (ssp_window_init(400, 400, 1.0, image_storage) != 0) {
+    if (ssp_window_init(40, 40, 1.0, image_storage) != 0) {
         return EXIT_FAILURE;
     }
 

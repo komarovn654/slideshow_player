@@ -1,13 +1,12 @@
-#version 300 es
-
+#version 100
 precision mediump float;
-in vec2 TexCoord;
+vec2 TextCoord;
 
-out vec4 color;
+vec4 color;
 
 uniform sampler2D ourTexture;
 
 void main()
 {
-	color = texture(ourTexture, TexCoord);
+	color = vec4(1, 1, 1, 1);
 }

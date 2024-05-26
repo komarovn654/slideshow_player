@@ -105,7 +105,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
 
-    if (ssp_glfw_init(SSP_DP_X11) != 0) {
+    if (ssp_glfw_init(SSP_DP_WAYLAND) != 0) {
         log_error("SSP GLFW initialization error");
         return 1;
     }
@@ -126,7 +126,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window_resize_handler();
     glfwMakeContextCurrent(ssp_window.window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress)) {
         log_error("GLAD initialization error");
         return 1;
     }
