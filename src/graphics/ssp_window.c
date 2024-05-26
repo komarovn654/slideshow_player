@@ -126,11 +126,6 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window_resize_handler();
     glfwMakeContextCurrent(ssp_window.window);
 
-    if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress)) {
-        log_error("GLAD initialization error");
-        return 1;
-    }
-
     printf("%s\n", glGetString(GL_VERSION));
     printf("%s\n", glGetString(GL_RENDERER));
     printf("%s\n", glGetString(GL_VENDOR));

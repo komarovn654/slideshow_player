@@ -42,3 +42,13 @@ void ssp_render_set_shaders(ssp_render* render)
     render->shaders[1].type = GL_FRAGMENT_SHADER;
     render->shaders[1].path = "../../src/graphics/shader/gl33_fragment.glsl";
 }
+
+int ssp_render_init_glad(void)
+{
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        log_error("GLAD initialization error");
+        return 1;
+    }
+
+    return 0;
+}

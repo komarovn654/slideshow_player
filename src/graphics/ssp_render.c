@@ -32,6 +32,7 @@ ssp_static int ssp_render_bind_to_texture(const char *image_path)
 
 int ssp_render_init(void)
 {
+    ssp_render_init_glad();
     ssp_render_init_buffers(&render);
     ssp_render_set_shaders(&render);
 
