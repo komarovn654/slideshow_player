@@ -105,7 +105,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
 
-    if (ssp_glfw_init(SSP_DP_WAYLAND) != 0) {
+    if (ssp_glfw_init(SSP_DISPLAY_PLATFORM) != 0) {
         log_error("SSP GLFW initialization error");
         return 1;
     }

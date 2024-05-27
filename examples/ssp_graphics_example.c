@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
     // ssp_list_insert(image_list, "/home/nikolay/dev/slideshow_player/tests/images/rainbow.jpg");
 
-    if (ssp_window_init(40, 40, 1.0, image_storage) != 0) {
+    if (ssp_window_init(400, 400, 1.0, image_storage) != 0) {
         return EXIT_FAILURE;
     }
 

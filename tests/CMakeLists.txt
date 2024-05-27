@@ -46,9 +46,11 @@ add_executable(
 target_link_libraries(ssp_observer_utest ssp_list gtest_main gtest)
 gtest_discover_tests(ssp_observer_utest)
 
-add_executable(ssp_observer_ps_utest ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_ps_utest.cpp ${UTILS_SOURCES})
-target_link_libraries(ssp_observer_ps_utest ssp_observer gtest_main gtest)
-gtest_discover_tests(ssp_observer_ps_utest)
+if (!WIN32)
+    add_executable(ssp_observer_ps_utest ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_ps_utest.cpp ${UTILS_SOURCES})
+    target_link_libraries(ssp_observer_ps_utest ssp_observer gtest_main gtest)
+    gtest_discover_tests(ssp_observer_ps_utest)
+endif()
 # Observer tests
 
 # Graphics tests

@@ -41,7 +41,7 @@ link_libraries(
     logman
     glfw3
     m
-    GLESv2
+    # GLESv2
     # EGL
     # ${OGL}
     # ${COCOA}

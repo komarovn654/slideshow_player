@@ -1,9 +1,12 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include "ssp_helper.h"
 
 #define MAX_WINDOW_WIDTH    960
 #define MAX_WINDOW_HEIGHT   1280
+
+#define SSP_DISPLAY_PLATFORM (GLFW_PLATFORM_WIN32)
 
 typedef enum {
     SSP_DP_UNKNOWN = 0,

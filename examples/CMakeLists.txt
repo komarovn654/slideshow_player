@@ -13,8 +13,10 @@ link_directories(
 add_executable(ssp_list_example ${CMAKE_CURRENT_LIST_DIR}/ssp_list_example.c)
 target_link_libraries(ssp_list_example ssp_list)
 
-add_executable(ssp_observer_example ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_example.c)
-target_link_libraries(ssp_observer_example ssp_observer logman)
+if (!WIN32)
+    add_executable(ssp_observer_example ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_example.c)
+    target_link_libraries(ssp_observer_example ssp_observer logman)
+endif()
 
 add_executable(ssp_graphics_example ${CMAKE_CURRENT_LIST_DIR}/ssp_graphics_example.c)
 target_include_directories(
@@ -23,7 +25,9 @@ target_include_directories(
     # ${CMAKE_SOURCE_DIR}/third_party/glad/opengles32/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
 )
-target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 GLESv2 m)
+target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 m
+    # GLESv2
+)
 
 # add_executable(
 #     ssp_graphics_mtest
