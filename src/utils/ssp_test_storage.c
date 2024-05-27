@@ -2,6 +2,7 @@
 
 #include "ssp_memory.h"
 #include "ssp_helper.h"
+#include "ssp_test_storage.h"
 
 // static char* storage[MAX_ITEM_LEN];
 // static size_t storage_index;
@@ -71,13 +72,31 @@ static void* ssp_test_storage_move_ptr(void* storage)
     return NULL;
 }
 
-ssp_image_storage* ssp_test_storage_init()
+ssp_image_storage* ssp_test_storage_init(size_t items_count)
 {
+    // TODO: free if NULL
     ssp_image_storage* storage = ssp_malloc(sizeof(ssp_image_storage));
+     if (storage == NULL) {
+        return NULL;
+    }   
+
     storage->image_name = ssp_test_storage_item_name;
     storage->move_ptr_to_next = ssp_test_storage_move_ptr;
     storage->insert = ssp_test_storage_insert;
     storage->remove = ssp_test_storage_remove;
+
+    storage->storage_head = (char**)ssp_malloc(items_count * SSP_TEST_STORAGE_ITEM_LEN);
+    if (storage->storage_head == NULL) {
+        return NULL;
+    }
+    storage->storage_ptr = storage->storage_head;
+
+    for (size_t i = 0; i < items_count; i++) {
+        ((char**)storage->storage_head)[i] = (char*)ssp_malloc(SSP_TEST_STORAGE_ITEM_LEN);
+        if (((char**)storage->storage_head)[i] == NULL) {
+            return NULL;
+        }
+    }
 
     return storage;
 }

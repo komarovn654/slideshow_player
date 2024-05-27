@@ -1,3 +1,11 @@
+if (APPLE)
+    find_library(OGL OpenGL)
+    find_library(COCOA Cocoa)
+    find_library(IOKIT IOKit)
+
+    set(RENDER_LIB ${OGL} ${COCOA} ${IOKIT})
+endif()
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/src/observer/
@@ -25,9 +33,8 @@ target_include_directories(
     # ${CMAKE_SOURCE_DIR}/third_party/glad/opengles32/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
 )
-target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 m
-    # GLESv2
-)
+target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 m ${RENDER_LIB})
+    # GLESv2)
 
 # add_executable(
 #     ssp_graphics_mtest
