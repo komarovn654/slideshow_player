@@ -59,7 +59,7 @@ ssp_observer* ssp_obs_init(ssp_observer settings)
     obs->filter = settings.filter;
 
     for (size_t i = 0; i < settings.dirs_count; i++) {
-        if ((obs->dirs[i] = (char*)ssp_calloc(SSP_OBS_DIR_NAME_LEN, 1)) == NULL) {
+        if ((obs->dirs[i] = (char*)ssp_calloc(SSP_OBS_DIR_NAME_LEN, sizeof(char))) == NULL) {
             log_error("Observer memory allocation error");
             return NULL;
         }

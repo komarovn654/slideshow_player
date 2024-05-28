@@ -7,7 +7,7 @@
 // static char* storage[MAX_ITEM_LEN];
 // static size_t storage_index;
 
-static void* ssp_test_storage_insert(void* storage, const char* item_name)
+ssp_static void* ssp_test_storage_insert(void* storage, const char* item_name)
 {
     // char* s = ((char**)storage)[storage_index];
     // if (strlen(item_name) >= MAX_ITEM_LEN) {
@@ -21,7 +21,7 @@ static void* ssp_test_storage_insert(void* storage, const char* item_name)
     return NULL;
 }
 
-static void ssp_test_storage_remove(void** storage, const char* item_name)
+ssp_static void ssp_test_storage_remove(void** storage, const char* item_name)
 {
     // char* stripped_item_name = (__builtin_strrchr(item_name, '/') ? __builtin_strrchr(item_name, '/') + 1 : (char*)item_name);
 
@@ -38,7 +38,7 @@ static void ssp_test_storage_remove(void** storage, const char* item_name)
     return;
 }
 
-static char* ssp_test_storage_item_name(void* storage)
+ssp_static char* ssp_test_storage_item_name(void* storage)
 {
     // char* stripped_item_name = (__builtin_strrchr(item_name, '/') ? __builtin_strrchr(item_name, '/') + 1 : (char*)item_name);
 
@@ -55,7 +55,7 @@ static char* ssp_test_storage_item_name(void* storage)
     return NULL;
 }
 
-static void* ssp_test_storage_move_ptr(void* storage)
+ssp_static void* ssp_test_storage_move_ptr(void* storage)
 {
     // char* stripped_item_name = (__builtin_strrchr(item_name, '/') ? __builtin_strrchr(item_name, '/') + 1 : (char*)item_name);
 
@@ -74,29 +74,46 @@ static void* ssp_test_storage_move_ptr(void* storage)
 
 ssp_image_storage* ssp_test_storage_init(size_t items_count)
 {
-    // TODO: free if NULL
     ssp_image_storage* storage = ssp_malloc(sizeof(ssp_image_storage));
      if (storage == NULL) {
         return NULL;
     }   
 
+    storage->items_count = items_count;
     storage->image_name = ssp_test_storage_item_name;
     storage->move_ptr_to_next = ssp_test_storage_move_ptr;
     storage->insert = ssp_test_storage_insert;
     storage->remove = ssp_test_storage_remove;
 
-    storage->storage_head = (char**)ssp_malloc(items_count * SSP_TEST_STORAGE_ITEM_LEN);
+    storage->storage_head = (char**)ssp_malloc(items_count * sizeof(char*));
     if (storage->storage_head == NULL) {
+        ssp_free(storage);
         return NULL;
     }
     storage->storage_ptr = storage->storage_head;
 
-    for (size_t i = 0; i < items_count; i++) {
-        ((char**)storage->storage_head)[i] = (char*)ssp_malloc(SSP_TEST_STORAGE_ITEM_LEN);
+    size_t i = 0;
+    for (i = 0; i < items_count; i++) {
+        ((char**)storage->storage_head)[i] = (char*)ssp_malloc(SSP_TEST_STORAGE_ITEM_LEN * sizeof(char));
         if (((char**)storage->storage_head)[i] == NULL) {
+            for (i - 1; i >= 0; i--) {
+                ssp_free(((char**)storage->storage_head)[i]);
+            }
+            ssp_free(storage->storage_head);
+            ssp_free(storage);
             return NULL;
         }
     }
 
     return storage;
+}
+
+void ssp_test_storage_destruct(ssp_image_storage* storage)
+{
+    for (size_t i = 0; i < storage->items_count; i++) {
+        ssp_free(((char**)storage->storage_head)[i]);
+    }
+
+    ssp_free(storage->storage_head);
+    ssp_free(storage);
 }

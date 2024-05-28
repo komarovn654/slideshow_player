@@ -12,6 +12,7 @@ extern "C" {
 #define SSP_TEST_STORAGE_ITEM_LEN (SSP_FILE_NAME_MAX_LEN)
 
 ssp_image_storage* ssp_test_storage_init(size_t items_count);
+void ssp_test_storage_destruct(ssp_image_storage* storage);
 
 #ifdef __cplusplus
 }
