@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 #include "ssp_list.h"
+#include "ssp_memory.h"
+#include "ssp_helper.h"
 
 typedef struct ssp_node {
     char* name;
@@ -233,7 +235,7 @@ TEST_F(TestListFixture, ListRemovev_RemoveTail)
     ssp_list_insert(list, "head");
     ssp_list_insert(list, "mid");
     ssp_list_insert(list, "tail");
-    ssp_list_removev_node((void**)list, "tail");
+    ssp_list_remove_nodev((void**)list, "tail");
     
     EXPECT_EQ(ssp_ptr_storage_size(), 4);
     EXPECT_STREQ(list->name, "head");
@@ -325,4 +327,17 @@ TEST_F(TestListFixture, ListMoveHead)
     EXPECT_TRUE(new_head != NULL);
     EXPECT_STREQ(ssp_list_head_name(list), "head");
     EXPECT_STREQ(ssp_list_head_name(new_head), "item");
+}
+
+TEST(TestList, ListImageStorage)
+{
+    ssp_image_storage* is = ssp_list_init_is();
+    ASSERT_EQ(is->insert, ssp_list_insertv);
+    ASSERT_EQ(is->remove, ssp_list_remove_nodev);
+    ASSERT_EQ(is->move_ptr_to_next, ssp_list_move_headv);
+    ASSERT_EQ(is->image_name, ssp_list_head_namev);
+    ASSERT_EQ(ssp_ptr_storage_size(), 2);
+
+    ssp_list_destruct_is(is);
+    ASSERT_EQ(ssp_ptr_storage_size(), 0);
 }

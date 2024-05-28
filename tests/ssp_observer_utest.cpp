@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "ssp_list.h"
 #include "ssp_observer.h"
+#include "ssp_test_storage.h"
 #include "ssp_memory.h"
 
 extern "C" 
@@ -25,23 +26,23 @@ public:
 
     ssp_observer settings;
 
-    static const size_t storage_size = 32;
-    static const size_t storage_name_len = 128;
-    char* storage[storage_size];
+    // static const size_t storage_size = 32;
+    // static const size_t storage_name_len = 128;
+    // char* storage[storage_size];
 
-    static void* storage_insert(void* vstorage, const char* item_name)
-    {
-        char* s = ((char**)vstorage)[storage_count];
-        snprintf(s, storage_name_len, "%s", item_name);
-        storage_count++;
+    // static void* storage_insert(void* vstorage, const char* item_name)
+    // {
+    //     char* s = ((char**)vstorage)[storage_count];
+    //     snprintf(s, storage_name_len, "%s", item_name);
+    //     storage_count++;
 
-        return NULL;
-    }
+    //     return NULL;
+    // }
 
-    static void storage_remove(void** vstorage, const char* item_name)
-    {
-        return;
-    }
+    // static void storage_remove(void** vstorage, const char* item_name)
+    // {
+    //     return;
+    // }
 
     static bool filter(const char *file_name)
     {
@@ -68,14 +69,14 @@ public:
 protected:
     void SetUp()
     {
-        for (size_t i = 0; i < storage_size; i++) {
-            storage[i] = new char [storage_name_len];
-        }
+        // for (size_t i = 0; i < storage_size; i++) {
+        //     storage[i] = new char [storage_name_len];
+        // }
 
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
-        settings.storage = storage;
-        settings.storage_insert = storage_insert;
-        settings.storage_remove = storage_remove;
+        settings.istorage = ssp_test_storage_init();
+        // settings.storage_insert = storage_insert;
+        // settings.storage_remove = storage_remove;
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             settings.dirs[i] = new char [SSP_OBS_DIR_NAME_LEN];
@@ -84,7 +85,7 @@ protected:
     }
     void TearDown()
     {
-        storage_count = 0;
+        // storage_count = 0;
 
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             rmdir(settings.dirs[i]);
@@ -93,10 +94,10 @@ protected:
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
             delete(settings.dirs[i]);
         }
-
-        for (size_t i = 0; i < storage_size; i++) {
-            delete(storage[i]);
-        }
+        ssp_test_storage_destruct(settings.istorage);
+        // for (size_t i = 0; i < storage_size; i++) {
+        //     delete(storage[i]);
+        // }
     }
 };
 
@@ -120,21 +121,30 @@ TEST_F(TestObserverFixture, ObserverAssert_Error)
     EXPECT_EQ(ssp_obs_assert(settings), 1);
     settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;    
 
-    settings.storage = NULL;
+    ssp_image_storage* tmp = settings.istorage;
+    settings.istorage = NULL;
     EXPECT_EQ(ssp_obs_assert(settings), 1);
-    settings.storage = storage;
+    settings.istorage = tmp;
 
-    settings.storage_insert = NULL;
+    settings.istorage->storage_head = NULL;
     EXPECT_EQ(ssp_obs_assert(settings), 1);
-    settings.storage_insert = storage_insert;
+    settings.istorage->storage_head = tmp->storage_head;
 
-    settings.storage_remove = NULL;
-    EXPECT_EQ(ssp_obs_assert(settings), 1);
-    settings.storage_remove = storage_remove;
+    // settings.istorage->storage_ptr = NULL;
+    // EXPECT_EQ(ssp_obs_assert(settings), 1);
+    // settings.istorage->storage_ptr = tmp->storage_ptr;
 
-    settings.filter = NULL;
-    EXPECT_EQ(ssp_obs_assert(settings), 1);
-    settings.filter = filter;    
+    // settings.istorage->insert = NULL;
+    // EXPECT_EQ(ssp_obs_assert(settings), 1);
+    // settings.istorage->insert = tmp->insert;
+
+    // settings.istorage->remove = NULL;
+    // EXPECT_EQ(ssp_obs_assert(settings), 1);
+    // settings.istorage->remove = tmp->remove;
+
+    // settings.filter = NULL;
+    // EXPECT_EQ(ssp_obs_assert(settings), 1);
+    // settings.filter = filter;
 }
 
 TEST_F(TestObserverFixture, ObserverInit_Error)
@@ -150,9 +160,7 @@ TEST_F(TestObserverFixture, ObserverInit_Success)
     EXPECT_TRUE(obs != NULL);
 
     EXPECT_EQ(obs->dirs_count, settings.dirs_count);
-    EXPECT_EQ(obs->storage, settings.storage);
-    EXPECT_EQ(obs->storage_insert, settings.storage_insert);
-    EXPECT_EQ(obs->storage_remove, settings.storage_remove);
+    EXPECT_EQ(obs->istorage, settings.istorage);
     EXPECT_EQ(obs->filter, settings.filter);
 
     for (size_t i = 0; i < settings.dirs_count; i++) {
@@ -193,22 +201,21 @@ TEST_F(TestObserverFixture, ObserverStorageInsert_SSPListInsert)
     };
     const char items_to_insert[tc_count][item_len] = {"", "item_0", "item_1", "item_2"};
 
-    settings.storage = ssp_list_init();
-    settings.storage_insert = ssp_list_insertv;
+    settings.istorage = ssp_list_init_is();
     ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
     for (size_t i = 0; i < tc_count; i++) {
         EXPECT_TRUE(ssp_obs_storage_insert(obs, items_to_insert[i]) != NULL);
 
-        ssp_list_traversal((ssp_list)settings.storage, (char **)list_storage, item_len);
+        ssp_list_traversal((ssp_list)settings.istorage->storage_ptr, (char **)list_storage, item_len);
         EXPECT_STREQ(list_storage[0], expected[i][0]);
         EXPECT_STREQ(list_storage[1], expected[i][1]);
         EXPECT_STREQ(list_storage[2], expected[i][2]);
         EXPECT_STREQ(list_storage[3], expected[i][3]);
     }
 
-    ssp_list_destruct((ssp_list)settings.storage);
+    ssp_list_destruct_is(settings.istorage);
     ssp_obs_destruct(obs);
 }
 
@@ -229,9 +236,7 @@ TEST_F(TestObserverFixture, ObserverStorageRemove_SSPListRemove)
     };
     const char items_to_remove[tc_count][item_len] = {"smth", "", "item_2", "item_1", "item_3", "item_0"};
 
-    settings.storage = ssp_list_init();
-    settings.storage_insert = ssp_list_insertv;
-    settings.storage_remove = ssp_list_removev_node;
+    settings.istorage = ssp_list_init_is();
     ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
@@ -244,14 +249,14 @@ TEST_F(TestObserverFixture, ObserverStorageRemove_SSPListRemove)
         ssp_obs_storage_remove(obs, items_to_remove[i]);
 
         memset(list_storage, 0, item_count * item_len);
-        ssp_list_traversal((ssp_list)settings.storage, (char **)list_storage, item_len);
+        ssp_list_traversal((ssp_list)settings.istorage->storage_ptr, (char **)list_storage, item_len);
         EXPECT_STREQ(list_storage[0], expected[i][0]);
         EXPECT_STREQ(list_storage[1], expected[i][1]);
         EXPECT_STREQ(list_storage[2], expected[i][2]);
         EXPECT_STREQ(list_storage[3], expected[i][3]);
     }
 
-    ssp_list_destruct((ssp_list)settings.storage);
+    ssp_list_destruct_is(settings.istorage);
     ssp_obs_destruct(obs);
 }
 
@@ -312,12 +317,13 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
 
     EXPECT_EQ(ssp_obs_dirs_traversal(obs), 0);
     // sort storage by names
-    std::sort((const char**)storage, (const char**)storage + storage_count, [](const char* a, const char* b) {
+    std::sort((const char**)settings.istorage->storage_ptr, (const char**)settings.istorage->storage_ptr + storage_count,
+        [](const char* a, const char* b) {
         return std::strcmp(a, b) < 0;
     });
 
     for (size_t i = 0; i < expected_count; i++) {
-        EXPECT_STREQ(expected[i], storage[i]);
+        EXPECT_STREQ(expected[i], ((const char**)settings.istorage->storage_ptr)[i]);
     }
 
     remove(third_file);

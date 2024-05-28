@@ -15,9 +15,13 @@ ssp_static int ssp_obs_assert(ssp_observer settings)
         return 1;
     }    
 
-    if (settings.storage == NULL || settings.storage_insert == NULL || settings.storage_remove == NULL) {
-        log_error("It's impossible to initialize the observer without an item storage or methods for it");
-        return 1;
+    if (settings.istorage == NULL || 
+        settings.istorage->insert == NULL || 
+        settings.istorage->remove == NULL ||
+        settings.istorage->storage_head == NULL ||
+        settings.istorage->storage_ptr == NULL) {
+            log_error("It's impossible to initialize the observer without an item storage or methods for it");
+            return 1;
     }
 
     if (settings.filter == NULL) {
@@ -53,9 +57,7 @@ ssp_observer* ssp_obs_init(ssp_observer settings)
     }
 
     obs->dirs_count = settings.dirs_count;
-    obs->storage = settings.storage;
-    obs->storage_insert = settings.storage_insert;
-    obs->storage_remove = settings.storage_remove;
+    obs->istorage = settings.istorage;
     obs->filter = settings.filter;
 
     for (size_t i = 0; i < settings.dirs_count; i++) {
@@ -85,7 +87,7 @@ void* ssp_obs_storage_insert(ssp_observer* obs, const char* item_name)
         return NULL;
     }
 
-    return obs->storage_insert(obs->storage, item_name);
+    return obs->istorage->insert(obs->istorage->storage_ptr, item_name);
 }
 
 void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
@@ -94,7 +96,7 @@ void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
         log_error("Observer wasn't initialized");
     }
 
-    obs->storage_remove(obs->storage, item_name);
+    obs->istorage->remove(obs->istorage->storage_ptr, item_name);
 }
 
 bool ssp_obs_filter(ssp_observer* obs, const char *file_name)
@@ -115,7 +117,7 @@ int ssp_obs_dirs_traversal(ssp_observer* obs)
     }
 
     for (size_t i = 0; i < obs->dirs_count; i++) {
-        if (ssp_dir_traversal(obs->dirs[i], obs->storage_insert, obs->storage, obs->filter) != 0) {
+        if (ssp_dir_traversal(obs->dirs[i], obs->istorage->insert, obs->istorage->storage_ptr, obs->filter) != 0) {
             log_error("Observer couldn't traversal directory <%s>", obs->dirs[i]);
             return 1;
         }

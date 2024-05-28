@@ -17,10 +17,10 @@ typedef struct ssp_observer {
     size_t dirs_count;
 
     // TODO: replace these with the "images_storage" struct
-    void* storage;
-    void* (*storage_insert)(void*  storage, const char* item_name);
-    void  (*storage_remove)(void** storage, const char* item_name);
-
+    ssp_image_storage* istorage;
+    // void* storage;
+    // void* (*storage_insert)(void*  storage, const char* item_name);
+    // void  (*storage_remove)(void** storage, const char* item_name);
     bool (*filter)(const char *file_name);
 } ssp_observer;
 

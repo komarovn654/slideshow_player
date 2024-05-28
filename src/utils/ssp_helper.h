@@ -23,7 +23,6 @@ extern "C" {
 typedef struct ssp_image_storage_t {
     void* storage_head;
     void* storage_ptr;
-    size_t items_count;
 
     char* (*image_name)(void* storage_ptr);
     void* (*move_ptr_to_next)(void* storage_ptr);

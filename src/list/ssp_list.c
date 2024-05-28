@@ -5,6 +5,8 @@
 
 #include "logman/logman.h"
 #include "ssp_list.h"
+#include "ssp_memory.h"
+#include "ssp_helper.h"
 
 #define delete_node(node) {\
     ssp_free((node)->name);\
@@ -105,7 +107,7 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
     }
 }
 
-void ssp_list_removev_node(void** head, const char* remove_name)
+void ssp_list_remove_nodev(void** head, const char* remove_name)
 {
     ssp_list_remove_node((ssp_list*)&head, remove_name);
 }
@@ -201,4 +203,24 @@ char* ssp_list_head_namev(void* head)
 void* ssp_list_move_headv(void* head)
 {
     return ssp_list_move_head(head);
+}
+
+ssp_image_storage* ssp_list_init_is(void)
+{
+    ssp_image_storage* is = (ssp_image_storage*)ssp_malloc(sizeof(ssp_image_storage));
+
+    is->storage_head = ssp_list_init();
+    is->storage_ptr = is->storage_head;
+    is->insert = ssp_list_insertv;
+    is->remove = ssp_list_remove_nodev;
+    is->image_name = ssp_list_head_namev;
+    is->move_ptr_to_next = ssp_list_move_headv;
+
+    return is;
+}
+
+void ssp_list_destruct_is(ssp_image_storage* is)
+{
+    ssp_list_destruct(is->storage_head);
+    ssp_free(is);
 }
