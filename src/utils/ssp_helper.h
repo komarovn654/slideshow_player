@@ -18,6 +18,12 @@ extern "C" {
     #define ssp_static static
 #endif
 
+#if (defined(EXC_PATH))
+    #define SSP_EXC_PATH EXC_PATH
+#else
+    #define SSP_EXC_PATH "undef"
+#endif
+
 #define SSP_FILE_NAME_MAX_LEN (200)
 
 typedef struct ssp_image_storage_t {

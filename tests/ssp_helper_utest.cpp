@@ -1,16 +1,22 @@
 #include <cstdlib>
 #include <string>
+#include <stdlib.h>
+#include <stdio.h>
 #include <dirent.h>
 
 #include "gtest/gtest.h"
 #include "ssp_helper.h"
+
+extern "C" {
+    ssp_static int ssp_dir_absolute_path(const char* dir_path, char* abs_path);
+}
 
 class TestHelperFixture : public ::testing::Test
 {
 public:
     static const size_t max_count = 10;
     const std::string dir_path = "../../tests/images/";
-    const std::string empty_dir_path = "./empty_dir/";
+    const std::string empty_dir_path = "./empty_dir";
     size_t jpg_files_count = 0;
     size_t txt_files_count = 0;
     std::string jpg_files[max_count];
@@ -114,4 +120,17 @@ TEST_F(TestHelperFixture, DirTraversal_Empty)
     for(i = 0; i < jpg_files_count; i++) {
         ASSERT_STREQ(storage[i], "");
     }
+}
+
+TEST_F(TestHelperFixture, AbsPath)
+{
+    char expected[PATH_MAX];
+    ssp_mkdir(empty_dir_path.data());
+
+    snprintf(expected, 200, "%s %s", SSP_EXC_PATH, (char*)empty_dir_path.data()[1]);
+    printf("%s\n", expected);
+
+    ssp_dir_absolute_path((const char*)empty_dir_path.data(), expected);
+    printf("%s\n", SSP_EXC_PATH);
+    printf("%s\n", expected);
 }

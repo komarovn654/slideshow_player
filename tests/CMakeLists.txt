@@ -2,7 +2,7 @@
 set(CMAKE_CXX_STANDARD )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_definitions(UTEST_BUILD=1)
+add_compile_definitions(UTEST_BUILD=1 EXC_PATH="${CMAKE_BINARY_DIR}")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include/

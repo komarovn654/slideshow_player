@@ -2,8 +2,10 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "logman/logman.h"
 
@@ -54,6 +56,15 @@ bool ssp_is_file_image(const char *file_name)
     return false;
 }
 
+ssp_static int ssp_dir_absolute_path(const char* dir_path, char* abs_path)
+{
+    if (realpath(dir_path, abs_path) == NULL) {
+        return 0;
+    }
+
+	return 1;
+}
+
 int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, const char *file_name), void *storage, 
 	bool (*filter)(const char *file_name))
 {
@@ -61,7 +72,12 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 		return 1;
 	}
 
-	DIR *d = opendir(dir_path);
+	char abs_dir_path[PATH_MAX];
+	if (ssp_dir_absolute_path(dir_path, abs_dir_path) != 0) {
+		return 1;
+	}
+
+	DIR *d = opendir(abs_dir_path);
   	if (d == NULL) {
 		return 1;
 	}
@@ -69,7 +85,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 	char file_name[SSP_FILE_NAME_MAX_LEN] = { 0 };
   	struct dirent *dir;
   	while ((dir = readdir(d)) != NULL) {
-		if (snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", dir_path, dir->d_name) >= SSP_FILE_NAME_MAX_LEN) {
+		if (snprintf(file_name, SSP_FILE_NAME_MAX_LEN, "%s%s", abs_dir_path, dir->d_name) >= SSP_FILE_NAME_MAX_LEN) {
 			log_warning("<%s> is too long and was truncated", dir->d_name);
 			continue;
 		};
