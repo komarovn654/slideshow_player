@@ -10,7 +10,6 @@ extern "C" {
 #include "ssp_helper.h"
 
 #define SSP_OBS_DIRS_MAX_COUNT  (10)
-#define SSP_OBS_DIR_NAME_LEN    (256)
 
 typedef struct ssp_observer {
     char* dirs[SSP_OBS_DIRS_MAX_COUNT];

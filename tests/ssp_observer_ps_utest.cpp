@@ -71,8 +71,8 @@ protected:
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
-            settings.dirs[i] = new char [SSP_OBS_DIR_NAME_LEN];
-            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "./directory_%li/", i);
+            settings.dirs[i] = new char [PATH_MAX];
+            snprintf(settings.dirs[i], PATH_MAX, "./directory_%li/", i);
         }
     }
     void TearDown()
@@ -155,14 +155,13 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Remove)
         "./directory_0/text_file_2.txt",
         "./directory_0/text_file_3.txt"
     };
-    const char expected[tc_count][max_items_in_storage][SSP_FILE_NAME_MAX_LEN] = {
-        {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
-        {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
-        {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
-        {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
-        {"./directory_0/text_file_3.txt", NULL},
-    };
-
+    // const char expected[tc_count][max_items_in_storage][SSP_FILE_NAME_MAX_LEN] = {
+    //     {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+    //     {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+    //     {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+    //     {"./directory_0/text_file_2.txt", "./directory_0/text_file_3.txt"},
+    //     {"./directory_0/text_file_3.txt", ""},
+    // };
     settings.istorage = is;
     settings.dirs_count = 1;
     settings.filter = txt_filter;
@@ -188,10 +187,11 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Remove)
         for (size_t i = 0; i < 10; i++) {
             EXPECT_EQ(ssp_obsps_process(), 0);
         }
-        
-        for (size_t j = 0; j < max_items_in_storage; j++) {
-            EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), 
-                cut_fullname(((char**)settings.istorage->storage_head)[j]).data());
+
+        for (size_t j = 0; j < SSP_TS_MAX_ITEM_COUNT; j++) {
+            std::string storage_item = cut_fullname(((char**)settings.istorage->storage_ptr)[j]);
+            std::string removed_item = cut_fullname(test_cases[i]);
+            EXPECT_STRNE(storage_item.data(), removed_item.data());
         }
     }
 

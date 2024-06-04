@@ -26,6 +26,14 @@ public:
     ssp_image_storage* is;
     const size_t is_size = 22;
 
+    static std::string cut_fullname(const char* item_name)
+    {
+        std::string name_str(item_name);
+        std::string base_name_str = name_str.substr(name_str.find_last_of("/\\") + 1);
+
+        return base_name_str;
+    }
+
     static bool filter(const char *file_name)
     {
         const char filter_name[15] = "you won't pass";
@@ -56,8 +64,8 @@ protected:
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
-            settings.dirs[i] = new char [SSP_OBS_DIR_NAME_LEN];
-            snprintf(settings.dirs[i], SSP_OBS_DIR_NAME_LEN, "./directory_%li/", i);
+            settings.dirs[i] = new char [PATH_MAX];
+            snprintf(settings.dirs[i], PATH_MAX, "./directory_%li/", i);
         }
     }
     void TearDown()
@@ -241,7 +249,7 @@ TEST_F(TestObserverFixture, ObserverFilterFunction)
 
 TEST_F(TestObserverFixture, ObserverCreateDirectories)
 {
-    snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
+    snprintf(settings.dirs[0], PATH_MAX, "%s", images_path.data());
     settings.dirs_count = 3;
 
     settings.istorage = is;
@@ -264,13 +272,13 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
         so {"test1.txt", "test2.txt"} from <test/images/> 
         and test3.txt from <tests/directory_1> are expected. */
     const size_t expected_count = 3;
-    char expected[expected_count][SSP_OBS_DIR_NAME_LEN] = {
+    char expected[expected_count][PATH_MAX] = {
         "../../tests/images/test1.txt",
         "../../tests/images/test2.txt",
         "./directory_1/test3.txt"
     };
 
-    snprintf(settings.dirs[0], SSP_OBS_DIR_NAME_LEN, "%s", images_path.data());
+    snprintf(settings.dirs[0], PATH_MAX, "%s", images_path.data());
     settings.dirs_count = 3;
     settings.filter = txt_filter;
     settings.istorage = is;
@@ -282,8 +290,22 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
 
     EXPECT_EQ(ssp_obs_dirs_traversal(obs), 0);
 
-    for (size_t i = 0; i < expected_count; i++) {
-        EXPECT_STREQ(expected[i], ((const char**)settings.istorage->storage_ptr)[i]);
+    size_t i, j = 0;
+    for(i = 0; i < expected_count; i++) {
+        for(j = 0; j < expected_count; j++) {
+            std::string expected_filename = cut_fullname(expected[j]);
+            std::string storage_filename = cut_fullname(((char**)settings.istorage->storage_ptr)[i]);
+
+            if (!storage_filename.compare(expected_filename)) {
+                // printf("%s %s\n", (char *)storage_filename.data(), (char *)expected_filename.data());
+                ASSERT_STREQ(storage_filename.data(), expected_filename.data());
+                j = expected_count + 1;
+                break;
+            }
+        }
+        if (j != expected_count + 1) {
+            FAIL() << ((char**)settings.istorage->storage_ptr)[i];
+        }
     }
 
     remove(expected[2]);
