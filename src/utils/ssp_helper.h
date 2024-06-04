@@ -6,7 +6,8 @@
 extern "C" {
 #endif
 
-#include "stdbool.h"
+#include <limits.h>
+#include <stdbool.h>
 
 #if !defined(_WIN32) && (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__))
     #define _WIN32
@@ -24,7 +25,9 @@ extern "C" {
     #define SSP_EXC_PATH "undef"
 #endif
 
+#define SSP_PATH_MAX_LEN      (PATH_MAX)
 #define SSP_FILE_NAME_MAX_LEN (32)
+#define SSP_FULL_NAME_MAX_LEN (SSP_PATH_MAX_LEN + SSP_FILE_NAME_MAX_LEN)
 
 typedef struct ssp_image_storage_t {
     void* storage_head;

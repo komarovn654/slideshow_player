@@ -61,8 +61,8 @@ TEST_F(TestStorageFixture, TestStorageInsert)
 
 TEST_F(TestStorageFixture, TestStorageInsert_LongName) 
 {
-    char long_name[SSP_TS_ITEM_LEN];
-    memset(long_name, 'a', SSP_TS_ITEM_LEN);
+    char long_name[SSP_FULL_NAME_MAX_LEN];
+    memset(long_name, 'a', SSP_FULL_NAME_MAX_LEN);
 
     ASSERT_TRUE(storage->insert(storage->storage_ptr, long_name) == NULL);
     ASSERT_STREQ(((char**)storage->storage_ptr)[0], "");

@@ -14,12 +14,7 @@ extern "C" {
 typedef struct ssp_observer {
     char* dirs[SSP_OBS_DIRS_MAX_COUNT];
     size_t dirs_count;
-
-    // TODO: replace these with the "images_storage" struct
     ssp_image_storage* istorage;
-    // void* storage;
-    // void* (*storage_insert)(void*  storage, const char* item_name);
-    // void  (*storage_remove)(void** storage, const char* item_name);
     bool (*filter)(const char *file_name);
 } ssp_observer;
 

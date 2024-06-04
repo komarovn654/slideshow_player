@@ -10,9 +10,9 @@ ssp_static void* ssp_test_storage_insert(void* storage, const char* item_name)
 {
     for (size_t i = 0; i < SSP_TS_MAX_ITEM_COUNT; i++) {
         if (strcmp(((char**)storage)[i], "") == 0) {
-            size_t len = snprintf(((char**)storage)[i], SSP_TS_ITEM_LEN, "%s", item_name);
-            if (len >= SSP_TS_ITEM_LEN) {
-                memset(((char**)storage)[i], 0, SSP_TS_ITEM_LEN);
+            size_t len = snprintf(((char**)storage)[i], SSP_FULL_NAME_MAX_LEN, "%s", item_name);
+            if (len >= SSP_FULL_NAME_MAX_LEN) {
+                memset(((char**)storage)[i], 0, SSP_FULL_NAME_MAX_LEN);
                 return NULL;
             }
             log_info("%s has been added", ((char**)storage)[i]);
@@ -27,7 +27,7 @@ ssp_static void ssp_test_storage_remove(void** storage, const char* item_name)
     for (size_t i = 0; i < SSP_TS_MAX_ITEM_COUNT; i++) {
         char* s = ((char**)storage)[i];
         if (strcmp(((char**)storage)[i], item_name) == 0) {
-            memset(((char**)storage)[i], 0, SSP_TS_ITEM_LEN);
+            memset(((char**)storage)[i], 0, SSP_FULL_NAME_MAX_LEN);
             return;
         }
     }
@@ -65,7 +65,7 @@ ssp_image_storage* ssp_test_storage_init(void)
 
     size_t i = 0;
     for (i = 0; i < SSP_TS_MAX_ITEM_COUNT; i++) {
-        ((char**)storage->storage_head)[i] = (char*)ssp_calloc(SSP_TS_ITEM_LEN, sizeof(char));
+        ((char**)storage->storage_head)[i] = (char*)ssp_calloc(SSP_FULL_NAME_MAX_LEN, sizeof(char));
         if (((char**)storage->storage_head)[i] == NULL) {
             for (i = i - 1; i >= 0; i--) {
                 ssp_free(((char**)storage->storage_head)[i]);

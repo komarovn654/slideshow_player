@@ -110,8 +110,8 @@ TEST_F(TestHelperFixture, DirTraversal_Empty)
 
 TEST_F(TestHelperFixture, AbsPath)
 {
-    char expected[PATH_MAX], result[PATH_MAX];
-    snprintf(expected, PATH_MAX, "%s/tests%s", SSP_EXC_PATH, (char*)empty_dir_path.data() + 1);
+    char expected[SSP_PATH_MAX_LEN], result[SSP_PATH_MAX_LEN];
+    snprintf(expected, SSP_PATH_MAX_LEN, "%s/tests%s", SSP_EXC_PATH, (char*)empty_dir_path.data() + 1);
 
     ssp_mkdir(expected);
 

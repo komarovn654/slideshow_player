@@ -64,8 +64,8 @@ protected:
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
-            settings.dirs[i] = new char [PATH_MAX];
-            snprintf(settings.dirs[i], PATH_MAX, "./directory_%li/", i);
+            settings.dirs[i] = new char [SSP_PATH_MAX_LEN];
+            snprintf(settings.dirs[i], SSP_PATH_MAX_LEN, "./directory_%li/", i);
         }
     }
     void TearDown()
@@ -249,7 +249,7 @@ TEST_F(TestObserverFixture, ObserverFilterFunction)
 
 TEST_F(TestObserverFixture, ObserverCreateDirectories)
 {
-    snprintf(settings.dirs[0], PATH_MAX, "%s", images_path.data());
+    snprintf(settings.dirs[0], SSP_PATH_MAX_LEN, "%s", images_path.data());
     settings.dirs_count = 3;
 
     settings.istorage = is;
@@ -272,13 +272,13 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
         so {"test1.txt", "test2.txt"} from <test/images/> 
         and test3.txt from <tests/directory_1> are expected. */
     const size_t expected_count = 3;
-    char expected[expected_count][PATH_MAX] = {
+    char expected[expected_count][SSP_FULL_NAME_MAX_LEN] = {
         "../../tests/images/test1.txt",
         "../../tests/images/test2.txt",
         "./directory_1/test3.txt"
     };
 
-    snprintf(settings.dirs[0], PATH_MAX, "%s", images_path.data());
+    snprintf(settings.dirs[0], SSP_FULL_NAME_MAX_LEN, "%s", images_path.data());
     settings.dirs_count = 3;
     settings.filter = txt_filter;
     settings.istorage = is;

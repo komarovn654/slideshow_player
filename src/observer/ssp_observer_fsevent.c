@@ -56,8 +56,6 @@ int ssp_obsps_process(void)
 
 int ssp_obsps_init(ssp_observer settings)
 {
-    log_init_default();
-
     if ((obs_fsevent.obs = ssp_obs_init(settings)) == NULL) {
         log_error("Common observer initialization error");
         return 1;

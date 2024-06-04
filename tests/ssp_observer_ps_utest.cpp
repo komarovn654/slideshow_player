@@ -71,8 +71,8 @@ protected:
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
         for (size_t i = 0; i < SSP_OBS_DIRS_MAX_COUNT; i++) {
-            settings.dirs[i] = new char [PATH_MAX];
-            snprintf(settings.dirs[i], PATH_MAX, "./directory_%li/", i);
+            settings.dirs[i] = new char [SSP_PATH_MAX_LEN];
+            snprintf(settings.dirs[i], SSP_PATH_MAX_LEN, "./directory_%li/", i);
         }
     }
     void TearDown()

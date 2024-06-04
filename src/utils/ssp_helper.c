@@ -73,7 +73,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 		return 1;
 	}
 
-	char abs_dir_path[PATH_MAX];
+	char abs_dir_path[SSP_PATH_MAX_LEN];
 	if (ssp_dir_absolute_path(dir_path, abs_dir_path) != 0) {
 		return 1;
 	}
@@ -83,12 +83,11 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 		return 1;
 	}
 
-	char file_name[PATH_MAX + SSP_FILE_NAME_MAX_LEN] = { 0 };
+	char file_name[SSP_FULL_NAME_MAX_LEN] = { 0 };
   	struct dirent *dir;
   	while ((dir = readdir(d)) != NULL) {
-		// printf("%s/%s\n", abs_dir_path, dir->d_name);
-		if ((snprintf(file_name, PATH_MAX + SSP_FILE_NAME_MAX_LEN, "%s/%s", abs_dir_path, dir->d_name)) >=
-			(PATH_MAX + SSP_FILE_NAME_MAX_LEN)) {
+		if ((snprintf(file_name, SSP_FULL_NAME_MAX_LEN, "%s/%s", abs_dir_path, dir->d_name)) >=
+			(SSP_FULL_NAME_MAX_LEN)) {
 			log_warning("<%s> is too long and was truncated", dir->d_name);
 			continue;
 		};
