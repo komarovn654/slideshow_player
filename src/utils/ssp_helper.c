@@ -10,7 +10,7 @@
 #include "logman/logman.h"
 
 #include "ssp_helper.h"
-#include <linux/limits.h>
+#include <limits.h>
 
 typedef struct image {
 	unsigned char header[4];

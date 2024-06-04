@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "logman/logman.h"
 #include "ssp_memory.h"
 #include "ssp_helper.h"
 #include "ssp_test_storage.h"
@@ -14,6 +15,7 @@ ssp_static void* ssp_test_storage_insert(void* storage, const char* item_name)
                 memset(((char**)storage)[i], 0, SSP_TS_ITEM_LEN);
                 return NULL;
             }
+            log_info("%s has been added", ((char**)storage)[i]);
             return ((char**)storage)[i];
         }
     }
