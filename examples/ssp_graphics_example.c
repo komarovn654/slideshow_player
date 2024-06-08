@@ -1,6 +1,7 @@
 #include "logman/logman.h"
 
 #include "ssp_helper.h"
+#include "ssp_test_storage.h"
 #include "ssp_window.h"
 
 static void logman_error_callback(void)
@@ -32,27 +33,21 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // ssp_list image_list = ssp_list_init();
-    // if (image_list == NULL) {
-    //     return EXIT_FAILURE;
-    // }
+    ssp_image_storage* is = ssp_test_storage_init_is();
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/rainbow.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/bull.jpg");
+    is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/church.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/girl.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/pirate.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/shyness.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/sins.jpg");
+    // is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/wall.jpg");
 
-    ssp_image_storage* image_storage = (ssp_image_storage*)calloc(1, sizeof(ssp_image_storage));
-    image_storage->storage_ptr = (void*)NULL;
-    image_storage->storage_head = (void*)NULL;
-    image_storage->insert = NULL;
-    image_storage->remove = NULL;
-    image_storage->move_ptr_to_next = NULL;
-    image_storage->image_name = NULL;
-
-    // ssp_list_insert(image_list, "/home/nikolay/dev/slideshow_player/tests/images/rainbow.jpg");
-
-    if (ssp_window_init(400, 400, 1.0, image_storage) != 0) {
+    if (ssp_window_init(MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT, 1.0, is) != 0) {
         return EXIT_FAILURE;
     }
 
-    while (1) {
-        ssp_window_player_loop();
+    while (ssp_window_player_loop() == 0) {
     }
 
     return 0;

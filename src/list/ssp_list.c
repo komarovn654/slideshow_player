@@ -109,7 +109,7 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 
 void ssp_list_remove_nodev(void** head, const char* remove_name)
 {
-    ssp_list_remove_node((ssp_list*)&head, remove_name);
+    ssp_list_remove_node((ssp_list*)head, remove_name);
 }
 
 static int ssp_list_insert_name(ssp_list node, const char* name)
@@ -209,18 +209,17 @@ ssp_image_storage* ssp_list_init_is(void)
 {
     ssp_image_storage* is = (ssp_image_storage*)ssp_malloc(sizeof(ssp_image_storage));
 
-    is->storage_head = ssp_list_init();
-    is->storage_ptr = is->storage_head;
+    is->storage = ssp_list_init();
     is->insert = ssp_list_insertv;
     is->remove = ssp_list_remove_nodev;
     is->image_name = ssp_list_head_namev;
-    is->move_ptr_to_next = ssp_list_move_headv;
+    is->move_to_next = ssp_list_move_headv;
 
     return is;
 }
 
 void ssp_list_destruct_is(ssp_image_storage* is)
 {
-    ssp_list_destruct(is->storage_head);
+    ssp_list_destruct(is->storage);
     ssp_free(is);
 }

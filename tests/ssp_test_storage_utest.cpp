@@ -10,12 +10,14 @@ extern "C" {
     ssp_static void ssp_test_storage_remove(void** storage, const char* item_name);
     ssp_static char* ssp_test_storage_item_name(void* storage);
     ssp_static void* ssp_test_storage_move_ptr(void* storage);
+    ssp_static void ssp_test_storage_destruct(ssp_test_storage* storage);
+    ssp_static ssp_test_storage* ssp_test_storage_init(void);
 }
 
 class TestStorageFixture : public ::testing::Test
 {
 public:
-    ssp_image_storage* storage;
+    ssp_test_storage* storage;
 protected:
     void SetUp()
     {
@@ -29,34 +31,32 @@ protected:
 
 TEST(TestStorage, TestStorageInit) 
 {
-    ssp_image_storage* storage = ssp_test_storage_init();
-
+    ssp_test_storage* storage = ssp_test_storage_init();
     ASSERT_TRUE(storage != NULL);
-    ASSERT_EQ(storage->insert, ssp_test_storage_insert);
-    ASSERT_EQ(storage->remove, ssp_test_storage_remove);
-    ASSERT_EQ(storage->move_ptr_to_next, ssp_test_storage_move_ptr);
-    ASSERT_EQ(storage->image_name, ssp_test_storage_item_name);
+    ASSERT_EQ(storage->len, 0);
+    ASSERT_EQ(storage->position, 0);
+    ASSERT_EQ(storage->cap, SSP_TS_MAX_ITEM_COUNT);
 
-    ASSERT_EQ(ssp_ptr_storage_size(), SSP_TS_MAX_ITEM_COUNT + 2);
     ssp_test_storage_destruct(storage);
 }
 
 TEST(TestStorage, TestStorageDestruct) 
 {
-    ssp_image_storage* storage = ssp_test_storage_init();
-
+    ssp_test_storage* storage = ssp_test_storage_init();
     ASSERT_EQ(ssp_ptr_storage_size(), SSP_TS_MAX_ITEM_COUNT + 2);
+    
     ssp_test_storage_destruct(storage);
     ASSERT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestStorageFixture, TestStorageInsert) 
 {
-    ASSERT_STREQ((char*)storage->insert(storage->storage_ptr, "first_item"), "first_item");
-    ASSERT_STREQ((char*)storage->insert(storage->storage_ptr, "second_item"), "second_item");
+    ASSERT_STREQ((char*)ssp_test_storage_insert(storage, "first_item"), "first_item");
+    ASSERT_STREQ((char*)ssp_test_storage_insert(storage, "second_item"), "second_item");
+    ASSERT_EQ(storage->len, 2);
 
-    ASSERT_STREQ(((char**)storage->storage_ptr)[0], "first_item");
-    ASSERT_STREQ(((char**)storage->storage_ptr)[1], "second_item");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[0], "first_item");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[1], "second_item");
 }
 
 TEST_F(TestStorageFixture, TestStorageInsert_LongName) 
@@ -64,40 +64,60 @@ TEST_F(TestStorageFixture, TestStorageInsert_LongName)
     char long_name[SSP_FULL_NAME_MAX_LEN];
     memset(long_name, 'a', SSP_FULL_NAME_MAX_LEN);
 
-    ASSERT_TRUE(storage->insert(storage->storage_ptr, long_name) == NULL);
-    ASSERT_STREQ(((char**)storage->storage_ptr)[0], "");
+    ASSERT_TRUE(ssp_test_storage_insert(storage, long_name) == NULL);
+    ASSERT_EQ(storage->len, 0);
 }
 
 TEST_F(TestStorageFixture, TestStorageInsert_Overflow) 
 {
-    for (size_t i = 0; i < SSP_TS_MAX_ITEM_COUNT; i++) {
-        storage->insert(storage->storage_ptr, "item");
+    for (size_t i = 0; i < storage->cap; i++) {
+        ASSERT_STREQ((char*)ssp_test_storage_insert(storage, "item"), "item");
     }
 
-    ASSERT_TRUE(storage->insert(storage->storage_ptr, "item") == NULL);
+    ASSERT_TRUE(ssp_test_storage_insert(storage, "item") == NULL);
 }
 
 TEST_F(TestStorageFixture, TestStorageRemove) 
 {
-    storage->insert(storage->storage_ptr, "first_item");
-    storage->insert(storage->storage_ptr, "second_item");
+    ssp_test_storage_insert(storage, "first_item");
+    ssp_test_storage_insert(storage, "second_item");
 
-    storage->remove((void**)(storage->storage_ptr), "first_item");
-    ASSERT_STREQ(((char**)storage->storage_ptr)[0], "");
-    storage->remove((void**)(storage->storage_ptr), "second_item");
-    ASSERT_STREQ(((char**)storage->storage_ptr)[1], "");
+    ssp_test_storage_remove((void**)&storage, "first_item");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[0], "second_item");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[1], "");
+    ASSERT_EQ(storage->len, 1);
+
+    ssp_test_storage_remove((void**)&storage, "second_item");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[0], "");
+    ASSERT_STREQ(ssp_ts_char_ptr(storage)[1], "");
+    ASSERT_EQ(storage->len, 0);
 }
 
 TEST_F(TestStorageFixture, TestStorageHeadName) 
 {
-    storage->insert(storage->storage_ptr, "first_item");
-    ASSERT_STREQ(((char*)storage->image_name(storage->storage_ptr)), "first_item");
+    ssp_test_storage_insert(storage, "first_item");
+    ssp_test_storage_insert(storage, "second_item");
 
-    storage->insert(storage->storage_ptr, "second_item");
-    ASSERT_STREQ(((char*)storage->image_name(storage->storage_ptr)), "first_item");
+    ASSERT_STREQ(ssp_test_storage_item_name(storage), "first_item");
 }
 
-TEST_F(TestStorageFixture, TestStorageMoveHead) 
+TEST(TestStorage, TestStorageInitImageStorage) 
 {
-    ASSERT_EQ(storage->move_ptr_to_next(storage->storage_ptr), ((char**)storage->storage_ptr)[1]);
+    ssp_image_storage* is = ssp_test_storage_init_is();
+
+    ASSERT_EQ(is->insert, ssp_test_storage_insert);
+    ASSERT_EQ(is->remove, ssp_test_storage_remove);
+    ASSERT_EQ(is->move_to_next, ssp_test_storage_move_ptr);
+    ASSERT_EQ(is->image_name, ssp_test_storage_item_name);
+
+    ssp_test_storage_destruct_is(is);
+}
+
+TEST(TestStorage, TestStorageDestructImageStorage) 
+{
+    ssp_image_storage* is = ssp_test_storage_init_is();
+    ASSERT_EQ(ssp_ptr_storage_size(), 23);
+
+    ssp_test_storage_destruct_is(is);
+    ASSERT_EQ(ssp_ptr_storage_size(), 0);
 }

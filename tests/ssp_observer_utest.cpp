@@ -24,7 +24,6 @@ public:
 
     ssp_observer settings;
     ssp_image_storage* is;
-    const size_t is_size = 22;
 
     static std::string cut_fullname(const char* item_name)
     {
@@ -59,7 +58,7 @@ public:
 protected:
     void SetUp()
     {
-        is = ssp_test_storage_init();
+        is = ssp_test_storage_init_is();
 
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
@@ -78,7 +77,7 @@ protected:
             delete(settings.dirs[i]);
         }
 
-        ssp_test_storage_destruct(is);
+        ssp_test_storage_destruct_is(is);
     }
 };
 
@@ -117,13 +116,16 @@ TEST_F(TestObserverFixture, ObserverAssert_Error)
 
 TEST_F(TestObserverFixture, ObserverInit_Error)
 {
+    size_t used_ptr = ssp_ptr_storage_size();
     ssp_observer err_settings = { };
     EXPECT_TRUE(ssp_obs_init(err_settings) == NULL);
-    EXPECT_EQ(ssp_ptr_storage_size(), is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), used_ptr);
 }
 
 TEST_F(TestObserverFixture, ObserverInit_Success)
 {
+    size_t used_ptr = ssp_ptr_storage_size();
+
     settings.istorage = is;
     ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
@@ -136,19 +138,21 @@ TEST_F(TestObserverFixture, ObserverInit_Success)
         EXPECT_STREQ(obs->dirs[i], settings.dirs[i]);
     }
 
-    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + used_ptr);
     ssp_obs_destruct(obs);
 }
 
 TEST_F(TestObserverFixture, ObserverDestruct)
 {
+    size_t used_ptr = ssp_ptr_storage_size();
+
     settings.istorage = is;
     ssp_observer* obs = ssp_obs_init(settings);
     EXPECT_TRUE(obs != NULL);
 
-    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + used_ptr);
     ssp_obs_destruct(obs);
-    EXPECT_EQ(ssp_ptr_storage_size(), is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), used_ptr);
 }
 
 TEST_F(TestObserverFixture, ObserverStorageInsert_NULL)
@@ -177,9 +181,9 @@ TEST_F(TestObserverFixture, ObserverStorageInsert_SSPListInsert)
     EXPECT_TRUE(obs != NULL);
 
     for (size_t i = 0; i < tc_count; i++) {
-        EXPECT_TRUE(obs->istorage->insert(obs->istorage->storage_head, items_to_insert[i]) != NULL);
+        EXPECT_TRUE(obs->istorage->insert(obs->istorage->storage, items_to_insert[i]) != NULL);
 
-        ssp_list_traversal((ssp_list)settings.istorage->storage_ptr, (char **)list_storage, item_len);
+        ssp_list_traversal((ssp_list)settings.istorage->storage, (char **)list_storage, item_len);
         EXPECT_STREQ(list_storage[0], expected[i][0]);
         EXPECT_STREQ(list_storage[1], expected[i][1]);
         EXPECT_STREQ(list_storage[2], expected[i][2]);
@@ -220,7 +224,7 @@ TEST_F(TestObserverFixture, ObserverStorageRemove_SSPListRemove)
         ssp_obs_storage_remove(obs, items_to_remove[i]);
 
         memset(list_storage, 0, item_count * item_len);
-        ssp_list_traversal((ssp_list)settings.istorage->storage_ptr, (char **)list_storage, item_len);
+        ssp_list_traversal((ssp_list)settings.istorage->storage, (char **)list_storage, item_len);
         EXPECT_STREQ(list_storage[0], expected[i][0]);
         EXPECT_STREQ(list_storage[1], expected[i][1]);
         EXPECT_STREQ(list_storage[2], expected[i][2]);
@@ -294,7 +298,7 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
     for(i = 0; i < expected_count; i++) {
         for(j = 0; j < expected_count; j++) {
             std::string expected_filename = cut_fullname(expected[j]);
-            std::string storage_filename = cut_fullname(((char**)settings.istorage->storage_ptr)[i]);
+            std::string storage_filename = cut_fullname(ssp_is_char_ptr(settings.istorage)[i]);
 
             if (!storage_filename.compare(expected_filename)) {
                 // printf("%s %s\n", (char *)storage_filename.data(), (char *)expected_filename.data());
@@ -304,7 +308,7 @@ TEST_F(TestObserverFixture, ObserverTraversalDirectories)
             }
         }
         if (j != expected_count + 1) {
-            FAIL() << ((char**)settings.istorage->storage_ptr)[i];
+            FAIL() << ssp_is_char_ptr(settings.istorage)[i];
         }
     }
 

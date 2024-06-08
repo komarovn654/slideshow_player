@@ -5,20 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <limits.h>
 
 #include "logman/logman.h"
 
 #include "ssp_helper.h"
-#include <limits.h>
 
-typedef struct image {
+typedef struct ssp_image_header_t {
 	unsigned char header[4];
 	char *name;
 	int header_size;
-} image;
+} ssp_image_header;
 
-static const image loaders[] = {
+static const ssp_image_header headers[] = {
 	{ 
 		.header = { 0xff, 0xd8 }, 
 		.name = "jpeg/jpg",
@@ -46,9 +44,9 @@ bool ssp_is_file_image(const char *file_name)
 	}
 	fclose(fp);
 	
-	for (size_t i = 0; i < sizeof(loaders) / sizeof(image); i++) {
-		if (memcmp(header, loaders[i].header, loaders[i].header_size) == 0) {
-			log_debug("File <%s> is a <%s> image", file_name, loaders[i].name);
+	for (size_t i = 0; i < sizeof(headers) / sizeof(ssp_image_header); i++) {
+		if (memcmp(header, headers[i].header, headers[i].header_size) == 0) {
+			log_debug("File <%s> is a <%s> image", file_name, headers[i].name);
 			return true;
 		}
 	}

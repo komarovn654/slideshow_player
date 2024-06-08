@@ -22,7 +22,7 @@ public:
 protected:
     void SetUp()
     {
-        storage = ssp_test_storage_init();
+        storage = ssp_test_storage_init_is();
 
         DIR *jdir = opendir(dir_path.data());
         if (jdir == NULL) {
@@ -41,7 +41,7 @@ protected:
     }
     void TearDown()
     {
-        ssp_test_storage_destruct(storage);
+        ssp_test_storage_destruct_is(storage);
         rmdir(empty_dir_path.data());
     }
 };
@@ -68,12 +68,12 @@ TEST_F(TestHelperFixture, IsImage_TXT)
 
 TEST_F(TestHelperFixture, DirTraversal_Common) 
 {
-    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), storage->insert, storage->storage_head, ssp_is_file_image), 0);
+    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), storage->insert, storage->storage, ssp_is_file_image), 0);
 
     size_t i, j = 0;
     for(i = 0; i < jpg_files_count; i++) {
         for(j = 0; j < jpg_files_count; j++) {
-            std::string storage_fullname(((char**)storage->storage_head)[i]);
+            std::string storage_fullname(ssp_is_char_ptr(storage)[i]);
             std::string storage_filename = storage_fullname.substr(storage_fullname.find_last_of("/\\") + 1);
             std::string expected_filename = jpg_files[j].substr(jpg_files[j].find_last_of("/\\") + 1);
             if (!storage_filename.compare(expected_filename)) {
@@ -84,27 +84,27 @@ TEST_F(TestHelperFixture, DirTraversal_Common)
             }
         }
         if (j != jpg_files_count + 1) {
-            FAIL() << ((char**)storage->storage_head)[i];
+            FAIL() << ssp_is_char_ptr(storage)[i];
         }
     }
 }
 
 TEST_F(TestHelperFixture, DirTraversal_Errors) 
 {
-    ASSERT_EQ(ssp_dir_traversal(NULL, storage->insert, storage->storage_head, ssp_is_file_image), 1);
-    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), NULL, storage->storage_head, ssp_is_file_image), 1);
-    ASSERT_EQ(ssp_dir_traversal("dir", storage->insert, storage->storage_head, ssp_is_file_image), 1);
+    ASSERT_EQ(ssp_dir_traversal(NULL, storage->insert, storage->storage, ssp_is_file_image), 1);
+    ASSERT_EQ(ssp_dir_traversal(dir_path.data(), NULL, storage->storage, ssp_is_file_image), 1);
+    ASSERT_EQ(ssp_dir_traversal("dir", storage->insert, storage->storage, ssp_is_file_image), 1);
 }
 
 TEST_F(TestHelperFixture, DirTraversal_Empty) 
 {   
     ASSERT_NE(ssp_mkdir(empty_dir_path.data()), -1);
 
-    ASSERT_EQ(ssp_dir_traversal(empty_dir_path.data(), storage->insert, storage->storage_head, ssp_is_file_image), 0);
+    ASSERT_EQ(ssp_dir_traversal(empty_dir_path.data(), storage->insert, storage->storage, ssp_is_file_image), 0);
     
     size_t i = 0;
     for(i = 0; i < jpg_files_count; i++) {
-        ASSERT_STREQ(((char**)storage->storage_head)[i], "");
+        ASSERT_STREQ(ssp_is_char_ptr(storage)[i], "");
     }
 }
 

@@ -14,7 +14,6 @@ class TestObserverPSFixture : public ::testing::Test
 public:
     ssp_observer settings;
     ssp_image_storage* is;
-    const size_t is_size = 22;
 
     static std::string cut_fullname(const char* item_name)
     {
@@ -23,28 +22,6 @@ public:
 
         return base_name_str;
     }
-
-    // static void* storage_insert(void* vstorage, const char* item_name)
-    // {
-    //     char* s = ((char**)vstorage)[storage_count];
-    //     snprintf(s, storage_name_len, "%s", item_name);
-    //     storage_count++;
-
-    //     return NULL;
-    // }
-
-    // static void  storage_remove(void** vstorage, const char* item_name)
-    // {
-    //     for (size_t i = 0; i < storage_count; i++) {
-    //         char* s = ((char**)vstorage)[i];
-    //         if (std::strcmp(cut_fullname(s).data(), cut_fullname(item_name).data()) == 0) {
-    //             memset(s, 0, storage_name_len);
-    //             return;
-    //         }
-    //     }
-
-    //     return;
-    // }
 
     static bool filter(const char *file_name)
     {
@@ -66,7 +43,7 @@ public:
 protected:
     void SetUp()
     {
-        is = ssp_test_storage_init();
+        is = ssp_test_storage_init_is();
 
         settings.dirs_count = SSP_OBS_DIRS_MAX_COUNT;
         settings.filter = filter;
@@ -85,18 +62,20 @@ protected:
             delete(settings.dirs[i]);
         }
 
-        ssp_test_storage_destruct(is);
+        ssp_test_storage_destruct_is(is);
     }
 };
 
 TEST_F(TestObserverPSFixture, ObserverPSInit_Success)
 {
+    size_t used_ptr = ssp_ptr_storage_size();
+
     settings.istorage = is;
     EXPECT_EQ(ssp_obsps_init(settings), 0);
-    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), settings.dirs_count + 1 + used_ptr);
 
     ssp_obsps_destruct();
-    EXPECT_EQ(ssp_ptr_storage_size(), is_size);
+    EXPECT_EQ(ssp_ptr_storage_size(), used_ptr);
 }
 
 TEST_F(TestObserverPSFixture, ObserverPSProcess_Create)
@@ -133,7 +112,7 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Create)
 
         for (size_t j = 0; j < max_items_in_storage; j++) {
             EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), 
-                cut_fullname(((char**)settings.istorage->storage_head)[j]).data());
+                cut_fullname(ssp_is_char_ptr(settings.istorage)[j]).data());
         }
     }
 
@@ -178,7 +157,7 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_Remove)
         }
 
         for (size_t j = 0; j < SSP_TS_MAX_ITEM_COUNT; j++) {
-            std::string storage_item = cut_fullname(((char**)settings.istorage->storage_ptr)[j]);
+            std::string storage_item = cut_fullname(ssp_is_char_ptr(settings.istorage)[j]);
             std::string removed_item = cut_fullname(test_cases[i]);
             EXPECT_STRNE(storage_item.data(), removed_item.data());
         }
@@ -233,7 +212,7 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_MultiDirs)
 
         for (size_t j = 0; j < max_items_in_storage; j++) {
             EXPECT_STREQ(cut_fullname((char*)expected[i][j]).data(), 
-                cut_fullname(((char**)settings.istorage->storage_ptr)[j]).data());
+                cut_fullname(ssp_is_char_ptr(settings.istorage)[j]).data());
         }
     }
 
@@ -248,7 +227,7 @@ TEST_F(TestObserverPSFixture, ObserverPSProcess_MultiDirs)
 
         for (size_t j = 0; j < max_items_in_storage; j++) {
             EXPECT_STREQ(cut_fullname((char*)expected[i - 1][j]).data(),
-                cut_fullname(((char**)settings.istorage->storage_ptr)[j]).data());
+                cut_fullname(ssp_is_char_ptr(settings.istorage)[j]).data());
         }
     }
 

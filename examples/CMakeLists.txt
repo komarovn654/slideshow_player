@@ -21,12 +21,20 @@ link_directories(
 add_executable(ssp_list_example ${CMAKE_CURRENT_LIST_DIR}/ssp_list_example.c)
 target_link_libraries(ssp_list_example ssp_list)
 
-if (!WIN32)
-    add_executable(ssp_observer_example ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_example.c)
+if (APPLE OR UNIX)
+    add_executable(
+        ssp_observer_example 
+        ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_example.c
+        ${CMAKE_SOURCE_DIR}/src/utils/ssp_test_storage.c
+        )
     target_link_libraries(ssp_observer_example ssp_observer logman)
 endif()
 
-add_executable(ssp_graphics_example ${CMAKE_CURRENT_LIST_DIR}/ssp_graphics_example.c)
+add_executable(
+    ssp_graphics_example 
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_graphics_example.c
+    ${CMAKE_SOURCE_DIR}/src/utils/ssp_test_storage.c
+)
 target_include_directories(
     ssp_graphics_example PRIVATE
     ${CMAKE_SOURCE_DIR}/src/graphics/

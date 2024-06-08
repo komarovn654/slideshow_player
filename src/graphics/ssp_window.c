@@ -15,6 +15,8 @@ static struct ssp_window_t {
 
     double redraw_time;
     ssp_image_storage* images;
+    void* head_storage;
+    void* current_storage;
 } ssp_window;
 
 ssp_static void ssp_glfw_error_callback(int error, const char* description)
@@ -25,8 +27,8 @@ ssp_static void ssp_glfw_error_callback(int error, const char* description)
 ssp_static void ssp_window_resize_handler()
 {
     glfwGetFramebufferSize(ssp_window.window, &ssp_window.width_pixels, &ssp_window.height_pixels);
-    // glViewport(0, 0, window->width_pixels, window->height_pixels);
-    log_debug("Window have been resized to %ix%i", ssp_window.width, ssp_window.height);
+    glViewport(0, 0, 1189, 661);
+    log_debug("Window have been resized to %ix%i", ssp_window.width_pixels, ssp_window.height_pixels);
 }
 
 ssp_static void ssp_window_set_platform_name(int glfw_platform_id, char *name, int name_size) {
@@ -123,19 +125,21 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
     
-    ssp_window_resize_handler();
     glfwMakeContextCurrent(ssp_window.window);
-
-    printf("%s\n", glGetString(GL_VERSION));
-    printf("%s\n", glGetString(GL_RENDERER));
-    printf("%s\n", glGetString(GL_VENDOR));
 
     if (ssp_render_init() != 0) {
         log_error("Render initialization error");
         return 1;        
     }
     
+    ssp_window_resize_handler();
+    printf("%s\n", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_RENDERER));
+    printf("%s\n", glGetString(GL_VENDOR));
+
     ssp_window.images = images;
+    ssp_window.head_storage = ssp_window.images->storage;
+    ssp_window.current_storage = ssp_window.images->storage;
 
     return 0;
 }
@@ -155,7 +159,7 @@ int ssp_window_player_loop(void)
     if (ssp_window_needs_to_redraw()) {
         glfwMakeContextCurrent(ssp_window.window);
         
-        char* image = ssp_window.images->image_name(ssp_window.images->storage_ptr);
+        char* image = ssp_window.images->image_name(ssp_window.current_storage);
         if (ssp_render_redraw(image) != 0) {
             log_error("Redraw error: %s", image);
             return 1;
@@ -164,9 +168,9 @@ int ssp_window_player_loop(void)
         glfwSwapBuffers(ssp_window.window);
         log_info("Readrawed: %s", image);
 
-        ssp_window.images->storage_ptr = ssp_window.images->move_ptr_to_next(ssp_window.images->storage_ptr);
-        if (ssp_window.images->storage_ptr == NULL) {
-            ssp_window.images->storage_ptr = ssp_window.images->storage_head;
+        ssp_window.current_storage = ssp_window.images->move_to_next(ssp_window.current_storage);
+        if (ssp_window.current_storage == NULL) {
+            ssp_window.current_storage = ssp_window.head_storage;
         }
     }
 

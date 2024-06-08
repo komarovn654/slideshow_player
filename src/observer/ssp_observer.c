@@ -1,4 +1,3 @@
-#include <limits.h>
 #include "logman/logman.h"
 #include "ssp_observer.h"
 #include "ssp_helper.h"
@@ -19,8 +18,7 @@ ssp_static int ssp_obs_assert(ssp_observer settings)
     if (settings.istorage == NULL || 
         settings.istorage->insert == NULL || 
         settings.istorage->remove == NULL ||
-        settings.istorage->storage_head == NULL ||
-        settings.istorage->storage_ptr == NULL) {
+        settings.istorage->storage == NULL) {
             log_error("It's impossible to initialize the observer without an item storage or methods for it");
             return 1;
     }
@@ -88,7 +86,7 @@ void* ssp_obs_storage_insert(ssp_observer* obs, const char* item_name)
         return NULL;
     }
 
-    return obs->istorage->insert(obs->istorage->storage_ptr, item_name);
+    return obs->istorage->insert(obs->istorage->storage, item_name);
 }
 
 void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
@@ -97,7 +95,7 @@ void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
         log_error("Observer wasn't initialized");
     }
 
-    obs->istorage->remove(obs->istorage->storage_ptr, item_name);
+    obs->istorage->remove(&obs->istorage->storage, item_name);
 }
 
 bool ssp_obs_filter(ssp_observer* obs, const char *file_name)
@@ -118,7 +116,7 @@ int ssp_obs_dirs_traversal(ssp_observer* obs)
     }
 
     for (size_t i = 0; i < obs->dirs_count; i++) {
-        if (ssp_dir_traversal(obs->dirs[i], obs->istorage->insert, obs->istorage->storage_ptr, obs->filter) != 0) {
+        if (ssp_dir_traversal(obs->dirs[i], obs->istorage->insert, obs->istorage->storage, obs->filter) != 0) {
             log_error("Observer couldn't traversal directory <%s>", obs->dirs[i]);
             return 1;
         }
