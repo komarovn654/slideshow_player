@@ -38,8 +38,10 @@ ssp_static void ssp_window_resize_handler(int image_width, int image_height)
 
     int res_width, res_height;
     ssp_window_calc_size(image_width, image_height, &res_width, &res_height);
-    glViewport(0, 0, res_width, res_height);
-    log_debug("Window have been resized to %ix%i", res_width, res_height);
+
+    int x_offset = (ssp_window.width_pixels - res_width) / 2;
+    glViewport(x_offset, 0, res_width, res_height);
+    log_debug("Image has been resized to %ix%i", res_width, res_height);
 }
 
 ssp_static void ssp_window_set_platform_name(int glfw_platform_id, char *name, int name_size) {
@@ -72,7 +74,6 @@ ssp_static int ssp_window_set_platform(ssp_display_platform platform) {
     }   
 
     glfwInitHint(GLFW_PLATFORM, platform);
-    log_debug("%s platform has been set", platform_name);
 
     return 0;
 }
@@ -106,7 +107,7 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
 
     char platform_name[10];
     ssp_window_set_platform_name(glfwGetPlatform(), platform_name, sizeof(platform_name));
-    log_debug("GLFW has been initializated for %s", platform_name);
+    log_info("GLFW has been initializated for %s", platform_name);
 
     return 0;
 }
@@ -114,7 +115,7 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
 int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images)
 {
     if ((width <= 0 || width > MAX_WINDOW_WIDTH) || (height <= 0 || height > MAX_WINDOW_HEIGHT)) {
-        log_error("required width in range [%i..%i] and height in range [%i..%i]", 0, MAX_WINDOW_WIDTH, 0, MAX_WINDOW_HEIGHT);
+        log_error("Required width in range [%i..%i] and height in range [%i..%i]", 0, MAX_WINDOW_WIDTH, 0, MAX_WINDOW_HEIGHT);
         return 1;
     }
 
@@ -142,10 +143,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         log_error("Render initialization error");
         return 1;        
     }
-    
-    printf("%s\n", glGetString(GL_VERSION));
-    printf("%s\n", glGetString(GL_RENDERER));
-    printf("%s\n", glGetString(GL_VENDOR));
+    log_info("OpenGL version: %s", glGetString(GL_VERSION));
 
     ssp_window.images = images;
     ssp_window.head_storage = ssp_window.images->storage;
@@ -162,7 +160,7 @@ void ssp_window_destruct()
 int ssp_window_player_loop(void)
 {   
     if (glfwWindowShouldClose(ssp_window.window)) {
-        log_info("Window have been closed");
+        log_info("Window has been closed");
         return 1;
     }
     
@@ -172,7 +170,7 @@ int ssp_window_player_loop(void)
         char* image = ssp_window.images->image_name(ssp_window.current_storage);
         if (ssp_render_redraw(image) != 0) {
             log_error("Redraw error: %s", image);
-            return 1;
+            return 0;
         }
 
         glfwSwapBuffers(ssp_window.window);

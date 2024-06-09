@@ -19,6 +19,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/logman)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/observer)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/list)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/graphics)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src)
 
 if (SSP_BUILD_TESTS)
     include(GoogleTest)

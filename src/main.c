@@ -2,10 +2,9 @@
 
 #include "logman/logman.h"
 
-#include "ssp_observer.h"
+#include "ssp_observer_ps.h"
 #include "ssp_window.h"
-#include "ssp_render.h"
-#include "ssp_image_loader.h"
+#include "ssp_list.h"
 
 static void logman_error_callback(void)
 {
@@ -30,38 +29,45 @@ static logman_error ssp_logman_init(void)
     return LOGERR_NOERR;
 }
 
+static int ssp_observer_init(char* dirs[], size_t dirs_count, ssp_image_storage* is)
+{
+    ssp_observer settings = {
+        .dirs_count = dirs_count,
+        .filter = ssp_is_file_image,
+        .istorage = is,
+    };
+    for (size_t i = 0; i < dirs_count; i++) {
+        settings.dirs[i] = (char*)malloc(SSP_PATH_MAX_LEN);
+        snprintf(settings.dirs[i], SSP_PATH_MAX_LEN, "%s", dirs[i+2]);
+    }
+
+    return ssp_obsps_init(settings);
+}
+
 int main(int argc, char *argv[])
 {
     if (ssp_logman_init() != LOGERR_NOERR) {
         return EXIT_FAILURE;
     }
 
-    if (ssp_image_loader_init() != 0) {
+    ssp_image_storage* is = ssp_list_init_is();
+    if (is == NULL) {
         return EXIT_FAILURE;
     }
 
-    if (ssp_obs_init("/home/nikolay/base_images/") != 0) {
+    if (ssp_observer_init(argv, (size_t)argv[1][0] - (size_t)'0', is) != 0) {
         return EXIT_FAILURE;
     }
 
-    if (ssp_glfw_init(DP_X11) != 0) {
-        return EXIT_FAILURE;
-    }
-
-    ssp_window main_window =  ssp_window_init(400, 400, 1.0, ssp_obs_images());
-    if (main_window == NULL) {
-        log_error("window initialization error");
-    }
-
-    if (ssp_render_init() != 0) {
+    if (ssp_window_init(800, 400, 1.0, is) != 0) {
         return EXIT_FAILURE;
     }
     
     
-    while (ssp_player_loop(main_window)) {
-        ssp_obs_process();
+    while (ssp_window_player_loop() == 0) {
+        ssp_obsps_process();
     }
 
-    ssp_window_destruct(main_window);
+    // ssp_window_destruct(main_window);
     return EXIT_SUCCESS;
 }
