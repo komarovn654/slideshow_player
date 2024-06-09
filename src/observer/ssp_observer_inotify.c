@@ -139,20 +139,27 @@ int ssp_obsps_process(void)
                     continue;
                 }
 
-                char fullname[SSP_FILE_NAME_MAX_LEN];
-                if (snprintf(fullname, SSP_FILE_NAME_MAX_LEN, "%s%s", obs_inotify.obs->dirs[wd_index], event->name) >= SSP_FILE_NAME_MAX_LEN) {
-                    log_warning("Observer. <%s> is too long and was truncated", event->name);
+                char dirname[SSP_PATH_MAX_LEN];
+                if (ssp_dir_absolute_path(obs_inotify.obs->dirs[wd_index], dirname) != 0) {
+                    log_warning("Observer. <%s> is too long and was truncated", dirname);
+                    event = IN_EVENT_NEXT(event, length);
+                    continue;
+                }
+
+                char fullname[SSP_FULL_NAME_MAX_LEN];
+                if (snprintf(fullname, SSP_FULL_NAME_MAX_LEN, "%s/%s", dirname, event->name) >= SSP_FULL_NAME_MAX_LEN) {
+                    log_warning("Observer. <%s> is too long and was truncated", fullname);
                     event = IN_EVENT_NEXT(event, length);
                     continue;
                 };
 
                 if (obs_inotify.obs->filter(fullname) == false) {
-                    log_warning("Observer. <%s> was filtred", event->name);
+                    log_warning("Observer. <%s> was filtred", fullname);
                     event = IN_EVENT_NEXT(event, length);
                     continue;
                 }
 
-                ssp_obsps_event_handle(event->mask, event->name);
+                ssp_obsps_event_handle(event->mask, fullname);
                 event = IN_EVENT_NEXT(event, length);
             }
         }

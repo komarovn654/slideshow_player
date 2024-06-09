@@ -30,5 +30,6 @@ target_link_libraries(
     ssp_list
     ssp_graphics
     glfw3
+    m
     ${RENDER_LIB}
 )
