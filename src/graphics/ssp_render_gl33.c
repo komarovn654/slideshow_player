@@ -6,6 +6,27 @@
 #include "ssp_render.h"
 #include "ssp_image_loader.h"
 
+char* fragment_shader = "\
+#version 330 core\n\
+in vec2 TexCoord;\n\
+out vec4 color;\n\
+uniform sampler2D ourTexture;\n\
+void main()\n\
+{\n\
+	color = texture(ourTexture, TexCoord);\n\
+}";
+
+char* vertex_shader = "\
+#version 330 core\n\
+layout (location = 0) in vec3 position;\n\
+layout (location = 1) in vec2 texCoord;\n\
+out vec2 TexCoord;\n\
+void main()\n\
+{\n\
+    gl_Position = vec4(position, 1.0f);\n\
+    TexCoord = -texCoord;\n\
+}";
+
 void ssp_render_set_gl_ctx(void)
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -37,10 +58,10 @@ void ssp_render_init_buffers(ssp_render* render)
 void ssp_render_set_shaders(ssp_render* render)
 {
     render->shaders[0].type = GL_VERTEX_SHADER;
-    render->shaders[0].path = "../../src/graphics/shader/gl33_vertex.glsl";
+    render->shaders[0].data = vertex_shader;
 
     render->shaders[1].type = GL_FRAGMENT_SHADER;
-    render->shaders[1].path = "../../src/graphics/shader/gl33_fragment.glsl";
+    render->shaders[1].data = fragment_shader;
 }
 
 int ssp_render_init_glad(void)

@@ -24,11 +24,22 @@ ssp_static void ssp_glfw_error_callback(int error, const char* description)
     log_error("GLFW Error [%i]: %s\n", error, description);
 }
 
-ssp_static void ssp_window_resize_handler()
+ssp_static void ssp_window_calc_size(int image_width, int image_height, int* res_width, int* res_height)
+{
+    double ratio = (double)image_height / (double)ssp_window.height_pixels;
+
+    *res_height = ssp_window.height_pixels;
+    *res_width = (double)image_width / ratio;
+}
+
+ssp_static void ssp_window_resize_handler(int image_width, int image_height)
 {
     glfwGetFramebufferSize(ssp_window.window, &ssp_window.width_pixels, &ssp_window.height_pixels);
-    glViewport(0, 0, 1189, 661);
-    log_debug("Window have been resized to %ix%i", ssp_window.width_pixels, ssp_window.height_pixels);
+
+    int res_width, res_height;
+    ssp_window_calc_size(image_width, image_height, &res_width, &res_height);
+    glViewport(0, 0, res_width, res_height);
+    log_debug("Window have been resized to %ix%i", res_width, res_height);
 }
 
 ssp_static void ssp_window_set_platform_name(int glfw_platform_id, char *name, int name_size) {
@@ -127,12 +138,11 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     
     glfwMakeContextCurrent(ssp_window.window);
 
-    if (ssp_render_init() != 0) {
+    if (ssp_render_init(ssp_window_resize_handler) != 0) {
         log_error("Render initialization error");
         return 1;        
     }
     
-    ssp_window_resize_handler();
     printf("%s\n", glGetString(GL_VERSION));
     printf("%s\n", glGetString(GL_RENDERER));
     printf("%s\n", glGetString(GL_VENDOR));

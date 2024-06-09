@@ -10,7 +10,7 @@ static ssp_render render = {
     .vertices = SSP_RENDER_TEXTURE_VERTICES,
 };
 
-ssp_static int ssp_render_bind_to_texture(const char *image_path)
+ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, int* height)
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, render.texture);
@@ -21,6 +21,8 @@ ssp_static int ssp_render_bind_to_texture(const char *image_path)
         return 1;
     }
     
+    *width = image->width;
+    *height = image->height;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -30,11 +32,12 @@ ssp_static int ssp_render_bind_to_texture(const char *image_path)
     return 0;
 }
 
-int ssp_render_init(void)
+int ssp_render_init(void (*resize_handler)(int width, int height))
 {
     ssp_render_init_glad();
     ssp_render_init_buffers(&render);
     ssp_render_set_shaders(&render);
+    render.resize_handler = resize_handler;
 
     if (ssp_shader_create_program(render.shaders, 2) == 0) {
         log_error("SSP render couldn't create shader program");
@@ -62,11 +65,16 @@ int ssp_render_redraw(const char* image)
 { 
     ssp_shader_use_program();
     
-    if (ssp_render_bind_to_texture(image) != 0) {
+    int width, height;
+    if (ssp_render_bind_to_texture(image, &width, &height) != 0) {
         log_error("SSP render couldn't bind image to texture");
         ssp_render_draw_error();
         return 1;
     }
+    render.resize_handler(width, height);
+    
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, render.texture);

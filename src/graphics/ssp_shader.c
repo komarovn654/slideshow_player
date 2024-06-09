@@ -46,13 +46,13 @@ static int ssp_shader_read(const char* shader_path, char** shader)
 
 static void ssp_shader_destructor(void)
 {
-    if (ssp_shader.fragment != NULL) {
-        ssp_free(ssp_shader.fragment);
-    }
+    // if (ssp_shader.fragment != NULL) {
+    //     ssp_free(ssp_shader.fragment);
+    // }
 
-    if (ssp_shader.vertex != NULL) {
-        ssp_free(ssp_shader.vertex);
-    }
+    // if (ssp_shader.vertex != NULL) {
+    //     ssp_free(ssp_shader.vertex);
+    // }
 }
 
 ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
@@ -73,14 +73,16 @@ ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
     return shader_id;
 }
 
-static int ssp_shader_compile(GLuint shader_type, const char* shader_path)
+static int ssp_shader_compile(GLuint shader_type, char* shader_data)
 {
     char* shader_source = NULL;
     switch (shader_type) {
         case GL_VERTEX_SHADER:
+            ssp_shader.vertex = shader_data;
             shader_source = ssp_shader.vertex;
             break;
         case GL_FRAGMENT_SHADER:
+            ssp_shader.fragment = shader_data;
             shader_source = ssp_shader.fragment;
             break;
         default:
@@ -88,9 +90,9 @@ static int ssp_shader_compile(GLuint shader_type, const char* shader_path)
             return 1;
     }
 
-    if (ssp_shader_read(shader_path, &shader_source) != 0) {
-        return 0;
-    };
+    // if (ssp_shader_read(shader_path, &shader_source) != 0) {
+    //     return 0;
+    // };
 
     return ssp_shader_create(shader_type, &shader_source);
 }
@@ -111,7 +113,7 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
     GLuint shaders_id[shaders_count];
 
     for (int i = 0; i < shaders_count; i++) {
-        shaders_id[i] = ssp_shader_compile(shaders[i].type, shaders[i].path);
+        shaders_id[i] = ssp_shader_compile(shaders[i].type, shaders[i].data);
         if (shaders_id[i] == 0) {
             log_error("Shader creation error: %s", shaders[i].path);
             ssp_shader_destructor();
