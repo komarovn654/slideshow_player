@@ -24,11 +24,6 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
     char **paths = eventPaths;
  
     for (i=0; i<numEvents; i++) {
-        if (obs_fsevent.obs->filter(paths[i]) == false) {
-            log_warning("Observer. <%s> was filtred", paths[i]);
-            continue;
-        }
-
         if ((eventFlags[i] & kFSEventStreamEventFlagItemIsFile) == 0) {
             log_warning("Observer. Something(0x%X) has happened with <%s>", eventFlags[i], paths[i]);
             continue;
@@ -39,6 +34,11 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
             ssp_obs_storage_remove(obs_fsevent.obs, paths[i]);
             log_info("Observer. File <%s> has been deleted", paths[i]);
             log_debug("Observer. Stat error: %s", strerror(errno));
+            continue;
+        }
+
+        if (obs_fsevent.obs->filter(paths[i]) == false) {
+            log_warning("Observer. <%s> was filtred", paths[i]);
             continue;
         }
 
