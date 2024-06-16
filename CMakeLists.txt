@@ -10,8 +10,10 @@ option(SSP_BUILD_WAYLAND "Build an app for the Wayland" OFF)
 
 if (SSP_BUILD_WAYLAND)
     set(GLFW_BUILD_WAYLAND ON)
+    set(GLFW_BUILD_X11 OFF)
 else()
     set(GLFW_BUILD_WAYLAND OFF)
+    set(GLFW_BUILD_X11 ON)
 endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glfw)
