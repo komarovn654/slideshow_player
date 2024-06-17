@@ -6,7 +6,6 @@ add_compile_definitions(UTEST_BUILD=1 EXC_PATH="${CMAKE_BINARY_DIR}")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include/
-    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/third_party/stb/include/
     ${CMAKE_SOURCE_DIR}/src/graphics/
     ${CMAKE_SOURCE_DIR}/src/observer/
@@ -15,7 +14,6 @@ include_directories(
 )
 link_directories(
     ${CMAKE_BINARY_DIR}/lib/
-    ${CMAKE_BINARY_DIR}/third_party/logman/src/
 )
 set(UTILS_SOURCES
     ${CMAKE_SOURCE_DIR}/src/utils/ssp_helper.c
@@ -31,15 +29,15 @@ gtest_discover_tests(ssp_list_utest)
 
 # Utils tests
 add_executable(ssp_memory_utest ${CMAKE_CURRENT_LIST_DIR}/ssp_memory_utest.cpp ${UTILS_SOURCES})
-target_link_libraries(ssp_memory_utest gtest_main gtest logman)
+target_link_libraries(ssp_memory_utest gtest_main gtest)
 gtest_discover_tests(ssp_memory_utest)
 
 add_executable(ssp_helper_utest ${CMAKE_CURRENT_LIST_DIR}/ssp_helper_utest.cpp ${UTILS_SOURCES})
-target_link_libraries(ssp_helper_utest gtest_main gtest logman)
+target_link_libraries(ssp_helper_utest gtest_main gtest)
 gtest_discover_tests(ssp_helper_utest)
 
 add_executable(ssp_test_storage_utest ${CMAKE_CURRENT_LIST_DIR}/ssp_test_storage_utest.cpp ${UTILS_SOURCES})
-target_link_libraries(ssp_test_storage_utest gtest_main gtest logman)
+target_link_libraries(ssp_test_storage_utest gtest_main gtest)
 gtest_discover_tests(ssp_test_storage_utest)
 # Utils tests
 
@@ -67,6 +65,6 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/src/graphics/ssp_image_loader.c
     ${UTILS_SOURCES}
 )
-target_link_libraries(ssp_image_loader_utest gtest_main gtest logman)
+target_link_libraries(ssp_image_loader_utest gtest_main gtest)
 gtest_discover_tests(ssp_image_loader_utest)
 # #Graphics tests

@@ -107,7 +107,7 @@ ssp_static void ssp_obsps_event_handle(uint32_t mask, const char* event_name)
     case IN_MOVED_TO:
     case IN_CREATE:
         if (obs_inotify.obs->filter(event_name) == false) {
-            log_warning("Observer. <%s> was filtred", event_name);
+            syslog(LOG_WARNING, "SSP IObserver. <%s> was filtred", paths[i]);
             break;
         }
 

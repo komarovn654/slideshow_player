@@ -23,18 +23,15 @@ target_include_directories(
     ${GLAD_PATH}/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
     ${CMAKE_SOURCE_DIR}/third_party/stb/include/
-    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/src/utils/
 )
 
 # target_link_directories(
 #     ssp_graphics PRIVATE
 #     ${CMAKE_BINARY_DIR}/third_party/glfw/src
-#     ${CMAKE_BINARY_DIR}/third_party/logman/src
 # )
 
 # link_libraries(
-#     logman
 #     glfw3
 #     m
 #     # ${RENDER_LIB}

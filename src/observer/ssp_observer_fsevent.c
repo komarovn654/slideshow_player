@@ -36,12 +36,12 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
         }
 
         if (obs_fsevent.obs->filter(paths[i]) == false) {
-            log_warning("Observer. <%s> was filtred", paths[i]);
+            syslog(LOG_WARNING, "SSP FSObserver. <%s> was filtred", paths[i]);
             continue;
         }
 
         ssp_obs_storage_insert(obs_fsevent.obs, paths[i]);
-        log_info("Observer. File <%s> has been created", paths[i]);        
+        syslog(LOG_INFO, "SSP FSObserver. File <%s> has been created", paths[i]);
    }
 }
 

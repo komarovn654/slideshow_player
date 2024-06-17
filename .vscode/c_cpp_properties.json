@@ -5,7 +5,6 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/third_party/googletest/googletest/include",
-                "${workspaceFolder}/third_party/logman/include",
                 "/opt/homebrew/include",
                 "/opt/devil/include",
                 "${workspaceFolder}/third_party/glad/opengl33/include"
@@ -23,7 +22,6 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/third_party/googletest/googletest/include",
-                "${workspaceFolder}/third_party/logman/include",
                 "${workspaceFolder}/third_party/glad/opengl33/include",
                 "${workspaceFolder}/src/list",
                 "${workspaceFolder}/src/graphics",

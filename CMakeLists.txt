@@ -17,7 +17,6 @@ else()
 endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glfw)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/logman)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/observer)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/list)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/graphics)

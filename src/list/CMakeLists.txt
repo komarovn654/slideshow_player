@@ -7,14 +7,11 @@ add_library(
 
 target_include_directories(
     ssp_list PRIVATE
-    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/src/utils/
 )
 target_link_directories(
     ssp_observer PRIVATE
-    ${CMAKE_BINARY_DIR}/third_party/logman/src
 )
 target_link_libraries(
     ssp_list
-    logman
 )

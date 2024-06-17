@@ -9,7 +9,6 @@ endif()
 
 target_include_directories(
     ssp PRIVATE
-    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
 
     ${CMAKE_CURRENT_LIST_DIR}/graphics/

@@ -6,14 +6,12 @@ if (APPLE)
 endif()
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/third_party/logman/include/
     ${CMAKE_SOURCE_DIR}/src/observer/
     ${CMAKE_SOURCE_DIR}/src/list/
     ${CMAKE_SOURCE_DIR}/src/utils/
 )
 link_directories(
     ${CMAKE_BINARY_DIR}/lib/
-    ${CMAKE_BINARY_DIR}/third_party/logman/src/
     ${CMAKE_BINARY_DIR}/third_party/glfw/src/
 )
 
@@ -26,7 +24,7 @@ if (APPLE OR UNIX)
         ${CMAKE_CURRENT_LIST_DIR}/ssp_observer_example.c
         ${CMAKE_SOURCE_DIR}/src/utils/ssp_test_storage.c
         )
-    target_link_libraries(ssp_observer_example ssp_observer logman)
+    target_link_libraries(ssp_observer_example ssp_observer)
 endif()
 
 add_executable(
@@ -40,7 +38,7 @@ target_include_directories(
     # ${CMAKE_SOURCE_DIR}/third_party/glad/opengles32/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
 )
-target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 m ${RENDER_LIB})
+target_link_libraries(ssp_graphics_example ssp_graphics glfw3 m ${RENDER_LIB})
     # GLESv2)
 
 # add_executable(
@@ -54,7 +52,6 @@ target_link_libraries(ssp_graphics_example ssp_graphics logman glfw3 m ${RENDER_
 #     ssp_graphics_mtest
 #     ssp_graphics
 #     ssp_list
-#     logman
 #     glfw3
 #     # EGL
 #     GLESv2

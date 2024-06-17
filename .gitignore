@@ -9,7 +9,6 @@ build/
 # Third Party
 third_party/glfw/
 third_party/googletest/
-third_party/logman/
 
 #Mac
 .DS_Store
