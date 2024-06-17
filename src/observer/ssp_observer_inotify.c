@@ -106,6 +106,11 @@ ssp_static void ssp_obsps_event_handle(uint32_t mask, const char* event_name)
     {
     case IN_MOVED_TO:
     case IN_CREATE:
+        if (obs_inotify.obs->filter(event_name) == false) {
+            log_warning("Observer. <%s> was filtred", event_name);
+            break;
+        }
+
         ssp_obs_storage_insert(obs_inotify.obs, event_name);
         syslog(LOG_INFO, "SSP IObserver. The file <%s> has been moved to the storage", event_name);
         break;
@@ -153,12 +158,6 @@ int ssp_obsps_process(void)
                     event = IN_EVENT_NEXT(event, length);
                     continue;
                 };
-
-                if (obs_inotify.obs->filter(fullname) == false) {
-                    syslog(LOG_WARNING, "SSP IObserver. The <%s> was filtred", fullname);
-                    event = IN_EVENT_NEXT(event, length);
-                    continue;
-                }
 
                 ssp_obsps_event_handle(event->mask, fullname);
                 event = IN_EVENT_NEXT(event, length);

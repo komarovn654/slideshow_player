@@ -23,11 +23,6 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
     char **paths = eventPaths;
  
     for (i=0; i<numEvents; i++) {
-        if (obs_fsevent.obs->filter(paths[i]) == false) {
-            syslog(LOG_WARNING, "SSP FSObserver. The <%s> was filtred", paths[i]);
-            continue;
-        }
-
         if ((eventFlags[i] & kFSEventStreamEventFlagItemIsFile) == 0) {
             syslog(LOG_WARNING, "SSP FSObserver. Something(0x%X) has happened with <%s>", eventFlags[i], paths[i]);
             continue;
@@ -40,10 +35,13 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
             continue;
         }
 
-        if (ssp_obs_storage_insert(obs_fsevent.obs, paths[i]) == NULL) {
-            syslog(LOG_ERR, "SSP FSObserver. Failed to put the file <%s> into storage", paths[i]);
+        if (obs_fsevent.obs->filter(paths[i]) == false) {
+            log_warning("Observer. <%s> was filtred", paths[i]);
+            continue;
         }
-        syslog(LOG_INFO, "SSP FSObserver. The file <%s> has been moved to the storage", paths[i]); 
+
+        ssp_obs_storage_insert(obs_fsevent.obs, paths[i]);
+        log_info("Observer. File <%s> has been created", paths[i]);        
    }
 }
 
