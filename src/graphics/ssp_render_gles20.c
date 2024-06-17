@@ -1,6 +1,7 @@
+#include <syslog.h>
+
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#include "logman/logman.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"

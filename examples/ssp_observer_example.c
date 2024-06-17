@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <syslog.h>
 
-#include "logman/logman.h"
 #include "ssp_observer_ps.h"
 #include "ssp_test_storage.h"
 #include "ssp_helper.h"
@@ -12,11 +12,9 @@ static bool filter_function(const char* item_name)
     const char txt_file[] = ".txt";
 
     if (strstr(item_name, txt_file) != NULL) {
-        log_info("File %s passed the filter", item_name);
         return true;
     }
 
-    log_info("File %s was filtered", item_name);
     return false;
 }
 
@@ -44,24 +42,19 @@ int main(int argc, char *argv[])
 {
     int result = EXIT_SUCCESS;
 
-    if (log_init_default() != LOGERR_NOERR) {
-        printf("Logger initialization error\n");
-        return EXIT_FAILURE;
-    }
-
     if (argc < 3) {
-        log_error("usage: ssp_observer_mtest <dirs_count> <dir1_to_observ> <dir2_to_observ> ...up to 10 dirs");
+        syslog(LOG_ERR, "usage: ssp_observer_mtest <dirs_count> <dir1_to_observ> <dir2_to_observ> ...up to 10 dirs");
         return EXIT_FAILURE;
     }
 
     if (ssp_observer_init(argv, (size_t)argv[1][0] - (size_t)'0') != 0) {
-        log_error("Observer initialization error");
+        syslog(LOG_ERR, "Observer initialization error");
         return EXIT_FAILURE;
     };
 
     while(1) {
         if (ssp_obsps_process() != 0) {
-            log_error("Observer crashed");
+            syslog(LOG_ERR, "Observer crashed");
             return EXIT_FAILURE;
         };
     }

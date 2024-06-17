@@ -1,6 +1,7 @@
+#include <syslog.h>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "logman/logman.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -17,7 +18,7 @@ ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, in
 
     ssp_image* image = ssp_il_read_image(image_path);
     if (image == NULL) {
-        log_error("SSP render couldn't load the image <%s>", image_path);
+        syslog(LOG_ERR, "SSP. Render couldn't load the image <%s>", image_path);
         return 1;
     }
     
@@ -40,7 +41,7 @@ int ssp_render_init(void (*resize_handler)(int width, int height))
     render.resize_handler = resize_handler;
 
     if (ssp_shader_create_program(render.shaders, 2) == 0) {
-        log_error("SSP render couldn't create shader program");
+        syslog(LOG_ERR, "SSP. SSP render couldn't create shader program");
         return 1;
     }
 
@@ -52,6 +53,7 @@ int ssp_render_init(void (*resize_handler)(int width, int height))
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    syslog(LOG_INFO, "SSP. The render was initialized");
     return 0;
 }
 
@@ -67,7 +69,7 @@ int ssp_render_redraw(const char* image)
     
     int width, height;
     if (ssp_render_bind_to_texture(image, &width, &height) != 0) {
-        log_error("SSP render couldn't bind image to texture");
+        syslog(LOG_ERR, "SSP. The render couldn't bind image <%s> to texture", image);
         ssp_render_draw_error();
         return 1;
     }

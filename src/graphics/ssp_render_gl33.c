@@ -1,6 +1,7 @@
+#include <syslog.h>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "logman/logman.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -67,9 +68,10 @@ void ssp_render_set_shaders(ssp_render* render)
 int ssp_render_init_glad(void)
 {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        log_error("GLAD initialization error");
+        syslog(LOG_ERR, "SSP. GLAD initialization error");
         return 1;
     }
 
+    syslog(LOG_INFO, "SSP. GLAD was initialized for OpenGL33");
     return 0;
 }

@@ -108,7 +108,6 @@
         "complex": "cpp",
         "ios": "cpp",
         "dirent.h": "c",
-        "logman.h": "c",
         "dirent_ext.h": "c",
         "ssp_shader.h": "c",
         "stdbool.h": "c",
@@ -134,7 +133,8 @@
         "xmemory": "c",
         "xutility": "c",
         "tiny_hex.c": "cpp",
-        "stb_image.h": "c"
+        "stb_image.h": "c",
+        "syslog.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 

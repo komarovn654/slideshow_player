@@ -1,6 +1,5 @@
 #include <stdio.h>
-
-#include "logman/logman.h"
+#include <syslog.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -16,14 +15,15 @@ ssp_image* ssp_il_read_image(const char* image_path)
     int nrChannels;
     image->data = stbi_load(image->path, &image->width, &image->height, &nrChannels, 0);
     if (!image->data) {
-        log_error("STB. Failed to load image: %s", image_path);
+        syslog(LOG_ERR, "SSP STB. Failed to load an image: %s", image_path);
         ssp_free(image);
         return NULL;
     }
     image->buf_size = image->width * image->height * nrChannels;
 
-    log_debug("STB loaded image <%s>", image->path);
-    log_debug("STB read image params: width: %i, height: %i, size: %i", image->width, image->height, image->buf_size);
+    syslog(LOG_DEBUG, "SSP STB. STB loaded image <%s>", image->path);
+    syslog(LOG_DEBUG, "SSP STB.STB read image params: width: %i, height: %i, size: %i",
+        image->width, image->height, image->buf_size);
     return image;
 }
 

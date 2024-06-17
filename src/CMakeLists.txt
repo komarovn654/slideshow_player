@@ -1,11 +1,10 @@
 add_executable(ssp main.c)
 
 if (APPLE)
-    find_library(OGL OpenGL)
-    find_library(COCOA Cocoa)
-    find_library(IOKIT IOKit)
+    find_library(COCOA_FW Cocoa REQUIRED)
+    find_library(IOKIT_FW IOKit REQUIRED)
 
-    set(RENDER_LIB ${OGL} ${COCOA} ${IOKIT})
+    set(RENDER_LIB ${COCOA_FW} ${IOKIT_FW})
 endif()
 
 target_include_directories(

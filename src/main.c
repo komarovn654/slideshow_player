@@ -1,33 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
-
-#include "logman/logman.h"
+#include <syslog.h>
 
 #include "ssp_observer_ps.h"
 #include "ssp_window.h"
 #include "ssp_list.h"
-
-static void logman_error_callback(void)
-{
-    fprintf(stderr, "%s\n", log_get_internal_error());
-}
-
-static logman_error ssp_logman_init(void)
-{
-    logman_settings settings = {
-        .type = LOGTYPE_DEBUG,
-        .out_type = LOGOUT_STREAM,
-        .output.out_stream = stderr,
-        .error_callback = logman_error_callback
-    };
-
-    logman_error err = log_init(&settings);
-    if (log_init(&settings) != LOGERR_NOERR) {
-        fprintf(stderr, "logman initialization error: %d\n", err);
-        return err;
-    }
-
-    return LOGERR_NOERR;
-}
 
 static int ssp_observer_init(char* dirs[], size_t dirs_count, ssp_image_storage* is)
 {
@@ -46,9 +23,8 @@ static int ssp_observer_init(char* dirs[], size_t dirs_count, ssp_image_storage*
 
 int main(int argc, char *argv[])
 {
-    if (ssp_logman_init() != LOGERR_NOERR) {
-        return EXIT_FAILURE;
-    }
+    openlog("slideshow_player", LOG_PID | LOG_PERROR, LOG_USER);
+    setlogmask(LOG_EMERG | LOG_ALERT | LOG_CRIT | LOG_ERR | LOG_WARNING | LOG_NOTICE | LOG_INFO | LOG_DEBUG);
 
     ssp_image_storage* is = ssp_list_init_is();
     if (is == NULL) {
