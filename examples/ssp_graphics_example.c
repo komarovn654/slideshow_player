@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/sins.jpg");
     is->insert(is->storage, "/Users/nikolajkomarov/dev/slideshow_player/tests/images/wall.jpg");
 
-    if (ssp_window_init(MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT, 5.0, is) != 0) {
+    if (ssp_window_init(SSP_WINDOW_WIDTH, SSP_WINDOW_HEIGHT, 5.0, is) != 0) {
         return EXIT_FAILURE;
     }
 

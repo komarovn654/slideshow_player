@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (ssp_window_init(800, 400, 1.0, is) != 0) {
+    if (ssp_window_init(SSP_WINDOW_WIDTH, SSP_WINDOW_HEIGHT, 1.0, is) != 0) {
         return EXIT_FAILURE;
     }
     

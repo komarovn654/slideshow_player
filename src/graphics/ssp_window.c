@@ -115,9 +115,9 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
 
 int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images)
 {
-    if ((width <= 0 || width > MAX_WINDOW_WIDTH) || (height <= 0 || height > MAX_WINDOW_HEIGHT)) {
+    if ((width <= 0 || width > MAX_SSP_WINDOW_WIDTH) || (height <= 0 || height > MAX_SSP_WINDOW_HEIGHT)) {
         syslog(LOG_ERR, "SSP. Required width in range [0..%i] and height in range [0..%i]", 
-            MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT);
+            MAX_SSP_WINDOW_WIDTH, MAX_SSP_WINDOW_HEIGHT);
         return 1;
     }
 
