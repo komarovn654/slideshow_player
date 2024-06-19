@@ -7,16 +7,21 @@ project(ssp
 option(SSP_BUILD_TESTS "Build the test programs" ON)
 option(SSP_BUILD_EXAMPLES "Build the example programs" ON)
 # option(SSP_BUILD_WAYLAND "Build an app for the Wayland" OFF)
-option(SSP_PLATFORM "Display platform" "unknown")
+# set(SSP_PLATFORM CACHE STRING "unknown")
 
-if(SSP_PLATFORM STREQUAL GLFW_BUILD_WIN32)
-    add_compile_definitions(_DISPLAY_PLATFORM=SSP_DP_WIN32)
-elseif(SSP_PLATFORM STREQUAL GLFW_BUILD_COCOA)
-    add_compile_definitions(_DISPLAY_PLATFORM=SSP_DP_COCOA)
-elseif(SSP_PLATFORM STREQUAL GLFW_BUILD_X11)
-    add_compile_definitions(_DISPLAY_PLATFORM=SSP_DP_X11)
-elseif(SSP_PLATFORM STREQUAL GLFW_BUILD_WAYLAND)
-    add_compile_definitions(_DISPLAY_PLATFORM=SSP_DP_WAYLAND)
+set(SSP_PLATFORM_LISTS 
+    SSP_DP_WIN32
+    SSP_DP_COCOA
+    SSP_DP_X11
+    SSP_DP_WAYLAND
+)
+
+list(FIND SSP_PLATFORM_LISTS ${SSP_PLATFORM} index)
+if(index GREATER -1)
+    list(GET SSP_PLATFORM_LISTS ${index} ssp_platform_value)
+    add_compile_definitions(_DISPLAY_PLATFORM=${ssp_platform_value})
+else()
+    message(FATAL_ERROR "Unsupported SSP_PLATFORM: ${SSP_PLATFORM}")
 endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glfw)
