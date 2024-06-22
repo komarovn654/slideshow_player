@@ -6,8 +6,6 @@ project(ssp
 
 option(SSP_BUILD_TESTS "Build the test programs" ON)
 option(SSP_BUILD_EXAMPLES "Build the example programs" ON)
-# option(SSP_BUILD_WAYLAND "Build an app for the Wayland" OFF)
-# set(SSP_PLATFORM CACHE STRING "unknown")
 
 set(SSP_PLATFORM_LISTS 
     SSP_DP_WIN32

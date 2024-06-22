@@ -134,11 +134,10 @@
         "xutility": "c",
         "tiny_hex.c": "cpp",
         "stb_image.h": "c",
-        "syslog.h": "c"
+        "syslog.h": "c",
+        "ini.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 
-    "cmake.debugConfig": {
-        "args": ["1", "/Users/nikolajkomarov/dev/slideshow_player/tests/images"]
-    }
+    "cmake.configureArgs": ["-DSSP_PLATFORM=SSP_DP_COCOA"],
 }

@@ -7,6 +7,9 @@ if (APPLE)
     set(RENDER_LIB ${COCOA_FW} ${IOKIT_FW})
 endif()
 
+add_library(inih STATIC ${CMAKE_SOURCE_DIR}/third_party/inih/ini.c)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/inih)
+
 target_include_directories(
     ssp PRIVATE
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
@@ -30,4 +33,5 @@ target_link_libraries(
     glfw3
     m
     ${RENDER_LIB}
+    inih
 )
