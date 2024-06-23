@@ -32,7 +32,7 @@ static int ssp_shader_read(const char* shader_path, char** shader)
 
     *shader = (char*)ssp_malloc(sbuff.st_size * sizeof(char));
     if (*shader == NULL) {
-        syslog(LOG_ERR, "SSP. Failed to allocate %lld bytes for the shader", sbuff.st_size);
+        syslog(LOG_ERR, "SSP. Failed to allocate %ld bytes for the shader", sbuff.st_size);
         return 1;
     }
 
