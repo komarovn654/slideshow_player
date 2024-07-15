@@ -6,7 +6,7 @@ add_compile_definitions(UTEST_BUILD=1 EXC_PATH="${CMAKE_BINARY_DIR}")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include/
-    ${CMAKE_SOURCE_DIR}/third_party/stb/include/
+    ${CMAKE_SOURCE_DIR}/third_party/stb/
     ${CMAKE_SOURCE_DIR}/src/graphics/
     ${CMAKE_SOURCE_DIR}/src/observer/
     ${CMAKE_SOURCE_DIR}/src/list/

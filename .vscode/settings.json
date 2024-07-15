@@ -135,7 +135,9 @@
         "tiny_hex.c": "cpp",
         "stb_image.h": "c",
         "syslog.h": "c",
-        "ini.h": "c"
+        "ini.h": "c",
+        "stb_image_resize.h": "c",
+        "stb_image_resize2.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 

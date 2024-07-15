@@ -22,7 +22,7 @@ target_include_directories(
     ssp_graphics PRIVATE
     ${GLAD_PATH}/include/
     ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
-    ${CMAKE_SOURCE_DIR}/third_party/stb/include/
+    ${CMAKE_SOURCE_DIR}/third_party/stb/
     ${CMAKE_SOURCE_DIR}/src/utils/
 )
 

@@ -6,9 +6,6 @@
 #define MAX_SSP_WINDOW_WIDTH    (1920)
 #define MAX_SSP_WINDOW_HEIGHT   (1640)
 
-#define SSP_WINDOW_WIDTH    (800) 
-#define SSP_WINDOW_HEIGHT   (400)
-
 #define SSP_DISPLAY_PLATFORM (_DISPLAY_PLATFORM)
 
 typedef enum {

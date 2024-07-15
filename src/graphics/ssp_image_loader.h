@@ -4,10 +4,17 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 typedef struct ssp_image_t {
+    int buf_size;
+    int width, height;
+    int resized_width, resized_height;
+    int nr_channels;
     const char* path;
     unsigned char* data;
-    int buf_size, width, height;
+    unsigned char* resized_data;
+    bool need_to_resize;
 } ssp_image;
 
 void ssp_il_delete_image(ssp_image* image);
