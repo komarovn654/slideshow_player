@@ -24,20 +24,20 @@ ssp_list ssp_list_init(void)
 {
     ssp_node* head = (ssp_node*)ssp_malloc(sizeof(ssp_node));
     if (head == NULL) {
-        syslog(LOG_ERR, "SSP List. The list wasn't initialized. Failed to allocate memory for the node");
+        syslog(LOG_CRIT, "<List>: <Initialization>: The list wasn't initialized. Failed to allocate memory for the node");
         return NULL;
     }
 
     head->name = NULL;
     head->next = NULL;
-    syslog(LOG_INFO, "SSP List. List <%s> has been initialized", head->name);
+    syslog(LOG_INFO, "<List>: <Initialization>: List was initialized");
     return head;
 }
 
 void ssp_list_destruct(ssp_list head)
 {
     if (head == NULL || head == NULL) {
-        syslog(LOG_WARNING, "SSP List. It's impossible to delete the NULL list");
+        syslog(LOG_WARNING, "<List>: <Destruction>: Unable to delete a NULL list");
         return;
     }
 
@@ -54,6 +54,7 @@ void ssp_list_destruct(ssp_list head)
 char* ssp_list_head_name(ssp_list head)
 {
     if (head == NULL || head->name == NULL) {
+        syslog(LOG_WARNING, "<List>: <Head name>: Unable to get name from a NULL node");
         return NULL;
     }
 
@@ -63,6 +64,7 @@ char* ssp_list_head_name(ssp_list head)
 ssp_list ssp_list_move_head(ssp_list head)
 {
     if (head == NULL) {
+        syslog(LOG_WARNING, "<List>: <Move head>: NULL-head list");
         return NULL;
     }
 
@@ -72,12 +74,12 @@ ssp_list ssp_list_move_head(ssp_list head)
 void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
     if (head == NULL || *head == NULL || (*head)->name == NULL || remove_name == NULL) {
-        syslog(LOG_WARNING, "SSP List. It's impossible to delete the NULL node(or from the NULL list)");
+        syslog(LOG_WARNING, "<List>: <Remove node>: Unable to delete a NULL node (or from a NULL list)");
         return;
     }
 
     if (strcmp((*head)->name, remove_name) == 0) {
-        syslog(LOG_DEBUG, "SSP List. Head <%s> has been deleted", (*head)->name);
+        syslog(LOG_DEBUG, "<List>: <Remove node>: Head <%s> was deleted", (*head)->name);
         if ((*head)->next == NULL) {
             ssp_free((*head)->name);
             (*head)->name = NULL;
@@ -92,7 +94,7 @@ void ssp_list_remove_node(ssp_list *head, const char *remove_name)
     ssp_list node = *head;
     while (node->next != NULL) {
         if (strcmp(node->next->name, remove_name) == 0) {
-            syslog(LOG_DEBUG, "SSP List. Node <%s> has been deleted", node->next->name);
+            syslog(LOG_DEBUG, "<List>: <Remove node>: Node <%s> was deleted", node->next->name);
             if (node->next->next == NULL) {
                 delete_node(node->next);
                 node->next = NULL;
@@ -112,24 +114,24 @@ void ssp_list_remove_nodev(void** head, const char* remove_name)
     ssp_list_remove_node((ssp_list*)head, remove_name);
 }
 
-static int ssp_list_insert_name(ssp_list node, const char* name)
+ssp_static int ssp_list_insert_name(ssp_list node, const char* name)
 {
     size_t name_len = strlen(name);
     node->name = (char*)ssp_calloc(strlen(name) + 1, sizeof(char));
     if (node == NULL) {
-        syslog(LOG_ERR, "SSP List. The new node wasn't created. Failed to allocate memory for name");
+        syslog(LOG_ERR, "<List>: <Insert node>: Node <%s> wasn't created. Failed to allocate memory for the name", name);
         return 1;
     }
     memcpy(node->name, name, name_len);
 
-    syslog(LOG_DEBUG, "SSP List. Node <%s> has been added", node->name);
+    syslog(LOG_DEBUG, "<List>: <Insert node>: Node <%s> was added", node->name);
     return 0;
 }
 
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 {
     if (head == NULL || tail_name == NULL) {
-        syslog(LOG_WARNING, "SSP List. It's impossible to insert the NULL node(or in the NULL list)");
+        syslog(LOG_WARNING, "<List>: <Insert node>: Unable to insert a NULL node(or in a NULL list)");
         return NULL;
     }
 
@@ -142,7 +144,7 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 
     while (true && (head->name != NULL)) {
         if (strcmp(head->name, tail_name) == 0) {
-            syslog(LOG_DEBUG, "SSP List. Node <%s> already exists", head->name);
+            syslog(LOG_DEBUG, "<List>: <Insert node>: Node <%s> already exists", head->name);
             return head;
         }
 
@@ -154,7 +156,7 @@ ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 
     ssp_node* tail = (ssp_node*)ssp_malloc(sizeof(ssp_node));
     if (tail == NULL) {
-        syslog(LOG_ERR, "SSP List. The new node wasn't created. Failed to allocate memory");
+        syslog(LOG_ERR, "<List>: <Insert node>: Node <%s> wasn't created. Failed to allocate memory for the node", tail_name);
         return NULL;
     }
     head->next = tail;
@@ -175,7 +177,7 @@ void* ssp_list_insertv(void* head, const char* tail_name)
 int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
 {
     if (head == NULL || storage == NULL) {
-        syslog(LOG_ERR, "SSP List. It's impossible to traversal the list. Args must not be NULL");
+        syslog(LOG_WARNING, "<List>: <List traversal>: Unable to traversal the list. Args must not be NULL");
         return -1;        
     }
 
@@ -184,7 +186,7 @@ int ssp_list_traversal(ssp_list head, char **storage, size_t max_name_size)
 
     while (node != NULL && node->name != NULL) {
         if (snprintf((char *)storage + i * max_name_size, max_name_size, "%s", node->name) >= max_name_size) {
-            syslog(LOG_ERR, "SSP List. Сan't save an item with that's too big name <%s>", node->name);
+            syslog(LOG_WARNING, "<List>: <List traversal>: Сan't save an item with that's too big name <%s>", node->name);
             return -1;
         };
         node = node->next;
@@ -214,7 +216,7 @@ ssp_image_storage* ssp_list_init_is(void)
     is->image_name = ssp_list_head_namev;
     is->move_to_next = ssp_list_move_headv;
 
-    syslog(LOG_INFO, "SSP List. List was initialized as an image storage");
+    syslog(LOG_INFO, "<List>: <Initialization>: List was initialized as an image storage");
     return is;
 }
 
@@ -222,5 +224,5 @@ void ssp_list_destruct_is(ssp_image_storage* is)
 {
     ssp_list_destruct(is->storage);
     ssp_free(is);
-    syslog(LOG_INFO, "SSP List. Image storage(List) was destructed");
+    syslog(LOG_INFO, "<List>: <Initialization>: Image storage(List) was destructed");
 }
