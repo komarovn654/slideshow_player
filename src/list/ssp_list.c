@@ -48,7 +48,7 @@ void ssp_list_destruct(ssp_list head)
     }
 
     delete_node(head);
-    syslog(LOG_INFO, "SSP List. List has been deleted");
+    syslog(LOG_INFO, "SSP List. List was destructed");
 }
 
 char* ssp_list_head_name(ssp_list head)
@@ -73,8 +73,13 @@ ssp_list ssp_list_move_head(ssp_list head)
 
 void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
-    if (head == NULL || *head == NULL || (*head)->name == NULL || remove_name == NULL) {
-        syslog(LOG_WARNING, "<List>: <Remove node>: Unable to delete a NULL node (or from a NULL list)");
+    if (remove_name == NULL) {
+        syslog(LOG_WARNING, "<List>: <Insert node>: Unable to remove a NULL node");
+        return;
+    }
+
+    if ((head == NULL) || (*head == NULL) || ((*head)->name == NULL)) {
+        syslog(LOG_WARNING, "<List>: <Insert node>: List wasn't initialized; %s wasn't removed", remove_name);
         return;
     }
 
@@ -130,8 +135,13 @@ ssp_static int ssp_list_insert_name(ssp_list node, const char* name)
 
 ssp_list ssp_list_insert(ssp_list head, const char* tail_name)
 {
-    if (head == NULL || tail_name == NULL) {
-        syslog(LOG_WARNING, "<List>: <Insert node>: Unable to insert a NULL node(or in a NULL list)");
+    if (tail_name == NULL) {
+        syslog(LOG_WARNING, "<List>: <Insert node>: Unable to insert a NULL node");
+        return NULL;
+    }
+
+    if (head == NULL) {
+        syslog(LOG_WARNING, "<List>: <Insert node>: List wasn't initialized; %s wasn't inserted", tail_name);
         return NULL;
     }
 
