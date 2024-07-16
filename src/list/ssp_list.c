@@ -74,12 +74,12 @@ ssp_list ssp_list_move_head(ssp_list head)
 void ssp_list_remove_node(ssp_list *head, const char *remove_name)
 {
     if (remove_name == NULL) {
-        syslog(LOG_WARNING, "<List>: <Insert node>: Unable to remove a NULL node");
+        syslog(LOG_WARNING, "<List>: <Remove node>: Unable to remove a NULL node");
         return;
     }
 
     if ((head == NULL) || (*head == NULL) || ((*head)->name == NULL)) {
-        syslog(LOG_WARNING, "<List>: <Insert node>: List wasn't initialized; %s wasn't removed", remove_name);
+        syslog(LOG_WARNING, "<List>: <Remove node>: List wasn't initialized; %s wasn't removed", remove_name);
         return;
     }
 

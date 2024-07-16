@@ -24,24 +24,24 @@ void ssp_fsevent_callback(ConstFSEventStreamRef streamRef, void *clientCallBackI
  
     for (i=0; i<numEvents; i++) {
         if ((eventFlags[i] & kFSEventStreamEventFlagItemIsFile) == 0) {
-            syslog(LOG_WARNING, "SSP FSObserver. Something(0x%X) has happened with <%s>", eventFlags[i], paths[i]);
+            syslog(LOG_WARNING, "<FS observer>: <Callback>: Something(0x%X) has happened with <%s>", eventFlags[i], paths[i]);
             continue;
         }
 
         struct stat file_stat;
         if (stat(paths[i], &file_stat) != 0) {
             ssp_obs_storage_remove(obs_fsevent.obs, paths[i]);
-            syslog(LOG_INFO, "SSP FSObserver. The file <%s> has been deleted", paths[i]);
+            syslog(LOG_INFO, "<FS observer>: <Callback>: The file <%s> was deleted", paths[i]);
             continue;
         }
 
         if (obs_fsevent.obs->filter(paths[i]) == false) {
-            syslog(LOG_WARNING, "SSP FSObserver. <%s> was filtred", paths[i]);
+            syslog(LOG_WARNING, "<FS observer>: <Callback>: File <%s> was filtred", paths[i]);
             continue;
         }
 
         ssp_obs_storage_insert(obs_fsevent.obs, paths[i]);
-        syslog(LOG_INFO, "SSP FSObserver. File <%s> has been created", paths[i]);
+        syslog(LOG_INFO, "<FS observer>: <Callback>: File <%s> was created", paths[i]);
    }
 }
 
@@ -55,12 +55,12 @@ int ssp_obsps_process(void)
 int ssp_obsps_init(ssp_observer settings)
 {
     if ((obs_fsevent.obs = ssp_obs_init(settings)) == NULL) {
-        syslog(LOG_ERR, "SSP FSObserver. Common observer initialization error");
+        syslog(LOG_CRIT, "<FS observer>: <Initialization>: Common observer initialization error");
         return 1;
     }
 
     if ((ssp_obs_dirs_create(obs_fsevent.obs)) != 0) {
-        syslog(LOG_ERR, "SSP FSObserver. Observer directories creation error");
+        syslog(LOG_CRIT, "<FS observer>: <Initialization>: Observer directories creation error");
         return 1;
     }
 
@@ -80,12 +80,12 @@ int ssp_obsps_init(ssp_observer settings)
     FSEventStreamStart(obs_fsevent.stream);
 
     if (ssp_obs_dirs_traversal(obs_fsevent.obs) != 0) {
-        syslog(LOG_ERR, "SSP FSObserver. Directory traversal error");
+        syslog(LOG_CRIT, "<FS observer>: <Initialization>: Directory traversal error");
         return 1;
     }
 
     for (size_t i = 0; i < obs_fsevent.obs->dirs_count; i++) {
-        syslog(LOG_INFO, "SSP FSObserver. Observing: %s", obs_fsevent.obs->dirs[i]);
+        syslog(LOG_INFO, "<FS observer>: <Initialization>: Observing: %s", obs_fsevent.obs->dirs[i]);
     }
 
     return 0;
@@ -99,5 +99,5 @@ void ssp_obsps_destruct(void)
     CFRelease(obs_fsevent.paths);
 
     ssp_obs_destruct(obs_fsevent.obs);
-    syslog(LOG_INFO, "SSP FSObserver. FSObserver was destructed");
+    syslog(LOG_INFO, "<FS observer>: <Destruct>: FS Observer was destructed");
 }

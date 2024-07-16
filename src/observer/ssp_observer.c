@@ -103,7 +103,7 @@ void* ssp_obs_storage_insert(ssp_observer* obs, const char* item_name)
 void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
 {
     if (item_name == NULL) {
-        syslog(LOG_WARNING,  "<Observer>: <Insert item >: Unable to remove NULL item");
+        syslog(LOG_WARNING,  "<Observer>: <Remove item>: Unable to remove NULL item");
         return;
     }
 
@@ -118,7 +118,7 @@ void ssp_obs_storage_remove(ssp_observer* obs, const char* item_name)
 bool ssp_obs_filter(ssp_observer* obs, const char *file_name)
 {
     if (file_name == NULL) {
-        syslog(LOG_WARNING,  "<Observer>: <Insert item >: Unable to filter NULL item");
+        syslog(LOG_WARNING,  "<Observer>: <Filter>: Unable to filter NULL item");
         return false;
     }
 
