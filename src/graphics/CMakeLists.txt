@@ -1,11 +1,3 @@
-if (SSP_BUILD_WAYLAND)
-    set(RENDER_SRC ${CMAKE_CURRENT_LIST_DIR}/ssp_render_gles20.c)
-    set(GLAD_PATH ${CMAKE_SOURCE_DIR}/third_party/glad/opengles32/)
-else()
-    set(RENDER_SRC ${CMAKE_CURRENT_LIST_DIR}/ssp_render_gl33.c)
-    set(GLAD_PATH ${CMAKE_SOURCE_DIR}/third_party/glad/opengl33/)
-endif()
-
 add_library(
     ssp_graphics STATIC
     ${RENDER_SRC}

@@ -117,3 +117,16 @@ int ssp_dir_create(const char* dir_path)
 
     return 0;
 }
+
+void ssp_syslog(int priority, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    ssp_syslog_v(priority, format, args);
+    va_end(args);
+}
+
+void ssp_syslog_v(int priority, const char* format, va_list args)
+{
+    syslog(priority, format, args);
+}

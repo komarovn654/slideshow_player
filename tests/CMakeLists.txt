@@ -3,9 +3,12 @@ set(CMAKE_CXX_STANDARD )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(UTEST_BUILD=1 EXC_PATH="${CMAKE_BINARY_DIR}")
-
+message(GLAD=${GLAD_PATH})
 include_directories(
     ${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include/
+    ${CMAKE_SOURCE_DIR}/third_party/googletest/googlemock/include/
+    ${CMAKE_SOURCE_DIR}/third_party/glfw/include/
+    ${GLAD_PATH}/include/
     ${CMAKE_SOURCE_DIR}/third_party/stb/
     ${CMAKE_SOURCE_DIR}/src/graphics/
     ${CMAKE_SOURCE_DIR}/src/observer/
@@ -67,4 +70,13 @@ add_executable(
 )
 target_link_libraries(ssp_image_loader_utest gtest_main gtest)
 gtest_discover_tests(ssp_image_loader_utest)
-# #Graphics tests
+
+add_executable(
+    ssp_window_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_window_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_window.c
+    ${UTILS_SOURCES}
+)
+target_link_libraries(ssp_window_utest ssp_graphics glfw gtest_main gtest)
+gtest_discover_tests(ssp_window_utest)
+# Graphics tests

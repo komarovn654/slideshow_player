@@ -46,6 +46,9 @@ int ssp_dir_create(const char* dir_path);
 int ssp_dir_absolute_path(const char* dir_path, char* abs_path);
 int ssp_mkdir(const char* dir_path);
 
+void ssp_syslog(int priority, const char* format, ...);
+void ssp_syslog_v(int priority, const char* format, va_list args);
+
 #ifdef __cplusplus
 }
 #endif

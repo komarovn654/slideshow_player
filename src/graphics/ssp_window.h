@@ -1,12 +1,20 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <GLFW/glfw3.h>
 #include "ssp_helper.h"
 
 #define MAX_SSP_WINDOW_WIDTH    (1920)
 #define MAX_SSP_WINDOW_HEIGHT   (1640)
 
-#define SSP_DISPLAY_PLATFORM (_DISPLAY_PLATFORM)
+#ifndef SSP_DISPLAY_PLATFORM
+    #define SSP_DISPLAY_PLATFORM (0)
+#elif
+    #define SSP_DISPLAY_PLATFORM (_DISPLAY_PLATFORM)
+#endif
 
 typedef enum {
     SSP_DP_UNKNOWN = 0,
@@ -19,3 +27,7 @@ typedef enum {
 int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images);
 void ssp_window_destruct(void);
 int ssp_window_player_loop(void);
+
+#ifdef __cplusplus
+}
+#endif
