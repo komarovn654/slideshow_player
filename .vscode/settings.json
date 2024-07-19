@@ -137,7 +137,8 @@
         "syslog.h": "c",
         "ini.h": "c",
         "stb_image_resize.h": "c",
-        "stb_image_resize2.h": "c"
+        "stb_image_resize2.h": "c",
+        "glad.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 

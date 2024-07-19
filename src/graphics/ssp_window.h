@@ -10,9 +10,9 @@ extern "C" {
 #define MAX_SSP_WINDOW_WIDTH    (1920)
 #define MAX_SSP_WINDOW_HEIGHT   (1640)
 
-#ifndef SSP_DISPLAY_PLATFORM
+#ifndef _DISPLAY_PLATFORM
     #define SSP_DISPLAY_PLATFORM (0)
-#elif
+#else
     #define SSP_DISPLAY_PLATFORM (_DISPLAY_PLATFORM)
 #endif
 

@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <syslog.h>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -20,24 +19,24 @@ static int ssp_shader_read(const char* shader_path, char** shader)
 {
     FILE* shader_file = fopen(shader_path, "r");
     if (shader_file == NULL) {
-        syslog(LOG_ERR, "SSP. Couldn't open the shader file: %s", shader_path);
+        ssp_syslog(LOG_ERR, "SSP. Couldn't open the shader file: %s", shader_path);
         return 1;
     }
 
     struct stat sbuff = { 0 };
     if (stat(shader_path, &sbuff) != 0) {
-        syslog(LOG_ERR, "SSP. Couldn't stat the file: %s", shader_path);
+        ssp_syslog(LOG_ERR, "SSP. Couldn't stat the file: %s", shader_path);
         return 1;
     }
 
     *shader = (char*)ssp_malloc(sbuff.st_size * sizeof(char));
     if (*shader == NULL) {
-        syslog(LOG_ERR, "SSP. Failed to allocate %lld bytes for the shader", sbuff.st_size);
+        ssp_syslog(LOG_ERR, "SSP. Failed to allocate %lld bytes for the shader", sbuff.st_size);
         return 1;
     }
 
     if (fread(*shader, sizeof(char), sbuff.st_size, shader_file) == 0) {
-        syslog(LOG_ERR, "SSP. File %s is empty", shader_path);
+        ssp_syslog(LOG_ERR, "SSP. File %s is empty", shader_path);
         return 1;
     }
 
@@ -66,7 +65,7 @@ ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
     if(!success) {
         GLchar infoLog[128];
         glGetShaderInfoLog(shader_id, sizeof(infoLog), NULL, infoLog);
-        syslog(LOG_ERR, "SSP. Shader compilation error: %s", infoLog);
+        ssp_syslog(LOG_ERR, "SSP. Shader compilation error: %s", infoLog);
         return 0;
     }
 
@@ -79,10 +78,10 @@ ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
             snprintf(shader_name, 32, "fragment");
             break;
         default:
-            syslog(LOG_ERR, "SSP. Unknown shader type %u", shader_type);
+            ssp_syslog(LOG_ERR, "SSP. Unknown shader type %u", shader_type);
             return 1;
     }
-    syslog(LOG_INFO, "SSP. Shader <%s> was created", shader_name);
+    ssp_syslog(LOG_INFO, "SSP. Shader <%s> was created", shader_name);
     return shader_id;
 }
 
@@ -99,7 +98,7 @@ static int ssp_shader_compile(GLuint shader_type, char* shader_data)
             shader_source = ssp_shader.fragment;
             break;
         default:
-            syslog(LOG_ERR, "SSP. Unknown shader type %u", shader_type);
+            ssp_syslog(LOG_ERR, "SSP. Unknown shader type %u", shader_type);
             return 1;
     }
 
@@ -128,7 +127,7 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
     for (int i = 0; i < shaders_count; i++) {
         shaders_id[i] = ssp_shader_compile(shaders[i].type, shaders[i].data);
         if (shaders_id[i] == 0) {
-            syslog(LOG_ERR, "SSP. Shader creation error: %s", shaders[i].path);
+            ssp_syslog(LOG_ERR, "SSP. Shader creation error: %s", shaders[i].path);
             ssp_shader_destructor();
             return 0;
         }
@@ -141,7 +140,7 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
     if (!success) {
         GLchar infoLog[128];
         glGetProgramInfoLog(ssp_shader.program_id, sizeof(infoLog), NULL, infoLog);
-        syslog(LOG_ERR, "SSP. Gl program link error: %s", infoLog);
+        ssp_syslog(LOG_ERR, "SSP. Gl program link error: %s", infoLog);
         ssp_shader_destructor();
         return 0;
     }

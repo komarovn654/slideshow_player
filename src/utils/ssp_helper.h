@@ -7,7 +7,9 @@ extern "C" {
 #endif
 
 #include <limits.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <syslog.h>
 
 #if !defined(_WIN32) && (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__))
     #define _WIN32
@@ -46,8 +48,7 @@ int ssp_dir_create(const char* dir_path);
 int ssp_dir_absolute_path(const char* dir_path, char* abs_path);
 int ssp_mkdir(const char* dir_path);
 
-void ssp_syslog(int priority, const char* format, ...);
-void ssp_syslog_v(int priority, const char* format, va_list args);
+void ssp_syslog(int type, const char* format, ...);
 
 #ifdef __cplusplus
 }

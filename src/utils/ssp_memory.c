@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include <syslog.h>
 
+#include "ssp_helper.h"
 #include "ssp_memory.h"
 
 static void *ptr_storage[MAX_PTR_STORAGE_LEN] = { NULL };
@@ -63,7 +63,7 @@ void *ssp_malloc(size_t size)
 {
     void *new_ptr = malloc(size);
     if (store_ptr(new_ptr) == 1) {
-        syslog(LOG_CRIT, "SSP. Memory storage overflowed");
+        ssp_syslog(LOG_CRIT, "SSP. Memory storage overflowed");
         return NULL;
     };
 
@@ -74,7 +74,7 @@ void *ssp_calloc(size_t num, size_t size)
 {
     void *new_ptr = calloc(num, size);
     if (store_ptr(new_ptr) == 1) {
-        syslog(LOG_CRIT, "SSP. Memory storage overflowed");
+        ssp_syslog(LOG_CRIT, "SSP. Memory storage overflowed");
         return NULL;
     };
 

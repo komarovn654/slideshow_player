@@ -1,7 +1,6 @@
 #include <dirent.h> 
 #include <errno.h>
 #include <sys/stat.h>
-#include <syslog.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,32 +26,32 @@ bool ssp_is_file_image(const char *file_name)
 {	
 	FILE *fp = fopen(file_name, "rb");
 	if (!fp) {
-		syslog(LOG_ERR, "SSP. File opening error <%s>: %s", file_name, strerror(errno));
+		ssp_syslog(LOG_ERR, "SSP. File opening error <%s>: %s", file_name, strerror(errno));
 		return false;
 	}
 
 	unsigned char header[4];
 	if (fread(header, sizeof(header), 1, fp) != 1) {
-		syslog(LOG_ERR, "SSP. File reading error <%s>: %s", file_name, strerror(errno));
+		ssp_syslog(LOG_ERR, "SSP. File reading error <%s>: %s", file_name, strerror(errno));
 		return false;
 	}
 	fclose(fp);
 	
 	for (size_t i = 0; i < sizeof(headers) / sizeof(ssp_image_header); i++) {
 		if (memcmp(header, headers[i].header, headers[i].header_size) == 0) {
-			syslog(LOG_DEBUG, "SSP. File <%s> is a <%s> image", file_name, headers[i].name);
+			ssp_syslog(LOG_DEBUG, "SSP. File <%s> is a <%s> image", file_name, headers[i].name);
 			return true;
 		}
 	}
 
-    syslog(LOG_DEBUG, "SSP. File <%s> is not an image", file_name);
+    ssp_syslog(LOG_DEBUG, "SSP. File <%s> is not an image", file_name);
     return false;
 }
 
 int ssp_dir_absolute_path(const char* dir_path, char* abs_path)
 {
     if (realpath(dir_path, abs_path) == NULL) {
-		syslog(LOG_ERR, "SSP. Can't get the full path <%s>: %s", dir_path, strerror(errno));
+		ssp_syslog(LOG_ERR, "SSP. Can't get the full path <%s>: %s", dir_path, strerror(errno));
         return 1;
     }
 
@@ -63,7 +62,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 	bool (*filter)(const char *file_name))
 {
 	if (dir_path == NULL || store_files == NULL) {
-		syslog(LOG_ERR, "SSP. Dir traversal error, invalid args");
+		ssp_syslog(LOG_ERR, "SSP. Dir traversal error, invalid args");
 		return 1;
 	}
 
@@ -74,7 +73,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
 
 	DIR *d = opendir(abs_dir_path);
 	if (d == NULL) {
-		syslog(LOG_ERR, "SSP. Dir opening error <%s>: %s", abs_dir_path, strerror(errno));
+		ssp_syslog(LOG_ERR, "SSP. Dir opening error <%s>: %s", abs_dir_path, strerror(errno));
 		return 1;
 	}
 
@@ -83,7 +82,7 @@ int ssp_dir_traversal(const char* dir_path, void* (*store_files)(void *storage, 
   	while ((dir = readdir(d)) != NULL) {
 		if ((snprintf(file_name, SSP_FULL_NAME_MAX_LEN, "%s/%s", abs_dir_path, dir->d_name)) >=
 			(SSP_FULL_NAME_MAX_LEN)) {
-			syslog(LOG_WARNING, "SSP. <%s> is too long and was truncated", dir->d_name);
+			ssp_syslog(LOG_WARNING, "SSP. <%s> is too long and was truncated", dir->d_name);
 			continue;
 		};
 		if (filter(file_name)) {
@@ -109,24 +108,24 @@ int ssp_dir_create(const char* dir_path)
     struct stat st = {0};
     if (stat(dir_path, &st) == -1) {
         if (ssp_mkdir(dir_path) != 0) {
-            syslog(LOG_ERR, "Can't create a directory <%s>", dir_path);
+            ssp_syslog(LOG_ERR, "Can't create a directory <%s>", dir_path);
             return 1;
         }
-        syslog(LOG_INFO, "SSP. Directory <%s> was created", dir_path);
+        ssp_syslog(LOG_INFO, "SSP. Directory <%s> was created", dir_path);
     }
 
     return 0;
 }
 
-void ssp_syslog(int priority, const char* format, ...)
+static void ssp_syslog_v(int type, const char* format, va_list args)
+{
+    vsyslog(type, format, args);
+}
+
+void ssp_syslog(int type, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    ssp_syslog_v(priority, format, args);
+    ssp_syslog_v(type, format, args);
     va_end(args);
-}
-
-void ssp_syslog_v(int priority, const char* format, va_list args)
-{
-    syslog(priority, format, args);
 }

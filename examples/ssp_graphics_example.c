@@ -1,4 +1,3 @@
-#include <syslog.h>
 #include <stdlib.h>
 
 #include "ssp_helper.h"

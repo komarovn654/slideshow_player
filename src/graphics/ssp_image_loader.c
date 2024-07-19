@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <syslog.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -22,7 +21,7 @@ ssp_static size_t ssp_il_resize_if_needed(ssp_image* image)
     }
     if (image->need_to_resize) {
         if ((image->resized_data = ssp_malloc(image->resized_width * image->resized_height * image->nr_channels)) == NULL) {
-            syslog(LOG_ERR, "SSP STB. Failed to allocate memory for image resizing: %s", image->path);
+            ssp_syslog(LOG_ERR, "SSP STB. Failed to allocate memory for image resizing: %s", image->path);
             return 1;            
         }
         stbir_resize_uint8_linear(image->data, image->width, image->height, 0, 
@@ -45,7 +44,7 @@ ssp_image* ssp_il_read_image(const char* image_path)
 
     image->data = stbi_load(image->path, &image->width, &image->height, &image->nr_channels, 0);
     if (!image->data) {
-        syslog(LOG_ERR, "SSP STB. Failed to load an image: %s", image_path);
+        ssp_syslog(LOG_ERR, "SSP STB. Failed to load an image: %s", image_path);
         ssp_free(image);
         return NULL;
     }
@@ -56,8 +55,8 @@ ssp_image* ssp_il_read_image(const char* image_path)
     }
 
     image->buf_size = image->width * image->height * image->nr_channels;
-    syslog(LOG_DEBUG, "SSP STB. STB loaded image <%s>", image->path);
-    syslog(LOG_DEBUG, "SSP STB.STB read image params: width: %i, height: %i, size: %i",
+    ssp_syslog(LOG_DEBUG, "SSP STB. STB loaded image <%s>", image->path);
+    ssp_syslog(LOG_DEBUG, "SSP STB.STB read image params: width: %i, height: %i, size: %i",
         image->width, image->height, image->buf_size);
     return image;
 }

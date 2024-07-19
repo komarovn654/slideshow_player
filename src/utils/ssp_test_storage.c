@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <syslog.h>
 
 #include "ssp_memory.h"
 #include "ssp_helper.h"
@@ -11,17 +10,17 @@ ssp_static void* ssp_test_storage_insert(void* storage, const char* item_name)
     ssp_test_storage* ts = (ssp_test_storage*)storage;
 
     if (ts->len >= ts->cap) {
-        syslog(LOG_ERR, "SSP. Test storage overflowed");
+        ssp_syslog(LOG_ERR, "SSP. Test storage overflowed");
         return NULL;
     }
 
     size_t index = ts->len;
     size_t item_len = snprintf(ssp_ts_char_ptr(ts)[index], SSP_FULL_NAME_MAX_LEN, "%s", item_name);
     if (item_len >= SSP_FULL_NAME_MAX_LEN) {
-        syslog(LOG_ERR, "SSP. <%s> is to big and was truncated", item_name);
+        ssp_syslog(LOG_ERR, "SSP. <%s> is to big and was truncated", item_name);
         return NULL;
     }
-    syslog(LOG_DEBUG, "SSP. %s was added to the test storage", ssp_ts_char_ptr(ts)[index]);
+    ssp_syslog(LOG_DEBUG, "SSP. %s was added to the test storage", ssp_ts_char_ptr(ts)[index]);
     ts->len++;
 
     return ssp_ts_char_ptr(ts)[index];
@@ -36,7 +35,7 @@ ssp_static void ssp_test_storage_remove(void** storage, const char* item_name)
         if (strcmp(ssp_ts_char_ptr(*ts)[removed_index], item_name) == 0) {
             memset(ssp_ts_char_ptr(*ts)[removed_index], 0, SSP_FULL_NAME_MAX_LEN);
             (*ts)->len--;
-            syslog(LOG_DEBUG, "SSP. %s was removed from the test storage", item_name);
+            ssp_syslog(LOG_DEBUG, "SSP. %s was removed from the test storage", item_name);
             break;
         }
     }
@@ -80,19 +79,19 @@ ssp_static void ssp_test_storage_destruct(ssp_test_storage* storage)
     }
     ssp_free(storage->head_ptr);
     ssp_free(storage);
-    syslog(LOG_INFO, "SSP. Test storage was destructed");
+    ssp_syslog(LOG_INFO, "SSP. Test storage was destructed");
 }
 
 ssp_static ssp_test_storage* ssp_test_storage_init(void)
 {
     ssp_test_storage* test_storage = ssp_malloc(sizeof(ssp_test_storage));
     if (test_storage == NULL) {
-        syslog(LOG_CRIT, "SSP. Test storage structure allocation error");
+        ssp_syslog(LOG_CRIT, "SSP. Test storage structure allocation error");
         return NULL;
     }
 
     if ((test_storage->head_ptr = (char**)ssp_malloc(SSP_TS_MAX_ITEM_COUNT * sizeof(char*))) == NULL) {
-        syslog(LOG_CRIT, "SSP. Test storage head allocation error");
+        ssp_syslog(LOG_CRIT, "SSP. Test storage head allocation error");
         ssp_free(test_storage);
         return NULL;
     }
@@ -103,7 +102,7 @@ ssp_static ssp_test_storage* ssp_test_storage_init(void)
     for (size_t i = 0; i < SSP_TS_MAX_ITEM_COUNT; i++) {
         ssp_ts_char_ptr(test_storage)[i] = (char*)ssp_calloc(SSP_FULL_NAME_MAX_LEN, sizeof(char));
         if (ssp_ts_char_ptr(test_storage)[i] == NULL) {
-            syslog(LOG_CRIT, "SSP. Test storage item <%lu> allocation error", i);
+            ssp_syslog(LOG_CRIT, "SSP. Test storage item <%lu> allocation error", i);
             ssp_test_storage_destruct(test_storage);
             return NULL;
         }
@@ -117,13 +116,13 @@ ssp_image_storage* ssp_test_storage_init_is(void)
 {
     ssp_test_storage* test_storage = ssp_test_storage_init();
     if (test_storage == NULL) {
-        syslog(LOG_CRIT, "SSP. Test storage allocation error");
+        ssp_syslog(LOG_CRIT, "SSP. Test storage allocation error");
         return NULL;
     }
 
     ssp_image_storage* storage = ssp_malloc(sizeof(ssp_image_storage));
     if (storage == NULL) {
-        syslog(LOG_CRIT, "SSP. Image storage allocation error");
+        ssp_syslog(LOG_CRIT, "SSP. Image storage allocation error");
         ssp_test_storage_destruct(test_storage);
         return NULL;
     }   
@@ -134,7 +133,7 @@ ssp_image_storage* ssp_test_storage_init_is(void)
     storage->insert = ssp_test_storage_insert;
     storage->remove = ssp_test_storage_remove;
 
-    syslog(LOG_INFO, "SSP. Test storage was initialized as an image storage");
+    ssp_syslog(LOG_INFO, "SSP. Test storage was initialized as an image storage");
     return storage;
 }
 
@@ -142,5 +141,5 @@ void ssp_test_storage_destruct_is(ssp_image_storage* is)
 {
     ssp_test_storage_destruct((ssp_test_storage*)is->storage);
     ssp_free(is);
-    syslog(LOG_INFO, "SSP. Image storage(test storage) was destructed");
+    ssp_syslog(LOG_INFO, "SSP. Image storage(test storage) was destructed");
 }

@@ -19,7 +19,7 @@ extern "C" {
 class MockFunctions {
 public:
     MOCK_METHOD(int, ssp_glfw_init, (ssp_display_platform), ());
-    MOCK_METHOD(void, syslog, (int, const char*, ...), ());
+    // MOCK_METHOD(void, syslog, (int, const char*, ...), ());
 };
 
 class TestWindowTexture : public ::testing::Test {

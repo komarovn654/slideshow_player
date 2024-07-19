@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
 #include <string.h>
 #include <ini.h>
 
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
     config ssp_config = { 0 };
 
     if (ini_parse("../../config.ini", ssp_config_handler, &ssp_config) < 0) {
-        syslog(LOG_ERR, "Can't load 'config.ini'");
+        ssp_syslog(LOG_ERR, "Can't load 'config.ini'");
         return 1;
     }
     
