@@ -8,15 +8,29 @@
 #include "ssp_window.h"
 #include "ssp_render.h"
 
-static struct ssp_window_t {
-    GLFWwindow *window;
-    int width, height, width_pixels, height_pixels;
+static ssp_window_t ssp_window;
 
-    double redraw_time;
-    ssp_image_storage* images;
-    void* head_storage;
-    void* current_storage;
-} ssp_window;
+ssp_static int ssp_glfw_init(ssp_display_platform platform);
+
+static ssp_glfw_init_t ssp_glfw_init_ptr = ssp_glfw_init;
+static ssp_glfw_set_time_t ssp_glfw_set_time = glfwSetTime;
+
+static int __ssp_glfw_init(ssp_display_platform platform) { return ssp_glfw_init_ptr(platform); }
+static void __ssp_glfw_set_time(double time) { return ssp_glfw_set_time(time); }
+
+void ssp_window_set_glfw_init(ssp_glfw_init_t f_ptr) { ssp_glfw_init_ptr = f_ptr; }
+void ssp_window_set_glfw_time(ssp_glfw_set_time_t f_ptr) { ssp_glfw_set_time = f_ptr; }
+
+void ssp_window_set_default_fptr(void)
+{
+    ssp_glfw_init_ptr = ssp_glfw_init;
+    ssp_glfw_set_time = glfwSetTime;
+}
+
+ssp_window_t *ssp_window_get_window(void)
+{
+    return &ssp_window;
+}
 
 ssp_static void ssp_glfw_error_callback(int error, const char* description)
 {
@@ -97,12 +111,12 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
 
     if (ssp_window_set_platform(platform) != 0) {
         ssp_syslog(LOG_ERR, "SSP. Couldn't set display platform");
-        return -1;
+        return 1;
     }
 
     if (!glfwInit()) {
         ssp_syslog(LOG_ERR, "SSP. GLFW initialization error");
-        return -1;
+        return 1;
     }
 
     char platform_name[10];
@@ -112,6 +126,8 @@ ssp_static int ssp_glfw_init(ssp_display_platform platform)
     return 0;
 }
 
+
+
 int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage* images)
 {
     if ((width <= 0 || width > MAX_SSP_WINDOW_WIDTH) || (height <= 0 || height > MAX_SSP_WINDOW_HEIGHT)) {
@@ -120,7 +136,11 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         return 1;
     }
 
-    if (ssp_glfw_init(SSP_DISPLAY_PLATFORM) != 0) {
+    if (images == NULL) {
+        return 1;
+    }
+
+    if (__ssp_glfw_init(SSP_DISPLAY_PLATFORM) != 0) {
         ssp_syslog(LOG_ERR, "SSP. GLFW initialization error");
         return 1;
     }
@@ -128,7 +148,7 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window.width = width;
     ssp_window.height = height;
     ssp_window.redraw_time = redraw_time;
-    glfwSetTime(ssp_window.redraw_time);
+    __ssp_glfw_set_time(ssp_window.redraw_time);
 
     ssp_render_set_gl_ctx();
 

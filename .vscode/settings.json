@@ -138,7 +138,8 @@
         "ini.h": "c",
         "stb_image_resize.h": "c",
         "stb_image_resize2.h": "c",
-        "glad.h": "c"
+        "glad.h": "c",
+        "ssp_graphics_mock.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
 

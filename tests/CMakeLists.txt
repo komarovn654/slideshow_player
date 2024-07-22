@@ -73,6 +73,7 @@ gtest_discover_tests(ssp_image_loader_utest)
 add_executable(
     ssp_window_utest
     ${CMAKE_CURRENT_LIST_DIR}/ssp_window_utest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_window_mock.c
     ${CMAKE_SOURCE_DIR}/src/graphics/ssp_window.c
     ${UTILS_SOURCES}
 )
