@@ -8,23 +8,35 @@
 #include "ssp_window.h"
 #include "ssp_render.h"
 
+ssp_static int ssp_glfw_init(ssp_display_platform platform);
+ssp_static void ssp_window_resize_handler(int image_width, int image_height);
+
 static ssp_window_t ssp_window;
 
-ssp_static int ssp_glfw_init(ssp_display_platform platform);
+static ssp_glfw_init_t __ssp_glfw_init = ssp_glfw_init;
+static ssp_glfw_set_time_t __ssp_glfw_set_time = glfwSetTime;
+static ssp_render_set_gl_ctx_t __ssp_render_set_gl_ctx = ssp_render_set_gl_ctx;
+static ssp_glfw_create_window_t __ssp_glfw_create_window = glfwCreateWindow;
+static ssp_glfw_make_context_current_t __ssp_glfw_make_context_current = glfwMakeContextCurrent;
+static ssp_render_init_t __ssp_render_init = ssp_render_init;
+static ssp_window_resize_handler_t __ssp_window_resize_handler = ssp_window_resize_handler;
 
-static ssp_glfw_init_t ssp_glfw_init_ptr = ssp_glfw_init;
-static ssp_glfw_set_time_t ssp_glfw_set_time = glfwSetTime;
+void ssp_ws_glfw_init(ssp_glfw_init_t f_ptr) { __ssp_glfw_init = f_ptr; }
+void ssp_ws_glfw_time(ssp_glfw_set_time_t f_ptr) { __ssp_glfw_set_time = f_ptr; }
+void ssp_ws_render_set_gl_ctx(ssp_render_set_gl_ctx_t f_ptr) { __ssp_render_set_gl_ctx = f_ptr; }
+void ssp_ws_glfw_create_window(ssp_glfw_create_window_t f_ptr) { __ssp_glfw_create_window = f_ptr; }
+void ssp_ws_glfw_make_context_current(ssp_glfw_make_context_current_t f_ptr) { __ssp_glfw_make_context_current = f_ptr; }
+void ssp_ws_render_init(ssp_render_init_t f_ptr) { __ssp_render_init = f_ptr; }
+void ssp_ws_window_resize_handler(ssp_window_resize_handler_t f_ptr) { __ssp_window_resize_handler = f_ptr; }
 
-static int __ssp_glfw_init(ssp_display_platform platform) { return ssp_glfw_init_ptr(platform); }
-static void __ssp_glfw_set_time(double time) { return ssp_glfw_set_time(time); }
-
-void ssp_window_set_glfw_init(ssp_glfw_init_t f_ptr) { ssp_glfw_init_ptr = f_ptr; }
-void ssp_window_set_glfw_time(ssp_glfw_set_time_t f_ptr) { ssp_glfw_set_time = f_ptr; }
-
-void ssp_window_set_default_fptr(void)
+void ssp_ws_default_fptr(void)
 {
-    ssp_glfw_init_ptr = ssp_glfw_init;
-    ssp_glfw_set_time = glfwSetTime;
+    __ssp_glfw_init = ssp_glfw_init;
+    __ssp_glfw_set_time = glfwSetTime;
+    __ssp_render_set_gl_ctx = ssp_render_set_gl_ctx;
+    __ssp_glfw_create_window = glfwCreateWindow;
+    __ssp_glfw_make_context_current = glfwMakeContextCurrent;
+    __ssp_render_init = ssp_render_init;
 }
 
 ssp_window_t *ssp_window_get_window(void)
@@ -137,12 +149,12 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     }
 
     if (images == NULL) {
-        return 1;
+        return 2;
     }
 
     if (__ssp_glfw_init(SSP_DISPLAY_PLATFORM) != 0) {
         ssp_syslog(LOG_ERR, "SSP. GLFW initialization error");
-        return 1;
+        return 3;
     }
 
     ssp_window.width = width;
@@ -150,19 +162,19 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
     ssp_window.redraw_time = redraw_time;
     __ssp_glfw_set_time(ssp_window.redraw_time);
 
-    ssp_render_set_gl_ctx();
+    __ssp_render_set_gl_ctx();
 
-    ssp_window.window = glfwCreateWindow(ssp_window.width, ssp_window.height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
+    ssp_window.window = __ssp_glfw_create_window(ssp_window.width, ssp_window.height, "ssp", NULL, NULL); // glfwGetPrimaryMonitor()
     if (ssp_window.window == NULL) {
         ssp_syslog(LOG_ERR, "SSP. GLFW couldn't create window");
-        return 1;
+        return 4;
     }
-    
-    glfwMakeContextCurrent(ssp_window.window);
 
-    if (ssp_render_init(ssp_window_resize_handler) != 0) {
+    __ssp_glfw_make_context_current(ssp_window.window);
+
+    if (__ssp_render_init(__ssp_window_resize_handler) != 0) {
         ssp_syslog(LOG_ERR, "SSP. Render initialization error");
-        return 1;        
+        return 5;        
     }
     ssp_syslog(LOG_INFO, "SSP. OpenGL version: %s", glGetString(GL_VERSION));
     ssp_syslog(LOG_INFO, "SSP. The window was initialized");
