@@ -1,0 +1,48 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void (*ssp_glfw_window_hint_t)(int, int);
+typedef void* (*ssp_glfw_get_proc_address_t)(const char *);
+typedef void (*ssp_glfw_get_framebuffer_size_t)(void *, int *, int *);
+typedef int (*ssp_glfw_platform_supported_t)(int);
+typedef void (*ssp_glfw_init_hint_t)(int, int);
+typedef double (*ssp_glfw_get_time_t)(void);
+typedef void* (*ssp_glfw_set_error_callback_t)(void*);
+typedef const char* (*ssp_glfw_get_version_string_t)(void);
+typedef int (*ssp_glfw_init_t)(void);
+typedef int (*ssp_glfw_get_platform_t)(void);
+typedef void* (*ssp_glfw_create_window_t)(int, int, const char *, void *, void *);
+typedef void (*ssp_glfw_make_context_current_t)(void *);
+
+void ssp_glfw_window_hint(int, int);
+void* ssp_glfw_get_proc_address(const char *);
+void ssp_glfw_get_framebuffer_size(void *, int *, int *);
+int ssp_glfw_platform_supported(int);
+void ssp_glfw_init_hint(int, int);
+double ssp_glfw_get_time(void);
+void* ssp_glfw_set_error_callback(void*);
+const char* ssp_glfw_get_version_string(void);
+int ssp_glfw_init(void);
+int ssp_glfw_get_platform(void);
+void* ssp_glfw_create_window(int, int, const char *, void *, void *);
+void ssp_glfw_make_context_current(void *);
+
+void ssp_glfw_set_window_hint(ssp_glfw_window_hint_t);
+void ssp_glfw_set_get_proc_address(ssp_glfw_get_proc_address_t);
+void ssp_glfw_set_get_framebuffer_size(ssp_glfw_get_framebuffer_size_t);
+void ssp_glfw_set_platform_supported(ssp_glfw_platform_supported_t);
+void ssp_glfw_set_init_hint(ssp_glfw_init_hint_t);
+void ssp_glfw_set_get_time(ssp_glfw_get_time_t);
+void ssp_glfw_set_set_error_callback(ssp_glfw_set_error_callback_t);
+void ssp_glfw_set_get_version_string(ssp_glfw_get_version_string_t);
+void ssp_glfw_set_init(ssp_glfw_init_t);
+void ssp_glfw_set_get_platform(ssp_glfw_get_platform_t);
+void ssp_glfw_set_create_window(ssp_glfw_create_window_t);
+void ssp_glfw_set_make_context_current(ssp_glfw_make_context_current_t);
+
+#ifdef __cplusplus
+}
+#endif

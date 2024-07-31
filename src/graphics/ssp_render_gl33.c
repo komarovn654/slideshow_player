@@ -1,5 +1,5 @@
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include "ssp_glfw.h"
+#include "ssp_gl.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"

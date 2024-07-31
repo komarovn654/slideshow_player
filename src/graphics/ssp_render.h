@@ -1,6 +1,9 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "ssp_helper.h"
 #include "ssp_shader.h"
 
@@ -35,3 +38,7 @@ int ssp_render_init_glad(void);
 
 int ssp_render_init(void (*resize_handler)(int width, int height));
 int ssp_render_redraw(const char* image);
+
+#ifdef __cplusplus
+}
+#endif

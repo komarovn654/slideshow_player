@@ -1,4 +1,5 @@
 #include "ssp_window.h"
+#include "ssp_render.h"
 #include "ssp_graphics_mock.h"
 
 int ssp_glfw_init_mock_error(ssp_display_platform platform) { return 1; }
@@ -16,6 +17,16 @@ GLFWwindow* ssp_glfw_create_window_pass(int p1, int p2, const char* p3, GLFWmoni
 {
     static GLFWwindow* window;
     return window;
+}
+
+int ssp_glad_load_glloader_mock_error(GLADloadproc)
+{
+    return 0;
+}
+
+int ssp_glad_load_glloader_mock_pass(GLADloadproc)
+{
+    return 1;
 }
 
 // typedef void (*ssp_glfw_make_context_current_t)(GLFWwindow*);
