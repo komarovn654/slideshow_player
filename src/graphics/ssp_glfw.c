@@ -1,5 +1,5 @@
-#include "GLFW/glfw3.h"
 #include "ssp_glfw.h"
+#include "ssp_glfw_set.h"
 
 typedef struct ssp_glfw_t {
     ssp_glfw_window_hint_t window_hint;
@@ -8,12 +8,17 @@ typedef struct ssp_glfw_t {
     ssp_glfw_platform_supported_t platform_supported;
     ssp_glfw_init_hint_t init_hint;
     ssp_glfw_get_time_t get_time;
+    ssp_glfw_set_time_t set_time;
     ssp_glfw_set_error_callback_t set_error_callback;
     ssp_glfw_get_version_string_t get_version_string;
     ssp_glfw_init_t init;
     ssp_glfw_get_platform_t get_platform;
     ssp_glfw_create_window_t create_window;
     ssp_glfw_make_context_current_t make_context_current;
+    ssp_glfw_terminate_t terminate;
+    ssp_glfw_window_should_close_t window_should_close;
+    ssp_glfw_swap_buffers_t swap_buffers;
+    ssp_glfw_poll_events_t poll_events;
 } ssp_glfw_t;
 
 static ssp_glfw_t ssp_glfw = {
@@ -23,12 +28,17 @@ static ssp_glfw_t ssp_glfw = {
     .platform_supported = glfwPlatformSupported,
     .init_hint = glfwInitHint,
     .get_time = glfwGetTime,
+    .set_time = glfwSetTime,
     .set_error_callback = (ssp_glfw_set_error_callback_t)glfwSetErrorCallback,
     .get_version_string = glfwGetVersionString,
     .init = glfwInit,
     .get_platform = glfwGetPlatform,
     .create_window = (ssp_glfw_create_window_t)glfwCreateWindow,
     .make_context_current = (ssp_glfw_make_context_current_t)glfwMakeContextCurrent,
+    .terminate = glfwTerminate,
+    .window_should_close = (ssp_glfw_window_should_close_t)glfwWindowShouldClose,
+    .swap_buffers = (ssp_glfw_swap_buffers_t)glfwSwapBuffers,
+    .poll_events = glfwPollEvents,
 };
 
 void set_ssp_glfw_fptr_default(void)
@@ -39,12 +49,17 @@ void set_ssp_glfw_fptr_default(void)
     ssp_glfw.platform_supported = glfwPlatformSupported;
     ssp_glfw.init_hint = glfwInitHint;
     ssp_glfw.get_time = glfwGetTime;
+    ssp_glfw.set_time = glfwSetTime;
     ssp_glfw.set_error_callback = (ssp_glfw_set_error_callback_t)glfwSetErrorCallback;
     ssp_glfw.get_version_string = glfwGetVersionString;
     ssp_glfw.init = glfwInit;
     ssp_glfw.get_platform = glfwGetPlatform;
     ssp_glfw.create_window = (ssp_glfw_create_window_t)glfwCreateWindow;
     ssp_glfw.make_context_current = (ssp_glfw_make_context_current_t)glfwMakeContextCurrent;
+    ssp_glfw.terminate = glfwTerminate;
+    ssp_glfw.window_should_close = (ssp_glfw_window_should_close_t)glfwWindowShouldClose;
+    ssp_glfw.swap_buffers = (ssp_glfw_swap_buffers_t)glfwSwapBuffers;
+    ssp_glfw.poll_events = glfwPollEvents;
 }
 // TODO: Check cast types
 void ssp_glfw_window_hint(int hint, int value)
@@ -77,6 +92,11 @@ double ssp_glfw_get_time(void)
     return ssp_glfw.get_time();
 }
 
+void ssp_glfw_set_time(double time)
+{
+    return ssp_glfw.set_time(time);
+}
+
 void* ssp_glfw_set_error_callback(void* callback)
 {
     return ssp_glfw.set_error_callback(callback);
@@ -105,6 +125,26 @@ void* ssp_glfw_create_window(int width, int height, const char *title, void *mon
 void ssp_glfw_make_context_current(void *window)
 {
     return ssp_glfw.make_context_current(window);
+}
+
+void ssp_glfw_terminate(void)
+{
+    return ssp_glfw.terminate();
+}
+
+int ssp_glfw_window_should_close(void* window)
+{
+    return ssp_glfw.window_should_close(window);
+}
+
+void ssp_glfw_swap_buffers(void* window)
+{
+    return ssp_glfw.swap_buffers(window);
+}
+
+void ssp_glfw_poll_events(void)
+{
+    return ssp_glfw.poll_events();
 }
 
 
@@ -138,6 +178,11 @@ void ssp_glfw_set_get_time(ssp_glfw_get_time_t fptr)
     ssp_glfw.get_time = fptr;
 }
 
+void ssp_glfw_set_set_time(ssp_glfw_set_time_t fptr)
+{
+    ssp_glfw.set_time = fptr;
+}
+
 void ssp_glfw_set_set_error_callback(ssp_glfw_set_error_callback_t fptr)
 {
     ssp_glfw.set_error_callback = fptr;
@@ -166,4 +211,24 @@ void ssp_glfw_set_create_window(ssp_glfw_create_window_t fptr)
 void ssp_glfw_set_make_context_current(ssp_glfw_make_context_current_t fptr)
 {
     ssp_glfw.make_context_current = fptr;
+}
+
+void ssp_glfw_set_terminate(ssp_glfw_terminate_t fptr)
+{
+    ssp_glfw.terminate = fptr;
+}
+
+void ssp_glfw_set_window_should_close(ssp_glfw_window_should_close_t fptr)
+{
+    ssp_glfw.window_should_close = fptr;
+}
+
+void ssp_glfw_set_swap_buffers(ssp_glfw_swap_buffers_t fptr)
+{
+    ssp_glfw.swap_buffers = fptr;
+}
+
+void ssp_glfw_set_poll_events(ssp_glfw_poll_events_t fptr)
+{
+    ssp_glfw.poll_events = fptr;
 }

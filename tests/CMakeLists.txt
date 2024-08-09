@@ -74,6 +74,9 @@ add_executable(
     ssp_window_utest
     ${CMAKE_CURRENT_LIST_DIR}/ssp_window_utest.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics/ssp_glfw.c
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_gl.c
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_render_gl33.c
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_render.c
     ${UTILS_SOURCES}
 )
 target_link_libraries(ssp_window_utest ssp_graphics glfw gtest_main gtest)

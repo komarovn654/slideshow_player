@@ -1,5 +1,5 @@
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include "ssp_gl.h"
+#include "ssp_glfw.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -11,8 +11,8 @@ static ssp_render render = {
 
 ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, int* height)
 {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, render.texture);
+    ssp_gl_active_texture(GL_TEXTURE0);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);
 
     ssp_image* image = ssp_il_read_image(image_path);
     if (image == NULL) {
@@ -22,9 +22,9 @@ ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, in
     
     *width = image->width;
     *height = image->height;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    ssp_gl_tex_image2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    ssp_gl_generate_mipmap(GL_TEXTURE_2D);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, 0);
 
     ssp_il_delete_image(image);
 
@@ -43,13 +43,13 @@ int ssp_render_init(void (*resize_handler)(int width, int height))
         return 1;
     }
 
-    glGenTextures(1, &render.texture);
-    glBindTexture(GL_TEXTURE_2D, render.texture);   
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
-    glBindTexture(GL_TEXTURE_2D, 0);
+    ssp_gl_gen_textures(1, &render.texture);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);   
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
+    ssp_gl_bind_texture(GL_TEXTURE_2D, 0);
 
     ssp_syslog(LOG_INFO, "SSP. The render was initialized");
     return 0;
@@ -57,8 +57,8 @@ int ssp_render_init(void (*resize_handler)(int width, int height))
 
 ssp_static void ssp_render_draw_error(void)
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ssp_gl_clear_color(0.2f, 0.3f, 0.3f, 1.0f);
+    ssp_gl_clear(GL_COLOR_BUFFER_BIT);
 }
 
 int ssp_render_redraw(const char* image)
@@ -73,16 +73,16 @@ int ssp_render_redraw(const char* image)
     }
     render.resize_handler(width, height);
     
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ssp_gl_clear_color(0.2f, 0.3f, 0.3f, 1.0f);
+    ssp_gl_clear(GL_COLOR_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, render.texture);
+    ssp_gl_active_texture(GL_TEXTURE0);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);
 
-    glBindVertexArray(render.buffers.vao_id);
+    ssp_gl_bind_vertex_array(render.buffers.vao_id);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    ssp_gl_draw_arrays(GL_TRIANGLES, 0, 6);
+    ssp_gl_bind_buffer(GL_ARRAY_BUFFER, 0);
 
     return 0;
 }

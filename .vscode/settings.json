@@ -7,6 +7,13 @@
         "ssp_glfw.h": "c",
         "ssp_gl.h": "c",
         "ssp_shader.h": "c",
-        "glfw3.h": "c"
+        "glfw3.h": "c",
+        "glad.h": "c",
+        "gl.h": "c",
+        "istream": "c",
+        "thread": "c",
+        "tuple": "c",
+        "*.ipp": "c",
+        "ios": "c"
     }
 }

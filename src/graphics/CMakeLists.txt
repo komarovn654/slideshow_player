@@ -2,6 +2,8 @@ add_library(
     ssp_graphics STATIC
     ${RENDER_SRC}
     ${GLAD_PATH}/src/glad.c
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_glfw.c
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_gl.c
     ${CMAKE_CURRENT_LIST_DIR}/ssp_image_loader.c
     ${CMAKE_CURRENT_LIST_DIR}/ssp_render.c
     ${CMAKE_CURRENT_LIST_DIR}/ssp_shader.c

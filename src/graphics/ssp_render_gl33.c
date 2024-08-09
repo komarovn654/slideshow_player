@@ -1,5 +1,5 @@
-#include "ssp_glfw.h"
 #include "ssp_gl.h"
+#include "ssp_glfw.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -28,30 +28,30 @@ void main()\n\
 
 void ssp_render_set_gl_ctx(void)
 {
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    ssp_glfw_window_hint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    ssp_glfw_window_hint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    ssp_glfw_window_hint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    ssp_glfw_window_hint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    ssp_glfw_window_hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
 void ssp_render_init_buffers(ssp_render* render)
 {
-    glGenVertexArrays(1, &(render->buffers.vao_id));
-    glBindVertexArray(render->buffers.vao_id);
+    ssp_gl_gen_vertex_arrays(1, &(render->buffers.vao_id));
+    ssp_gl_bind_vertex_array(render->buffers.vao_id);
 
-    glGenBuffers(1, &(render->buffers.vbo_id));
-    glBindBuffer(GL_ARRAY_BUFFER, render->buffers.vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(render->vertices), render->vertices, GL_STATIC_DRAW);
+    ssp_gl_gen_buffers(1, &(render->buffers.vbo_id));
+    ssp_gl_bind_buffer(GL_ARRAY_BUFFER, render->buffers.vbo_id);
+    ssp_gl_buffer_data(GL_ARRAY_BUFFER, sizeof(render->vertices), render->vertices, GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+    ssp_gl_vertex_attrib_pointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+    ssp_gl_enable_vertex_attrib_array(0);
     // Texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
+    ssp_gl_vertex_attrib_pointer(1, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    ssp_gl_enable_vertex_attrib_array(1);
 
-    glBindVertexArray(0);
+    ssp_gl_bind_vertex_array(0);
 }
 
 void ssp_render_set_shaders(ssp_render* render)
@@ -65,7 +65,7 @@ void ssp_render_set_shaders(ssp_render* render)
 
 int ssp_render_init_glad(void)
 {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!ssp_glad_load_gl_loader((GLADloadproc)ssp_glfw_get_proc_address)) {
         ssp_syslog(LOG_ERR, "SSP. GLAD initialization error");
         return 1;
     }
