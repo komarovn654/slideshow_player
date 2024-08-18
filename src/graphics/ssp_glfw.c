@@ -41,7 +41,7 @@ static ssp_glfw_t ssp_glfw = {
     .poll_events = glfwPollEvents,
 };
 
-void set_ssp_glfw_fptr_default(void)
+void ssp_set_glfw_fptr_default(void)
 {
     ssp_glfw.window_hint = glfwWindowHint;
     ssp_glfw.get_proc_address = (ssp_glfw_get_proc_address_t)glfwGetProcAddress;

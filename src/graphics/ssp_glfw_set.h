@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+void ssp_set_glfw_fptr_default(void);
+
 typedef void (*ssp_glfw_window_hint_t)(int, int);
 typedef void* (*ssp_glfw_get_proc_address_t)(const char *);
 typedef void (*ssp_glfw_get_framebuffer_size_t)(void *, int *, int *);

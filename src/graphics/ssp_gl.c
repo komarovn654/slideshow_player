@@ -69,6 +69,40 @@ static ssp_gl_t ssp_gl = {
     .get_string = ssp_gl_get_string_wrap,
 };
 
+void ssp_set_gl_fptr_default(void)
+{
+    ssp_gl.load_gl_loader = (ssp_glad_load_gl_loader_t)gladLoadGLLoader;
+    ssp_gl.gen_vertex_arrays = ssp_gl_gen_vertex_arrays_wrap;
+    ssp_gl.bind_vertex_array = ssp_gl_bind_vertex_array_wrap;
+    ssp_gl.gen_buffers = ssp_gl_gen_buffers_wrap;
+    ssp_gl.bind_buffer = ssp_gl_bind_buffer_wrap;
+    ssp_gl.buffer_data = ssp_gl_buffer_data_wrap;
+    ssp_gl.vertex_attrib_pointer = ssp_gl_vertex_attrib_pointer_wrap;
+    ssp_gl.enable_vertex_attrib_array = ssp_gl_enable_vertex_attrib_array_wrap;
+    ssp_gl.active_texture = ssp_gl_active_texture_wrap;
+    ssp_gl.bind_texture = ssp_gl_bind_texture_wrap;
+    ssp_gl.text_image2D = ssp_gl_tex_image2D_wrap;
+    ssp_gl.generate_mipmap = ssp_gl_generate_mipmap_wrap;
+    ssp_gl.gen_textures = ssp_gl_gen_textures_wrap;
+    ssp_gl.tex_parammetri = ssp_gl_tex_parammetri_wrap;
+    ssp_gl.clear_color = ssp_gl_clear_color_wrap;
+    ssp_gl.clear = ssp_gl_clear_wrap;
+    ssp_gl.draw_arrays = ssp_gl_draw_arrays_wrap;
+    ssp_gl.create_shader = ssp_gl_create_shader_wrap;
+    ssp_gl.shader_source = ssp_gl_shader_source_wrap;
+    ssp_gl.compile_shader = ssp_gl_compile_shader_wrap;
+    ssp_gl.get_shaderiv = ssp_gl_get_shaderiv_wrap;
+    ssp_gl.get_shader_info_log = ssp_gl_get_shader_info_log_wrap;
+    ssp_gl.use_program = ssp_gl_use_program_wrap;
+    ssp_gl.create_program = ssp_gl_create_program_wrap;
+    ssp_gl.attach_shader = ssp_gl_attach_shader_wrap;
+    ssp_gl.link_program = ssp_gl_link_program_wrap;
+    ssp_gl.get_programiv = ssp_gl_get_programiv_wrap;
+    ssp_gl.get_program_info_log = ssp_gl_get_program_info_log_wrap;
+    ssp_gl.delete_shader = ssp_gl_delete_shader_wrap;
+    ssp_gl.viewport = ssp_gl_viewport_wrap;
+    ssp_gl.get_string = ssp_gl_get_string_wrap;
+}
 
 void ssp_gl_gen_vertex_arrays_wrap(GLsizei n, GLuint *arrays) { glGenVertexArrays(n, arrays); }
 void ssp_gl_bind_vertex_array_wrap(GLuint array) { glBindVertexArray(array); }
@@ -169,7 +203,7 @@ const GLubyte* ssp_gl_get_string(GLenum name) { return ssp_gl.get_string(name); 
 
 
 void ssp_glad_set_load_gl_loader(ssp_glad_load_gl_loader_t fptr) { ssp_gl.load_gl_loader = fptr; }
-void ssp_gl_set_gen_vertex_array(ssp_gl_gen_vertex_arrays_t fptr) { ssp_gl.gen_vertex_arrays = fptr; }
+void ssp_gl_set_gen_vertex_arrays(ssp_gl_gen_vertex_arrays_t fptr) { ssp_gl.gen_vertex_arrays = fptr; }
 void ssp_gl_set_bind_vertex_array(ssp_gl_bind_vertex_array_t fptr) { ssp_gl.bind_vertex_array = fptr; }
 void ssp_gl_set_gen_buffers(ssp_gl_gen_buffers_t fptr) { ssp_gl.gen_buffers = fptr; }
 void ssp_gl_set_bind_buffer(ssp_gl_bind_buffer_t fptr) { ssp_gl.bind_buffer = fptr; }

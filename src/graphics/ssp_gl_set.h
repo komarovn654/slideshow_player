@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+void ssp_set_gl_fptr_default(void);
+
 typedef int  (*ssp_glad_load_gl_loader_t)(void *load);
 typedef void (*ssp_gl_gen_vertex_arrays_t)(int n, unsigned int *arrays);
 typedef void (*ssp_gl_bind_vertex_array_t)(unsigned int array);
@@ -37,7 +39,7 @@ typedef void (*ssp_gl_viewport_t)(int x, int y, int width, int height);
 typedef const unsigned char* (*ssp_gl_get_string_t)(unsigned int name);
 
 void ssp_glad_set_load_gl_loader(ssp_glad_load_gl_loader_t fptr);
-void ssp_gl_set_gen_vertex_array(ssp_gl_gen_vertex_arrays_t fptr);
+void ssp_gl_set_gen_vertex_arrays(ssp_gl_gen_vertex_arrays_t fptr);
 void ssp_gl_set_bind_vertex_array(ssp_gl_bind_vertex_array_t fptr);
 void ssp_gl_set_gen_buffers(ssp_gl_gen_buffers_t fptr);
 void ssp_gl_set_bind_buffer(ssp_gl_bind_buffer_t fptr);

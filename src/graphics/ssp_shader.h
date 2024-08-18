@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "ssp_gl.h"
+
 typedef struct ssp_shader_info_t{
     GLuint type;
     // TODO: select from file/const char*

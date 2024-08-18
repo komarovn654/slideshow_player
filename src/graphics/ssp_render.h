@@ -32,8 +32,8 @@ typedef struct ssp_render_t {
 } ssp_render;
 
 void ssp_render_set_gl_ctx(void);
-void ssp_render_init_buffers(ssp_render* render);
-void ssp_render_set_shaders(ssp_render* render);
+int ssp_render_init_buffers(ssp_render* render);
+int ssp_render_set_shaders(ssp_render* render);
 int ssp_render_init_glad(void);
 
 int ssp_render_init(void (*resize_handler)(int width, int height));

@@ -9,6 +9,23 @@ static ssp_render render = {
     .vertices = SSP_RENDER_TEXTURE_VERTICES,
 };
 
+ssp_static int ssp_render_setup_texture(ssp_render* render)
+{
+    if (render == NULL) {
+        return 1;
+    }
+
+    ssp_gl_gen_textures(1, &(render->texture));
+    ssp_gl_bind_texture(GL_TEXTURE_2D, render->texture);   
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
+    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
+    ssp_gl_bind_texture(GL_TEXTURE_2D, 0);
+
+    return 0;
+}
+
 ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, int* height)
 {
     ssp_gl_active_texture(GL_TEXTURE0);
@@ -34,22 +51,25 @@ ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, in
 int ssp_render_init(void (*resize_handler)(int width, int height))
 {
     ssp_render_init_glad();
-    ssp_render_init_buffers(&render);
-    ssp_render_set_shaders(&render);
+    if (ssp_render_init_buffers(&render) != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't init buffers");
+        return 1;
+    }
+    if (ssp_render_set_shaders(&render) != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't set shaders");
+        return 2;        
+    };
     render.resize_handler = resize_handler;
 
     if (ssp_shader_create_program(render.shaders, 2) == 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't create shader program");
-        return 1;
+        return 3;
     }
 
-    ssp_gl_gen_textures(1, &render.texture);
-    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);   
-    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-    ssp_gl_tex_parammetri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!    
-    ssp_gl_bind_texture(GL_TEXTURE_2D, 0);
+    if (ssp_render_setup_texture(&render) != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't setup texture");
+        return 4;
+    }
 
     ssp_syslog(LOG_INFO, "SSP. The render was initialized");
     return 0;

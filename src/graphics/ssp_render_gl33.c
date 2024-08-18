@@ -35,8 +35,12 @@ void ssp_render_set_gl_ctx(void)
     ssp_glfw_window_hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-void ssp_render_init_buffers(ssp_render* render)
+int ssp_render_init_buffers(ssp_render* render)
 {
+    if (render == NULL) {
+        return 1;
+    }
+
     ssp_gl_gen_vertex_arrays(1, &(render->buffers.vao_id));
     ssp_gl_bind_vertex_array(render->buffers.vao_id);
 
@@ -52,15 +56,23 @@ void ssp_render_init_buffers(ssp_render* render)
     ssp_gl_enable_vertex_attrib_array(1);
 
     ssp_gl_bind_vertex_array(0);
+    
+    return 0;
 }
 
-void ssp_render_set_shaders(ssp_render* render)
+int ssp_render_set_shaders(ssp_render* render)
 {
+    if (render == NULL) {
+        return 1;
+    }
+
     render->shaders[0].type = GL_VERTEX_SHADER;
     render->shaders[0].data = vertex_shader;
 
     render->shaders[1].type = GL_FRAGMENT_SHADER;
     render->shaders[1].data = fragment_shader;
+
+    return 0;
 }
 
 int ssp_render_init_glad(void)
