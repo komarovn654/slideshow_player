@@ -1,10 +1,11 @@
-#pragma once
+#ifndef window_h
+#define window_h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <GLFW/glfw3.h>
+#include "ssp_glfw.h"
 #include "ssp_helper.h"
 
 #define MAX_SSP_WINDOW_WIDTH    (1920)
@@ -31,3 +32,5 @@ int ssp_window_player_loop(void);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // window_h

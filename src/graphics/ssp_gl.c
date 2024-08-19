@@ -12,7 +12,7 @@ typedef struct ssp_gl_t {
     ssp_gl_enable_vertex_attrib_array_t enable_vertex_attrib_array;
     ssp_gl_active_texture_t active_texture;
     ssp_gl_bind_texture_t bind_texture;
-    ssp_gl_tex_image2D_t text_image2D;
+    ssp_gl_tex_image2D_t tex_image2D;
     ssp_gl_generate_mipmap_t generate_mipmap;
     ssp_gl_gen_textures_t gen_textures;
     ssp_gl_tex_parammetri_t tex_parammetri;
@@ -46,7 +46,7 @@ static ssp_gl_t ssp_gl = {
     .enable_vertex_attrib_array = ssp_gl_enable_vertex_attrib_array_wrap,
     .active_texture = ssp_gl_active_texture_wrap,
     .bind_texture = ssp_gl_bind_texture_wrap,
-    .text_image2D = ssp_gl_tex_image2D_wrap,
+    .tex_image2D = ssp_gl_tex_image2D_wrap,
     .generate_mipmap = ssp_gl_generate_mipmap_wrap,
     .gen_textures = ssp_gl_gen_textures_wrap,
     .tex_parammetri = ssp_gl_tex_parammetri_wrap,
@@ -81,7 +81,7 @@ void ssp_set_gl_fptr_default(void)
     ssp_gl.enable_vertex_attrib_array = ssp_gl_enable_vertex_attrib_array_wrap;
     ssp_gl.active_texture = ssp_gl_active_texture_wrap;
     ssp_gl.bind_texture = ssp_gl_bind_texture_wrap;
-    ssp_gl.text_image2D = ssp_gl_tex_image2D_wrap;
+    ssp_gl.tex_image2D = ssp_gl_tex_image2D_wrap;
     ssp_gl.generate_mipmap = ssp_gl_generate_mipmap_wrap;
     ssp_gl.gen_textures = ssp_gl_gen_textures_wrap;
     ssp_gl.tex_parammetri = ssp_gl_tex_parammetri_wrap;
@@ -169,7 +169,7 @@ void ssp_gl_active_texture(GLenum texture) { return ssp_gl.active_texture(textur
 void ssp_gl_bind_texture(GLenum target, GLuint texture) { return ssp_gl.bind_texture(target, texture); }
 void ssp_gl_tex_image2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
 {
-    return ssp_gl.text_image2D(target, level, internalformat, width, height, border, format, type, pixels);
+    return ssp_gl.tex_image2D(target, level, internalformat, width, height, border, format, type, pixels);
 }
 void ssp_gl_generate_mipmap(GLenum target) { return ssp_gl.generate_mipmap(target); }
 void ssp_gl_gen_textures(GLsizei n, GLuint *textures) { return ssp_gl.gen_textures(n ,textures); }
@@ -212,7 +212,7 @@ void ssp_gl_set_vertex_attrib_pointer(ssp_gl_vertex_attrib_pointer_t fptr) { ssp
 void ssp_gl_set_enable_vertex_attrib_array(ssp_gl_enable_vertex_attrib_array_t fptr) { ssp_gl.enable_vertex_attrib_array = fptr; }
 void ssp_gl_set_active_texture(ssp_gl_active_texture_t fptr) { ssp_gl.active_texture = fptr; }
 void ssp_gl_set_bind_texture(ssp_gl_bind_texture_t fptr) { ssp_gl.bind_texture = fptr; }
-void ssp_gl_set_text_image2D(ssp_gl_tex_image2D_t fptr) { ssp_gl.text_image2D = fptr; }
+void ssp_gl_set_tex_image2D(ssp_gl_tex_image2D_t fptr) { ssp_gl.tex_image2D = fptr; }
 void ssp_gl_set_generate_mipmap(ssp_gl_generate_mipmap_t fptr) { ssp_gl.generate_mipmap = fptr; }
 void ssp_gl_set_gen_textures(ssp_gl_gen_textures_t fptr) { ssp_gl.gen_textures = fptr; }
 void ssp_gl_set_tex_parammetri(ssp_gl_tex_parammetri_t fptr) { ssp_gl.tex_parammetri = fptr; }

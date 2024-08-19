@@ -1,16 +1,14 @@
 #include <gtest/gtest.h>
 
-extern "C" {
-    #include "ssp_render.h"
-    #include "ssp_glfw.h"
-    #include "ssp_glfw_mock.h"
-    #include "ssp_glfw_set.h"
-    #include "ssp_gl.h"
-    #include "ssp_gl_mock.h"
-    #include "ssp_gl_set.h"
+#include "ssp_render.h"
+#include "ssp_glfw.h"
+#include "ssp_glfw_mock.h"
+#include "ssp_glfw_set.h"
+#include "ssp_gl.h"
+#include "ssp_gl_mock.h"
+#include "ssp_gl_set.h"
 
-    extern ssp_glfw_hints_t ssp_glfw_hints;
-}
+extern ssp_glfw_hints_t ssp_glfw_hints;
 
 class TestRenderGl33 : public ::testing::Test {
 public:

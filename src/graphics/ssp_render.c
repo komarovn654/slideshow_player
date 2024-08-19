@@ -1,5 +1,4 @@
 #include "ssp_gl.h"
-#include "ssp_glfw.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -28,17 +27,21 @@ ssp_static int ssp_render_setup_texture(ssp_render* render)
 
 ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, int* height)
 {
-    ssp_gl_active_texture(GL_TEXTURE0);
-    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);
+    if ((image_path == NULL) || (width == NULL) || (height == NULL)) {
+        ssp_syslog(LOG_ERR, "SSP. NULL arg");
+        return 1;
+    }
 
     ssp_image* image = ssp_il_read_image(image_path);
     if (image == NULL) {
         ssp_syslog(LOG_ERR, "SSP. Render couldn't load the image <%s>", image_path);
-        return 1;
+        return 2;
     }
-    
     *width = image->width;
     *height = image->height;
+
+    ssp_gl_active_texture(GL_TEXTURE0);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);
     ssp_gl_tex_image2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
     ssp_gl_generate_mipmap(GL_TEXTURE_2D);
     ssp_gl_bind_texture(GL_TEXTURE_2D, 0);
@@ -48,31 +51,47 @@ ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, in
     return 0;
 }
 
-int ssp_render_init(void (*resize_handler)(int width, int height))
+int ssp_render_init(ssp_render_resize_handler_t resize_handler)
 {
-    ssp_render_init_glad();
-    if (ssp_render_init_buffers(&render) != 0) {
-        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't init buffers");
+    if (resize_handler == NULL) {
+        ssp_syslog(LOG_ERR, "SSP. NULL args");
         return 1;
     }
-    if (ssp_render_set_shaders(&render) != 0) {
-        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't set shaders");
-        return 2;        
-    };
     render.resize_handler = resize_handler;
 
+    if (ssp_render_init_glad() != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't init glad");
+        return 2;
+    };
+
+    if (ssp_render_init_buffers(&render) != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't init buffers");
+        return 3;
+    }
+
+    if (ssp_render_set_shaders(&render) != 0) {
+        ssp_syslog(LOG_ERR, "SSP. SSP render couldn't set shaders");
+        return 4;        
+    };
+    
     if (ssp_shader_create_program(render.shaders, 2) == 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't create shader program");
-        return 3;
+        return 5;
     }
 
     if (ssp_render_setup_texture(&render) != 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't setup texture");
-        return 4;
+        return 6;
     }
 
+    ssp_syslog(LOG_INFO, "SSP. OpenGL version: %s", ssp_gl_get_string(GL_VERSION));
     ssp_syslog(LOG_INFO, "SSP. The render was initialized");
     return 0;
+}
+
+void ssp_render_viewport(GLint x_offset, GLint y_offset, GLsizei width, GLsizei height)
+{
+    ssp_gl_viewport(x_offset, 0, width, height);
 }
 
 ssp_static void ssp_render_draw_error(void)

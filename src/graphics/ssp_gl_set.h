@@ -48,7 +48,7 @@ void ssp_gl_set_vertex_attrib_pointer(ssp_gl_vertex_attrib_pointer_t fptr);
 void ssp_gl_set_enable_vertex_attrib_array(ssp_gl_enable_vertex_attrib_array_t fptr);
 void ssp_gl_set_active_texture(ssp_gl_active_texture_t fptr);
 void ssp_gl_set_bind_texture(ssp_gl_bind_texture_t fptr);
-void ssp_gl_set_text_image2D(ssp_gl_tex_image2D_t fptr);
+void ssp_gl_set_tex_image2D(ssp_gl_tex_image2D_t fptr);
 void ssp_gl_set_generate_mipmap(ssp_gl_generate_mipmap_t fptr);
 void ssp_gl_set_gen_textures(ssp_gl_gen_textures_t fptr);
 void ssp_gl_set_tex_parammetri(ssp_gl_tex_parammetri_t fptr);

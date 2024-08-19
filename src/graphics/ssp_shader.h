@@ -16,4 +16,4 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count);
 GLuint ssp_shader_get_program(void);
 void ssp_shader_use_program(void);
 
-#endif /* shader_h */
+#endif // shader_h

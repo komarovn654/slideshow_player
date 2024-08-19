@@ -38,7 +38,7 @@ ssp_static void ssp_window_resize_handler(int image_width, int image_height)
     ssp_window_calc_size(image_width, image_height, &res_width, &res_height);
 
     int x_offset = (ssp_window.width_pixels - res_width) / 2;
-    ssp_gl_viewport(x_offset, 0, res_width, res_height);
+    ssp_render_viewport(x_offset, 0, res_width, res_height);
     ssp_syslog(LOG_DEBUG, "SSP. Image has been resized to %ix%i", res_width, res_height);
 }
 
@@ -143,7 +143,6 @@ int ssp_window_init(int width, int height, double redraw_time, ssp_image_storage
         ssp_syslog(LOG_ERR, "SSP. Render initialization error");
         return 1;        
     }
-    ssp_syslog(LOG_INFO, "SSP. OpenGL version: %s", ssp_gl_get_string(GL_VERSION));
     ssp_syslog(LOG_INFO, "SSP. The window was initialized");
 
     ssp_window.images = images;
