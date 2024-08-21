@@ -35,7 +35,7 @@ void ssp_render_set_gl_ctx(void)
     ssp_glfw_window_hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-int ssp_render_init_buffers(ssp_render* render)
+int ssp_render_init_buffers(ssp_render render)
 {
     if (render == NULL) {
         return 1;

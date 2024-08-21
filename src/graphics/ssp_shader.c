@@ -24,18 +24,18 @@ static int ssp_shader_read(const char* shader_path, char** shader)
     struct stat sbuff = { 0 };
     if (stat(shader_path, &sbuff) != 0) {
         ssp_syslog(LOG_ERR, "SSP. Couldn't stat the file: %s", shader_path);
-        return 1;
+        return 2;
     }
 
     *shader = (char*)ssp_malloc(sbuff.st_size * sizeof(char));
     if (*shader == NULL) {
         ssp_syslog(LOG_ERR, "SSP. Failed to allocate %lld bytes for the shader", sbuff.st_size);
-        return 1;
+        return 3;
     }
 
     if (fread(*shader, sizeof(char), sbuff.st_size, shader_file) == 0) {
         ssp_syslog(LOG_ERR, "SSP. File %s is empty", shader_path);
-        return 1;
+        return 4;
     }
 
     return 0;
