@@ -20,9 +20,9 @@ protected:
     {
         jpg_image.path = "../../tests/images/tiny.jpg";
         jpg_image.data = tiny_jpg;
-        jpg_image.buf_size = 1125;
-        jpg_image.width = 25;
-        jpg_image.height = 15;
+        jpg_image.buf_size = 1008;
+        jpg_image.width = 24;
+        jpg_image.height = 14;
     }
 };
 
@@ -39,7 +39,7 @@ TEST_F(TestImageLoaderFixture, ILRead_NULL)
 TEST_F(TestImageLoaderFixture, ILDelete)
 {
     ssp_image* im = ssp_il_read_image(TestImageLoaderFixture::jpg_image.path);
-    ASSERT_EQ(ssp_ptr_storage_size(), 1);
+    ASSERT_EQ(ssp_ptr_storage_size(), 2);
 
     ssp_il_delete_image(im);
     ASSERT_EQ(ssp_ptr_storage_size(), 0);

@@ -3,7 +3,6 @@
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
-#include "ssp_image_loader.h"
 
 const char* fragment_shader = {"\
 #version 100\n\
@@ -27,7 +26,7 @@ void ssp_render_set_gl_ctx(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-void ssp_render_init_buffers(ssp_render* render)
+int ssp_render_init_buffers(ssp_render_t* render)
 {
     glGenBuffers(1, &(render->buffers.vbo_id));
     glBindBuffer(GL_ARRAY_BUFFER, render->buffers.vbo_id);
@@ -45,7 +44,7 @@ void ssp_render_init_buffers(ssp_render* render)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ssp_render_set_shaders(ssp_render* render)
+int ssp_render_set_shaders(ssp_render_t* render)
 {
     render->shaders[0].type = GL_VERTEX_SHADER;
     render->shaders[0].path = "../../src/graphics/shader/gles_vertex.glsl";

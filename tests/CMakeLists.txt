@@ -13,6 +13,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/observer/
     ${CMAKE_SOURCE_DIR}/src/list/
     ${CMAKE_SOURCE_DIR}/src/utils/
+    ${CMAKE_SOURCE_DIR}/tests/mocks/
 )
 link_directories(
     ${CMAKE_BINARY_DIR}/lib/
@@ -71,12 +72,24 @@ target_link_libraries(ssp_image_loader_utest gtest_main gtest)
 gtest_discover_tests(ssp_image_loader_utest)
 
 add_executable(
-    ssp_window_utest
-    ${CMAKE_CURRENT_LIST_DIR}/ssp_window_utest.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/ssp_window_mock.c
-    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_window.c
+    ssp_render_gl33_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_render_gl33_utest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_glfw_mock.c
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_gl_mock.c
     ${UTILS_SOURCES}
 )
-target_link_libraries(ssp_window_utest ssp_graphics glfw gtest_main gtest)
-gtest_discover_tests(ssp_window_utest)
+target_link_libraries(ssp_render_gl33_utest ssp_graphics glfw gtest_main gtest)
+gtest_discover_tests(ssp_render_gl33_utest)
+
+add_executable(
+    ssp_render_utest
+    ${CMAKE_CURRENT_LIST_DIR}/ssp_render_utest.cpp
+    ${CMAKE_SOURCE_DIR}/src/graphics/ssp_render.c
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_render_mock.c
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_glfw_mock.c
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_gl_mock.c
+    ${UTILS_SOURCES}
+)
+target_link_libraries(ssp_render_utest ssp_graphics glfw gtest_main gtest)
+gtest_discover_tests(ssp_render_utest)
 # Graphics tests

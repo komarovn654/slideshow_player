@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
+#include "ssp_gl.h"
 #include "ssp_helper.h"
 #include "ssp_shader.h"
 #include "ssp_memory.h"
@@ -26,18 +24,18 @@ static int ssp_shader_read(const char* shader_path, char** shader)
     struct stat sbuff = { 0 };
     if (stat(shader_path, &sbuff) != 0) {
         ssp_syslog(LOG_ERR, "SSP. Couldn't stat the file: %s", shader_path);
-        return 1;
+        return 2;
     }
 
     *shader = (char*)ssp_malloc(sbuff.st_size * sizeof(char));
     if (*shader == NULL) {
         ssp_syslog(LOG_ERR, "SSP. Failed to allocate %lld bytes for the shader", sbuff.st_size);
-        return 1;
+        return 3;
     }
 
     if (fread(*shader, sizeof(char), sbuff.st_size, shader_file) == 0) {
         ssp_syslog(LOG_ERR, "SSP. File %s is empty", shader_path);
-        return 1;
+        return 4;
     }
 
     return 0;
@@ -56,15 +54,15 @@ static void ssp_shader_destructor(void)
 
 ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
 {
-    GLuint shader_id = glCreateShader(shader_type);
-    glShaderSource(shader_id, 1, (const GLchar**)shader_source, NULL);
-    glCompileShader(shader_id);
+    GLuint shader_id = ssp_gl_create_shader(shader_type);
+    ssp_gl_shader_source(shader_id, 1, (const GLchar**)shader_source, NULL);
+    ssp_gl_compile_shader(shader_id);
 
     GLint success;
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+    ssp_gl_get_shaderiv(shader_id, GL_COMPILE_STATUS, &success);
     if(!success) {
         GLchar infoLog[128];
-        glGetShaderInfoLog(shader_id, sizeof(infoLog), NULL, infoLog);
+        ssp_gl_get_shader_info_log(shader_id, sizeof(infoLog), NULL, infoLog);
         ssp_syslog(LOG_ERR, "SSP. Shader compilation error: %s", infoLog);
         return 0;
     }
@@ -116,12 +114,16 @@ GLuint ssp_shader_get_program(void)
 
 void ssp_shader_use_program(void)
 {
-    glUseProgram(ssp_shader.program_id);
+    ssp_gl_use_program(ssp_shader.program_id);
 }
 
 int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
 {
-    ssp_shader.program_id = glCreateProgram();
+    if (shaders == NULL || shaders_count < 1) {
+        return -1;
+    }
+
+    ssp_shader.program_id = ssp_gl_create_program();
     GLuint shaders_id[shaders_count];
 
     for (int i = 0; i < shaders_count; i++) {
@@ -129,24 +131,24 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
         if (shaders_id[i] == 0) {
             ssp_syslog(LOG_ERR, "SSP. Shader creation error: %s", shaders[i].path);
             ssp_shader_destructor();
-            return 0;
+            return -2;
         }
-        glAttachShader(ssp_shader.program_id, shaders_id[i]);
+        ssp_gl_attach_shader(ssp_shader.program_id, shaders_id[i]);
     }
 
     GLint success;
-    glLinkProgram(ssp_shader.program_id);
-    glGetProgramiv(ssp_shader.program_id, GL_LINK_STATUS, &success);
+    ssp_gl_link_program(ssp_shader.program_id);
+    ssp_gl_get_programiv(ssp_shader.program_id, GL_LINK_STATUS, &success);
     if (!success) {
         GLchar infoLog[128];
-        glGetProgramInfoLog(ssp_shader.program_id, sizeof(infoLog), NULL, infoLog);
+        ssp_gl_get_program_info_log(ssp_shader.program_id, sizeof(infoLog), NULL, infoLog);
         ssp_syslog(LOG_ERR, "SSP. Gl program link error: %s", infoLog);
         ssp_shader_destructor();
-        return 0;
+        return -3;
     }
 
     for (int i = 0; i < shaders_count; i++) {
-        glDeleteShader(shaders_id[i]);
+        ssp_gl_delete_shader(shaders_id[i]);
     }
 
     return ssp_shader.program_id;
