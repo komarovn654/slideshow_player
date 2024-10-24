@@ -85,6 +85,7 @@ add_executable(
     ssp_render_utest
     ${CMAKE_CURRENT_LIST_DIR}/ssp_render_utest.cpp
     ${CMAKE_SOURCE_DIR}/src/graphics/ssp_render.c
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_render_mock.c
     ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_glfw_mock.c
     ${CMAKE_CURRENT_LIST_DIR}/mocks/ssp_gl_mock.c
     ${UTILS_SOURCES}

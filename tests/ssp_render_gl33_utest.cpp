@@ -42,8 +42,8 @@ TEST_F(TestRenderGl33, InitBuffers_NULL)
 
 TEST_F(TestRenderGl33, InitBuffers)
 {
-    ssp_render render;
-    std::memset(&render, 0, sizeof(ssp_render));
+    ssp_render_t render;
+    std::memset(&render, 0, sizeof(ssp_render_t));
 
     ssp_gl_set_gen_vertex_arrays(ssp_gl_gen_vertex_arrays_mock_p);
     ssp_gl_set_bind_vertex_array(ssp_gl_bind_vertex_array_mock_p);
@@ -65,8 +65,8 @@ TEST_F(TestRenderGl33, SetShaders_NULL)
 
 TEST_F(TestRenderGl33, SetShaders)
 {
-    ssp_render render;
-    std::memset(&render, 0, sizeof(ssp_render));
+    ssp_render_t render;
+    std::memset(&render, 0, sizeof(ssp_render_t));
     EXPECT_EQ(ssp_render_set_shaders(&render), 0);
 
     EXPECT_EQ(render.shaders[0].type, GL_VERTEX_SHADER);

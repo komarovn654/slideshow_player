@@ -16,6 +16,7 @@
         "*.ipp": "c",
         "ios": "c",
         "ssp_glfw_mock.h": "c",
-        "ssp_window.h": "c"
+        "ssp_window.h": "c",
+        "stdio.h": "c"
     }
 }

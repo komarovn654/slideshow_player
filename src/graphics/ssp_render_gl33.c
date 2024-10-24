@@ -3,7 +3,7 @@
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
-#include "ssp_image_loader.h"
+#include "ssp_memory.h"
 
 char* fragment_shader = "\
 #version 330 core\n\
@@ -35,7 +35,7 @@ void ssp_render_set_gl_ctx(void)
     ssp_glfw_window_hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-int ssp_render_init_buffers(ssp_render render)
+int ssp_render_init_buffers(ssp_render_t* render)
 {
     if (render == NULL) {
         return 1;
@@ -60,11 +60,13 @@ int ssp_render_init_buffers(ssp_render render)
     return 0;
 }
 
-int ssp_render_set_shaders(ssp_render* render)
+int ssp_render_set_shaders(ssp_render_t* render)
 {
     if (render == NULL) {
         return 1;
     }
+
+    render->shaders = ssp_malloc(2 * sizeof(ssp_shader_info));
 
     render->shaders[0].type = GL_VERTEX_SHADER;
     render->shaders[0].data = vertex_shader;

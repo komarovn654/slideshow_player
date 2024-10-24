@@ -7,10 +7,12 @@
 #include "ssp_gl.h"
 #include "ssp_gl_mock.h"
 #include "ssp_gl_set.h"
+#include "ssp_render_mock.h"
+#include "ssp_memory.h"
 
 extern "C"
 {
-    ssp_static int ssp_render_setup_texture(ssp_render* render);
+    ssp_static int ssp_render_setup_texture(ssp_render_t* render);
     ssp_static int ssp_render_bind_to_texture(const char* image_path, int* width, int* height);
     void ssp_resize_handler_mock(int image_width, int image_height) { return; }
 }
@@ -34,8 +36,8 @@ TEST_F(TestRender, SetupTexture)
     ssp_gl_set_tex_parammetri(ssp_gl_tex_parammetri_mock_p);
     ssp_gl_set_bind_texture(ssp_gl_bind_texture_mock_p);
 
-    ssp_render render;
-    std:memset(&render, 0, sizeof(ssp_render));
+    ssp_render_t render;
+    std:memset(&render, 0, sizeof(ssp_render_t));
     EXPECT_EQ(ssp_render_setup_texture(&render), 0);
     EXPECT_EQ(render.texture, 1);
 }
@@ -52,6 +54,8 @@ TEST_F(TestRender, BindToTexture_NULL)
     EXPECT_EQ(ssp_render_bind_to_texture(NULL, &w, &h), 1);
     EXPECT_EQ(ssp_render_bind_to_texture(ip, NULL, &h), 1);
     EXPECT_EQ(ssp_render_bind_to_texture(ip, &w, NULL), 1);
+
+    EXPECT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestRender, BindToTexture_ILError)
@@ -59,6 +63,8 @@ TEST_F(TestRender, BindToTexture_ILError)
     const char* ip = "invalid_path";
     int w, h;
     EXPECT_EQ(ssp_render_bind_to_texture(ip, &w, &h), 2);
+    
+    EXPECT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestRender, BindToTexture)
@@ -74,6 +80,8 @@ TEST_F(TestRender, BindToTexture)
     ASSERT_EQ(ssp_render_bind_to_texture(images_path, &w, &h), 0);
     ASSERT_EQ(w, 960);
     ASSERT_EQ(h, 1280);
+
+    EXPECT_EQ(ssp_ptr_storage_size(), 0);
 }
 
 TEST_F(TestRender, Init_Errors)
@@ -85,4 +93,17 @@ TEST_F(TestRender, Init_Errors)
     ASSERT_EQ(ssp_render_init(ssp_resize_handler_mock), 2);
     ssp_glad_set_load_gl_loader((ssp_glad_load_gl_loader_t)ssp_glad_load_gl_loader_mock_p);
 
+    ssp_render_set_init_buffers(ssp_render_init_buffers_mock_f);
+    ASSERT_EQ(ssp_render_init(ssp_resize_handler_mock), 3);
+    ssp_render_set_init_buffers(ssp_render_init_buffers_mock_p);
+
+    ssp_render_set_set_shaders(ssp_render_set_shaders_mock_f);
+    ASSERT_EQ(ssp_render_init(ssp_resize_handler_mock), 4);
+    ssp_render_set_set_shaders(ssp_render_set_shaders_mock_null);
+
+    ASSERT_EQ(ssp_render_init(ssp_resize_handler_mock), 5);
+    ssp_render_set_set_shaders((ssp_render_set_shaders_t)ssp_render_set_shaders);
+
+    ssp_render_set_setup_texture(ssp_render_setup_texture_mock_f);
+    ASSERT_EQ(ssp_render_init(ssp_resize_handler_mock), 6);
 }

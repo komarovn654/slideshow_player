@@ -119,6 +119,10 @@ void ssp_shader_use_program(void)
 
 int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
 {
+    if (shaders == NULL || shaders_count < 1) {
+        return -1;
+    }
+
     ssp_shader.program_id = ssp_gl_create_program();
     GLuint shaders_id[shaders_count];
 
@@ -127,7 +131,7 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
         if (shaders_id[i] == 0) {
             ssp_syslog(LOG_ERR, "SSP. Shader creation error: %s", shaders[i].path);
             ssp_shader_destructor();
-            return 0;
+            return -2;
         }
         ssp_gl_attach_shader(ssp_shader.program_id, shaders_id[i]);
     }
@@ -140,7 +144,7 @@ int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count)
         ssp_gl_get_program_info_log(ssp_shader.program_id, sizeof(infoLog), NULL, infoLog);
         ssp_syslog(LOG_ERR, "SSP. Gl program link error: %s", infoLog);
         ssp_shader_destructor();
-        return 0;
+        return -3;
     }
 
     for (int i = 0; i < shaders_count; i++) {

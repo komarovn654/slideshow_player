@@ -1,8 +1,11 @@
-#include "ssp_gl.h"
+#include <string.h>
 
+#include "ssp_gl.h"
 #include "ssp_helper.h"
 #include "ssp_render.h"
 #include "ssp_image_loader.h"
+
+ssp_static int ssp_render_setup_texture(ssp_render_t* render);
 
 #define SSP_RENDER_TEXTURE_VERTICES {  \
     -1.0f,  1.0f, 0.0f,     1.0f, 1.0f,\
@@ -13,37 +16,38 @@
     -1.0f,  1.0f, 0.0f,     1.0f, 1.0f,\
 }
 
-typedef struct ssp_render_buffers_t {
-    GLuint vao_id; // vertex array object
-    GLuint ebo_id; // element buffer object
-    GLuint vbo_id; // vertex buffer object
-} ssp_render_buffers;
-
-typedef void (*ssp_render_resize_handler_t)(int width, int height);
-typedef int (*ssp_render_init_buffers_t)(void);
-typedef int (*ssp_render_set_shaders_t)(void);
-
-typedef struct ssp_render_t {
-    GLfloat vertices[30];
-    ssp_shader_info shaders[2];
-    ssp_render_buffers buffers;
-    GLuint texture;
-
-    ssp_render_resize_handler_t resize_handler;
-    ssp_render_init_buffers_t init_buffers;
-    ssp_render_set_shaders_t set_shaders;
-} ssp_render_t;
-
 static ssp_render_t ssp_render = {
     .vertices = SSP_RENDER_TEXTURE_VERTICES,
-    .init_buffers = ssp_render_init_buffers,
-    .set_shaders = ssp_render_set_shaders,
+    .init_buffers = (ssp_render_init_buffers_t)ssp_render_init_buffers,
+    .set_shaders = (ssp_render_set_shaders_t)ssp_render_set_shaders,
+    .setup_texture = (ssp_render_setup_texture_t)ssp_render_setup_texture,
 };
+
+ssp_render_t* ssp_render_get(void)
+{
+    return &ssp_render;
+}
 
 void ssp_render_set_fptr_default(void)
 {
-    ssp_render.init_buffers = ssp_render_init_buffers;
-    ssp_render.set_shaders = ssp_render_set_shaders;
+    ssp_render.init_buffers = (ssp_render_init_buffers_t)ssp_render_init_buffers;
+    ssp_render.set_shaders = (ssp_render_set_shaders_t)ssp_render_set_shaders;
+    ssp_render.setup_texture = (ssp_render_setup_texture_t)ssp_render_setup_texture;
+}
+
+void ssp_render_set_setup_texture(ssp_render_setup_texture_t fptr)
+{
+    ssp_render.setup_texture = fptr;
+}
+
+void ssp_render_set_init_buffers(ssp_render_init_buffers_t fptr)
+{
+    ssp_render.init_buffers = fptr;
+}
+
+void ssp_render_set_set_shaders(ssp_render_set_shaders_t fptr)
+{
+    ssp_render.set_shaders = fptr;
 }
 
 ssp_static int ssp_render_setup_texture(ssp_render_t* render)
@@ -102,22 +106,22 @@ int ssp_render_init(ssp_render_resize_handler_t resize_handler)
         return 2;
     };
 
-    if (ssp_render_init_buffers() != 0) {
+    if (ssp_render.init_buffers(&ssp_render) != 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't init buffers");
         return 3;
     }
 
-    if (ssp_render_set_shaders() != 0) {
+    if (ssp_render.set_shaders(&ssp_render) != 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't set shaders");
         return 4;        
     };
     
-    if (ssp_shader_create_program(ssp_render.shaders, 2) == 0) {
+    if (ssp_shader_create_program(ssp_render.shaders, 2) <= 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't create shader program");
         return 5;
     }
 
-    if (ssp_render_setup_texture(&ssp_render) != 0) {
+    if (ssp_render.setup_texture(&ssp_render) != 0) {
         ssp_syslog(LOG_ERR, "SSP. SSP render couldn't setup texture");
         return 6;
     }
@@ -154,9 +158,9 @@ int ssp_render_redraw(const char* image)
     ssp_gl_clear(GL_COLOR_BUFFER_BIT);
 
     ssp_gl_active_texture(GL_TEXTURE0);
-    ssp_gl_bind_texture(GL_TEXTURE_2D, render.texture);
+    ssp_gl_bind_texture(GL_TEXTURE_2D, ssp_render.texture);
 
-    ssp_gl_bind_vertex_array(render.buffers.vao_id);
+    ssp_gl_bind_vertex_array(ssp_render.buffers.vao_id);
 
     ssp_gl_draw_arrays(GL_TRIANGLES, 0, 6);
     ssp_gl_bind_buffer(GL_ARRAY_BUFFER, 0);
