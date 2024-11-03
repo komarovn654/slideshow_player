@@ -6,8 +6,6 @@ project(ssp
 
 option(SSP_BUILD_TESTS "Build the test programs" ON)
 option(SSP_BUILD_EXAMPLES "Build the example programs" ON)
-# todo: delete it
-option(SSP_BUILD_WAYLAND "Build with Wayland support" OFF)
 
 set(SSP_PLATFORM_LISTS 
     SSP_DP_WIN32
@@ -24,7 +22,8 @@ else()
     message(FATAL_ERROR "Unsupported SSP_PLATFORM: ${SSP_PLATFORM}. Supported platforms are: ${SSP_PLATFORM_LISTS}")
 endif()
 
-if (SSP_BUILD_WAYLAND)
+if (SSP_PLATFORM STREQUAL SSP_DP_WAYLAND)
+    set(GLFW_BUILD_X11 FALSE)
     set(RENDER_SRC ${CMAKE_SOURCE_DIR}/src/graphics/ssp_render_gles20.c)
     set(GLAD_PATH ${CMAKE_SOURCE_DIR}/third_party/glad/opengles32/)
 else()
