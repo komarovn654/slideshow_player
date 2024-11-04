@@ -6,6 +6,7 @@ extern "C" {
 
 #include "glad/glad.h"
 
+int ssp_glad_load_gl_loader_wrap(GLADloadproc load);
 void ssp_gl_gen_vertex_arrays_wrap(GLsizei n, GLuint *arrays);
 void ssp_gl_bind_vertex_array_wrap(GLuint array);
 void ssp_gl_gen_buffers_wrap(GLsizei n, GLuint *buffers);

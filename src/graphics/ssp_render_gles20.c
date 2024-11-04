@@ -1,5 +1,5 @@
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
+#include "ssp_glfw.h"
 
 #include "ssp_helper.h"
 #include "ssp_render.h"
@@ -56,7 +56,7 @@ int ssp_render_set_shaders(ssp_render_t* render)
 int ssp_render_init_glad(void)
 {
     if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress)) {
-        log_error("GLAD initialization error");
+        ssp_syslog(LOG_ERR, "SSP. GLAD ES2 initialization error");
         return 1;
     }
 

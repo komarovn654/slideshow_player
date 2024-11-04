@@ -11,13 +11,15 @@ extern "C" {
 #define MAX_SSP_WINDOW_WIDTH    (1920)
 #define MAX_SSP_WINDOW_HEIGHT   (1640)
 
+#define _DISPLAY_PLATFORM SSP_DP_WAYLAND
+
 #ifndef _DISPLAY_PLATFORM
     #define SSP_DISPLAY_PLATFORM (0)
 #else
     #define SSP_DISPLAY_PLATFORM (_DISPLAY_PLATFORM)
 #endif
 
-typedef enum {
+typedef enum ssp_display_platform {
     SSP_DP_UNKNOWN = 0,
     SSP_DP_WAYLAND = GLFW_PLATFORM_WAYLAND,
     SSP_DP_X11 = GLFW_PLATFORM_X11,

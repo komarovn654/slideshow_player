@@ -80,7 +80,7 @@ int ssp_render_set_shaders(ssp_render_t* render)
 int ssp_render_init_glad(void)
 {
     if (!ssp_glad_load_gl_loader((GLADloadproc)ssp_glfw_get_proc_address)) {
-        ssp_syslog(LOG_ERR, "SSP. GLAD initialization error");
+        ssp_syslog(LOG_ERR, "SSP. GLAD ES3 initialization error");
         return 1;
     }
 

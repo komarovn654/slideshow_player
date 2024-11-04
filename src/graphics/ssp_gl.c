@@ -1,5 +1,6 @@
 #include "ssp_gl.h"
 #include "ssp_gl_set.h"
+#include "ssp_window.h"
 
 typedef struct ssp_gl_t {
     ssp_glad_load_gl_loader_t load_gl_loader;
@@ -36,7 +37,7 @@ typedef struct ssp_gl_t {
 } ssp_gl_t;
 
 static ssp_gl_t ssp_gl = {
-    .load_gl_loader = (ssp_glad_load_gl_loader_t)gladLoadGLLoader,
+    .load_gl_loader = (ssp_glad_load_gl_loader_t)ssp_glad_load_gl_loader_wrap,
     .gen_vertex_arrays = ssp_gl_gen_vertex_arrays_wrap,
     .bind_vertex_array = ssp_gl_bind_vertex_array_wrap,
     .gen_buffers = ssp_gl_gen_buffers_wrap,
@@ -71,7 +72,7 @@ static ssp_gl_t ssp_gl = {
 
 void ssp_set_gl_fptr_default(void)
 {
-    ssp_gl.load_gl_loader = (ssp_glad_load_gl_loader_t)gladLoadGLLoader;
+    ssp_gl.load_gl_loader = (ssp_glad_load_gl_loader_t)ssp_glad_load_gl_loader_wrap;
     ssp_gl.gen_vertex_arrays = ssp_gl_gen_vertex_arrays_wrap;
     ssp_gl.bind_vertex_array = ssp_gl_bind_vertex_array_wrap;
     ssp_gl.gen_buffers = ssp_gl_gen_buffers_wrap;
@@ -102,6 +103,15 @@ void ssp_set_gl_fptr_default(void)
     ssp_gl.delete_shader = ssp_gl_delete_shader_wrap;
     ssp_gl.viewport = ssp_gl_viewport_wrap;
     ssp_gl.get_string = ssp_gl_get_string_wrap;
+}
+
+int ssp_glad_load_gl_loader_wrap(GLADloadproc load)
+{
+#if (defined(SSP_DISPLAY_PLATFORM) && (SSP_DISPLAY_PLATFORM == SSP_DP_WAYLAND))
+    return gladLoadGLES2Loader(load);
+#else
+    return gladLoadGLLoader(load);
+#endif
 }
 
 void ssp_gl_gen_vertex_arrays_wrap(GLsizei n, GLuint *arrays) { glGenVertexArrays(n, arrays); }

@@ -27,7 +27,7 @@
                 "${workspaceFolder}/src/graphics",
                 "${workspaceFolder}/third_party/stb/include"
             ],
-            "defines": [],
+            "defines": ["-D_DISPLAY_PLATFORM=SSP_DP_WAYLAND"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "c++17",

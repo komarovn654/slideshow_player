@@ -4,6 +4,9 @@
 extern "C" {
 #endif
 
+// #if (defined(SSP_DISPLAY_PLATFORM) && SSP_DISPLAY_PLATFORM == SSP_DP_WAYLAND)
+#define GLFW_INCLUDE_ES2
+// #endif
 #include "GLFW/glfw3.h"
 
 void ssp_glfw_window_hint(int hint, int value);
