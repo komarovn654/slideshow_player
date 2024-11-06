@@ -8,6 +8,8 @@
 #include "ssp_list.h"
 #include "ssp_memory.h"
 
+#define CONFIG_PATH "/etc/ssp_config.ini"
+
 typedef struct {
     size_t window_width;
     size_t window_heigth;
@@ -72,8 +74,8 @@ int main(int argc, char *argv[])
 
     config ssp_config = { 0 };
 
-    if (ini_parse("/ets/ssp_config.ini", ssp_config_handler, &ssp_config) < 0) {
-        ssp_syslog(LOG_ERR, "Can't load 'config.ini'");
+    if (ini_parse(CONFIG_PATH, ssp_config_handler, &ssp_config) < 0) {
+        ssp_syslog(LOG_ERR, "Can't load %s", CONFIG_PATH);
         return 1;
     }
     
