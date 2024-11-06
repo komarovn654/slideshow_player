@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     config ssp_config = { 0 };
 
-    if (ini_parse("../../config.ini", ssp_config_handler, &ssp_config) < 0) {
+    if (ini_parse("/ets/ssp_config.ini", ssp_config_handler, &ssp_config) < 0) {
         ssp_syslog(LOG_ERR, "Can't load 'config.ini'");
         return 1;
     }
