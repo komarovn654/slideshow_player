@@ -9,8 +9,8 @@
 static struct ssp_shader_t{
     GLuint program_id;
 
-    char* vertex;
-    char* fragment;
+    const char* vertex;
+    const char* fragment;
 } ssp_shader;
 
 static int ssp_shader_read(const char* shader_path, char** shader)
@@ -83,17 +83,17 @@ ssp_static GLuint ssp_shader_create(GLuint shader_type, char** shader_source)
     return shader_id;
 }
 
-static int ssp_shader_compile(GLuint shader_type, char* shader_data)
+static int ssp_shader_compile(GLuint shader_type, const char* shader_data)
 {
     char* shader_source = NULL;
     switch (shader_type) {
         case GL_VERTEX_SHADER:
             ssp_shader.vertex = shader_data;
-            shader_source = ssp_shader.vertex;
+            shader_source = (char *)ssp_shader.vertex;
             break;
         case GL_FRAGMENT_SHADER:
             ssp_shader.fragment = shader_data;
-            shader_source = ssp_shader.fragment;
+            shader_source = (char *)ssp_shader.fragment;
             break;
         default:
             ssp_syslog(LOG_ERR, "SSP. Unknown shader type %u", shader_type);

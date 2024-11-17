@@ -56,8 +56,8 @@ ssp_image* ssp_il_read_image(const char* image_path)
 
     image->buf_size = image->width * image->height * image->nr_channels;
     ssp_syslog(LOG_DEBUG, "SSP STB. STB loaded image <%s>", image->path);
-    ssp_syslog(LOG_DEBUG, "SSP STB.STB read image params: width: %i, height: %i, size: %i",
-        image->width, image->height, image->buf_size);
+    ssp_syslog(LOG_DEBUG, "SSP STB. STB read image params: width: %i, height: %i, size: %i, channels: %i", 
+        image->width, image->height, image->buf_size, image->nr_channels);
     return image;
 }
 

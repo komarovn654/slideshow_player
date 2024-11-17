@@ -9,7 +9,7 @@ typedef struct ssp_shader_info_t{
     GLuint type;
     // TODO: select from file/const char*
     const char* path;
-    char* data;
+    const char* data;
 } ssp_shader_info;
 
 int ssp_shader_create_program(ssp_shader_info* shaders, int shaders_count);

@@ -67,6 +67,9 @@ int ssp_render_set_shaders(ssp_render_t* render)
     }
 
     render->shaders = ssp_malloc(2 * sizeof(ssp_shader_info));
+    if (render->shaders == NULL) {
+        return 2;
+    }
 
     render->shaders[0].type = GL_VERTEX_SHADER;
     render->shaders[0].data = vertex_shader;
